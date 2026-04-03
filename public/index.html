@@ -6,25 +6,62 @@
     <style>
         :root { --bg: #0f172a; --panel: #1e293b; --accent: #ffc107; --border: #334155; --success: #10b981; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background: var(--bg); color: white; height: 100vh; overflow: hidden; display: grid; grid-template-columns: 220px 1fr 650px; grid-template-rows: 80px 1fr; }
-        header { grid-column: 1 / -1; background: var(--panel); display: flex; justify-content: center; align-items: center; border-bottom: 1px solid var(--border); z-index: 10; }
+        
+        body { 
+            background: var(--bg); 
+            color: white; 
+            height: 100vh; 
+            overflow: hidden; 
+            display: grid; 
+            grid-template-columns: 220px 1fr 650px; 
+            grid-template-rows: 80px 1fr; 
+        }
+        
+        header { 
+            grid-column: 1 / -1; 
+            background: var(--panel); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            border-bottom: 1px solid var(--border);
+            z-index: 10;
+        }
         header h1 { font-size: 26px; font-weight: bold; color: white; letter-spacing: 2px; text-transform: uppercase; }
-        .sidebar-l { background: var(--panel); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; }
+
+        .sidebar-l { 
+            background: var(--panel); 
+            border-right: 1px solid var(--border); 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column;
+        }
         .menu-label { color: #64748b; font-size: 0.75rem; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
         .menu-btn { padding: 12px 15px; margin-bottom: 5px; border-radius: 8px; cursor: pointer; color: #94a3b8; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
         .menu-btn:hover, .menu-btn.active { background: var(--border); color: white; }
         .spacer { flex-grow: 1; }
-        main { padding: 40px; background: var(--bg); border-right: 1px solid var(--border); display: flex; justify-content: center; align-items: center; overflow-y: auto; }
+
+        main { 
+            padding: 40px; 
+            background: var(--bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+        }
+
         .auth-card { background: var(--panel); padding: 30px; border-radius: 12px; width: 100%; max-width: 400px; border: 1px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
         .auth-tabs { display: flex; margin-bottom: 25px; border-bottom: 1px solid var(--border); }
         .auth-tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; color: #94a3b8; font-weight: bold; transition: 0.3s; }
         .auth-tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+        
         .auth-form { display: flex; flex-direction: column; gap: 15px; }
         .auth-form input { padding: 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: white; outline: none; }
         .auth-form input:focus { border-color: var(--accent); }
         .auth-form button { padding: 12px; border-radius: 6px; border: none; background: var(--accent); color: black; font-weight: bold; cursor: pointer; font-size: 1rem; transition: 0.2s; }
         .auth-form button:hover { opacity: 0.9; transform: translateY(-1px); }
         .btn-reg { background: var(--success) !important; color: white !important; }
+
         .sidebar-r { background: #162033; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
         .widget-box { display: flex; flex-direction: column; background: #0f172a; border-radius: 12px; padding: 15px; border: 1px solid var(--border); height: 100%; }
         .widget-title { color: var(--accent); font-weight: bold; margin-bottom: 15px; font-size: 0.85rem; text-transform: uppercase; text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
@@ -33,6 +70,7 @@
         .chat-msg { margin-bottom: 10px; font-size: 0.85rem; line-height: 1.4; padding: 5px; background: rgba(255,255,255,0.02); border-radius: 4px; }
         .chat-msg b { color: var(--accent); }
         .chat-in { width: 100%; padding: 10px; margin-top: 10px; background: var(--panel); border: 1px solid var(--border); color: white; border-radius: 5px; outline: none; }
+
         .empty-state { color: #334155; font-style: italic; font-size: 1.1rem; text-align: center; }
     </style>
 </head>
@@ -49,6 +87,7 @@
         <div class="menu-btn" onclick="limparCentro()">👥 Galera</div>
         <div class="menu-btn" onclick="limparCentro()">📜 Regulamento</div>
         <div class="menu-btn" onclick="limparCentro()">⚙️ Admin</div>
+        
         <div class="spacer"></div>
         <div class="menu-btn" style="color:#ef4444; border: 1px solid #ef444433; justify-content: center; font-weight: bold;" onclick="location.reload()">🚪 Sair</div>
     </aside>
@@ -60,13 +99,14 @@
     <aside class="sidebar-r">
         <div class="widget-box">
             <div class="widget-title">🏆 Ranking Geral</div>
-            <div class="list-scroll">
+            <div class="list-scroll" id="lista-ranking">
                 <div class="rank-row"><span>1º Angeli</span><b>150 pts</b></div>
             </div>
         </div>
+
         <div class="widget-box">
             <div class="widget-title">💬 Zoação (24h)</div>
-            <div class="list-scroll">
+            <div class="list-scroll" id="lista-chat">
                 <div class="chat-msg"><b>Angeli:</b> De olho no placar!</div>
             </div>
             <input type="text" class="chat-in" placeholder="Zoe aqui...">
@@ -82,6 +122,7 @@
     function abrirLogin() {
         document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('btn-login').classList.add('active');
+
         const main = document.getElementById('conteudo-central');
         main.innerHTML = `
             <div class="auth-card">
@@ -89,6 +130,7 @@
                     <div id="tab-entrar" class="auth-tab active" onclick="alternarAuth('entrar')">Entrar</div>
                     <div id="tab-cadastrar" class="auth-tab" onclick="alternarAuth('cadastrar')">Cadastrar</div>
                 </div>
+
                 <div id="form-entrar">
                     <form class="auth-form" onsubmit="realizarLogin(event)">
                         <input type="text" id="login-apelido" placeholder="Seu Apelido" required>
@@ -96,12 +138,13 @@
                         <button type="submit">Acessar Conta</button>
                     </form>
                 </div>
+
                 <div id="form-cadastrar" style="display: none;">
                     <form class="auth-form" onsubmit="realizarCadastro(event)">
-                        <input type="text" id="reg-voucher" placeholder="ID (Voucher fornecido pelo Admin)" required>
+                        <input type="text" id="reg-voucher" placeholder="ID (Voucher do Admin)" required>
                         <input type="text" id="reg-nome" placeholder="Nome Completo" required>
                         <input type="text" id="reg-apelido" placeholder="Apelido (exibido no ranking)" required>
-                        <input type="password" id="reg-senha" placeholder="Senha (mín. 6 caracteres)" required minlength="6" maxlength="6">
+                        <input type="password" id="reg-senha" placeholder="Crie uma Senha (mín. 6 carac.)" required minlength="6">
                         <input type="text" id="reg-time" placeholder="Seu Time do Coração" required>
                         <button type="submit" class="btn-reg">Criar Minha Conta</button>
                     </form>
@@ -140,7 +183,9 @@
             const result = await res.json();
             alert(result.message);
             if(result.success) alternarAuth('entrar');
-        } catch (e) { alert("Erro de conexão."); }
+        } catch (e) { 
+            alert("Erro de conexão com o servidor."); 
+        }
     }
 
     async function realizarLogin(event) {
@@ -159,9 +204,14 @@
             if(result.success) {
                 alert("Olá, " + result.user.Apelido + "! Login realizado.");
                 limparCentro();
-            } else { alert(result.message); }
-        } catch (e) { alert("Erro de conexão."); }
+            } else { 
+                alert(result.message); 
+            }
+        } catch (e) { 
+            alert("Erro de conexão."); 
+        }
     }
 </script>
+
 </body>
 </html>
