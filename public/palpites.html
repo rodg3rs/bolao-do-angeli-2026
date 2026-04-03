@@ -1,0 +1,40 @@
+<div class="palpites-container" style="background: #1e293b; padding: 20px; border-radius: 12px; width: 100%;">
+    <h2 id="titulo-p">Meus Palpites</h2>
+    <div id="lista-jogos">Carregando...</div>
+</div>
+
+<script>
+    (async function() {
+        if(!usuarioLogado) {
+            document.getElementById('conteudo-central').innerHTML = "<h2>Por favor, faça login primeiro!</h2>";
+            return;
+        }
+        document.getElementById('titulo-p').innerText = "Palpites de: " + usuarioLogado.Apelido;
+        
+        const res = await fetch(`/minhas-apostas/${usuarioLogado.Apelido}`);
+        const data = await res.json();
+        
+        let html = '<table style="width:100%; border-collapse: collapse;">';
+        data.apostas.forEach(j => {
+            html += `
+                <tr style="border-bottom: 1px solid #334155;">
+                    <td style="padding:10px;">${j.Sel1}</td>
+                    <td><input type="number" value="${j.Ap1}" onchange="salvar('${j.Jogo}', this.value, ${j.Ap2})"></td>
+                    <td>X</td>
+                    <td><input type="number" value="${j.Ap2}" onchange="salvar('${j.Jogo}', ${j.Ap1}, this.value)"></td>
+                    <td>${j.Sel2}</td>
+                </tr>`;
+        });
+        document.getElementById('lista-jogos').innerHTML = html + "</table>";
+    })();
+
+    async function salvar(jogo, a1, a2) {
+        const res = await fetch('/salvar-palpite', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ apelido: usuarioLogado.Apelido, jogo, ap1: a1, ap2: a2 })
+        });
+        const r = await res.json();
+        if(!r.success) alert(r.message);
+    }
+</script>

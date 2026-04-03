@@ -10,158 +10,46 @@
         header { grid-column: 1 / -1; background: var(--panel); display: flex; justify-content: center; align-items: center; border-bottom: 1px solid var(--border); z-index: 10; }
         header h1 { font-size: 26px; font-weight: bold; color: white; letter-spacing: 2px; text-transform: uppercase; }
         .sidebar-l { background: var(--panel); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; }
-        .menu-label { color: #64748b; font-size: 0.75rem; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
         .menu-btn { padding: 12px 15px; margin-bottom: 5px; border-radius: 8px; cursor: pointer; color: #94a3b8; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
         .menu-btn:hover, .menu-btn.active { background: var(--border); color: white; }
         .spacer { flex-grow: 1; }
         main { padding: 20px; background: var(--bg); border-right: 1px solid var(--border); display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; }
-        .auth-card { background: var(--panel); padding: 30px; border-radius: 12px; width: 100%; max-width: 400px; border: 1px solid var(--border); }
-        .auth-tabs { display: flex; margin-bottom: 25px; border-bottom: 1px solid var(--border); }
-        .auth-tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; color: #94a3b8; font-weight: bold; }
-        .auth-tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
-        .auth-form { display: flex; flex-direction: column; gap: 15px; }
-        .auth-form input { padding: 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: white; outline: none; }
-        .auth-form button { padding: 12px; border-radius: 6px; border: none; background: var(--accent); color: black; font-weight: bold; cursor: pointer; }
         .sidebar-r { background: #162033; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
-        .widget-box { display: flex; flex-direction: column; background: #0f172a; border-radius: 12px; padding: 15px; border: 1px solid var(--border); height: 100%; }
-        .widget-title { color: var(--accent); font-weight: bold; margin-bottom: 15px; font-size: 0.85rem; text-transform: uppercase; text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-        .list-scroll { overflow-y: auto; flex-grow: 1; }
-        .empty-state { color: #334155; font-style: italic; font-size: 1.1rem; text-align: center; margin-top: 50px; }
-
-        /* Estilo da Tabela de Palpites */
-        .palpites-container { background: var(--panel); padding: 20px; border-radius: 12px; width: 100%; max-width: 800px; border: 1px solid var(--border); }
-        .palpites-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-        .btn-fechar { background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; color: #e2e8f0; }
-        th { text-align: left; padding: 10px; color: var(--accent); font-size: 0.8rem; text-transform: uppercase; }
-        td { padding: 12px 10px; border-bottom: 1px solid #334155; }
-        .input-score { width: 45px; padding: 5px; text-align: center; background: var(--bg); border: 1px solid var(--border); color: var(--accent); font-weight: bold; border-radius: 4px; }
+        .widget-box { background: #0f172a; border-radius: 12px; padding: 15px; border: 1px solid var(--border); }
+        .empty-state { color: #334155; font-style: italic; margin-top: 50px; }
     </style>
 </head>
 <body>
-
     <header><h1>BOLÃO DO ANGELI - 2026</h1></header>
-
     <aside class="sidebar-l">
-        <div class="menu-label">Menu Principal</div>
-        <div class="menu-btn" id="btn-login" onclick="abrirLogin()">👤 Login</div>
-        <div class="menu-btn" id="btn-palpites" onclick="abrirPalpites()">⚽ Meus Palpites</div>
-        <div class="menu-btn" onclick="limparCentro()">👥 Galera</div>
-        <div class="menu-btn" onclick="limparCentro()">📜 Regulamento</div>
-        <div class="menu-btn" onclick="limparCentro()">⚙️ Admin</div>
+        <div class="menu-btn" id="btn-login" onclick="carregarSecao('login.html')">👤 Login / Cadastro</div>
+        <div class="menu-btn" id="btn-palpites" onclick="carregarSecao('palpites.html')">⚽ Meus Palpites</div>
         <div class="spacer"></div>
-        <div class="menu-btn" style="color:#ef4444; font-weight:bold;" onclick="location.reload()">🚪 Sair</div>
+        <div class="menu-btn" style="color:#ef4444;" onclick="location.reload()">🚪 Sair</div>
     </aside>
-
-    <main id="conteudo-central">
-        <div class="empty-state">Selecione uma opção no menu lateral...</div>
-    </main>
-
+    <main id="conteudo-central"><div class="empty-state">Selecione uma opção...</div></main>
     <aside class="sidebar-r">
-        <div class="widget-box"><div class="widget-title">🏆 Ranking Geral</div><div class="list-scroll"></div></div>
-        <div class="widget-box"><div class="widget-title">💬 Zoação (24h)</div><div class="list-scroll"></div><input type="text" class="chat-in" placeholder="Zoe aqui..."></div>
+        <div class="widget-box">🏆 Ranking</div>
+        <div class="widget-box">💬 Chat</div>
     </aside>
 
-<script>
-    let usuarioLogado = null;
+    <script>
+        let usuarioLogado = null; // Variável global para controle de sessão
 
-    function limparCentro() {
-        document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('conteudo-central').innerHTML = '<div class="empty-state">Selecione uma opção no menu lateral...</div>';
-    }
-
-    function abrirLogin() {
-        limparCentro();
-        document.getElementById('btn-login').classList.add('active');
-        document.getElementById('conteudo-central').innerHTML = `
-            <div class="auth-card">
-                <div class="auth-tabs"><div id="tab-entrar" class="auth-tab active" onclick="alternarAuth('entrar')">Entrar</div><div id="tab-cadastrar" class="auth-tab" onclick="alternarAuth('cadastrar')">Cadastrar</div></div>
-                <div id="form-entrar"><form class="auth-form" onsubmit="realizarLogin(event)"><input type="text" id="login-apelido" placeholder="Seu Apelido" required><input type="password" id="login-senha" placeholder="Sua Senha" required><button type="submit">Acessar Conta</button></form></div>
-                <div id="form-cadastrar" style="display:none;"><form class="auth-form" onsubmit="realizarCadastro(event)"><input type="text" id="reg-voucher" placeholder="ID (Voucher)" required><input type="text" id="reg-nome" placeholder="Nome Completo" required><input type="text" id="reg-apelido" placeholder="Apelido" required><input type="password" id="reg-senha" placeholder="Senha" required><input type="text" id="reg-time" placeholder="Seu Time" required><button type="submit">Criar Minha Conta</button></form></div>
-            </div>`;
-    }
-
-    async function realizarLogin(event) {
-        event.preventDefault();
-        const apelido = document.getElementById('login-apelido').value;
-        const senha = document.getElementById('login-senha').value;
-        const res = await fetch('/login', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({apelido, senha}) });
-        const result = await res.json();
-        if(result.success) {
-            usuarioLogado = result.user;
-            alert("Bem-vindo, " + usuarioLogado.Apelido);
-            limparCentro();
-        } else alert(result.message);
-    }
-
-    async function abrirPalpites() {
-        if(!usuarioLogado) return alert("Faça login primeiro!");
-        limparCentro();
-        document.getElementById('btn-palpites').classList.add('active');
-        
-        const main = document.getElementById('conteudo-central');
-        main.innerHTML = '<div class="empty-state">Carregando seus jogos...</div>';
-
-        const res = await fetch(`/minhas-apostas/${usuarioLogado.Apelido}`);
-        const data = await res.json();
-
-        let html = `
-            <div class="palpites-container">
-                <div class="palpites-header">
-                    <h2>Meus Palpites: ${usuarioLogado.Apelido}</h2>
-                    <button class="btn-fechar" onclick="limparCentro()">Fechar</button>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Data/Hora</th>
-                            <th>Mandante</th>
-                            <th>X</th>
-                            <th>Visitante</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-        `;
-
-        data.apostas.forEach(jogo => {
-            html += `
-                <tr>
-                    <td style="font-size:0.75rem">${jogo.Data}<br>${jogo.Horario}</td>
-                    <td align="right">${jogo.Sel1} <input type="number" class="input-score" value="${jogo.Ap1}" onchange="salvarAposta('${jogo.Jogo}', this.value, 'ap1')"></td>
-                    <td align="center">X</td>
-                    <td><input type="number" class="input-score" value="${jogo.Ap2}" onchange="salvarAposta('${jogo.Jogo}', this.value, 'ap2')"> ${jogo.Sel2}</td>
-                </tr>
-            `;
-        });
-
-        html += '</tbody></table></div>';
-        main.innerHTML = html;
-    }
-
-    async function salvarAposta(nomeJogo, valor, campo) {
-        // Pega os valores atuais da linha
-        const inputs = event.target.parentElement.parentElement.querySelectorAll('input');
-        const ap1 = inputs[0].value;
-        const ap2 = inputs[1].value;
-
-        const res = await fetch('/salvar-palpite', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                apelido: usuarioLogado.Apelido,
-                jogo: nomeJogo,
-                ap1: ap1,
-                ap2: ap2
-            })
-        });
-        const result = await res.json();
-        if(!result.success) {
-            alert(result.message);
-            abrirPalpites(); // Recarrega para voltar o valor anterior
+        async function carregarSecao(arquivo) {
+            const main = document.getElementById('conteudo-central');
+            try {
+                const response = await fetch(arquivo);
+                const html = await response.text();
+                main.innerHTML = html;
+                
+                // Remove classe active de todos e coloca no clicado
+                document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+                // Tenta marcar o botão correto se houver ID
+            } catch (e) {
+                main.innerHTML = "<p>Erro ao carregar seção.</p>";
+            }
         }
-    }
-
-    function alternarAuth(t) { /* lógica de abas igual */ }
-</script>
+    </script>
 </body>
 </html>

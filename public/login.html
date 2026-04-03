@@ -1,0 +1,34 @@
+<div class="auth-card" style="background: #1e293b; padding: 30px; border-radius: 12px; width: 100%; max-width: 400px; border: 1px solid #334155;">
+    <div style="display: flex; margin-bottom: 20px; border-bottom: 1px solid #334155;">
+        <div id="t1" style="flex:1; text-align:center; padding:10px; cursor:pointer; color: #ffc107; border-bottom: 2px solid #ffc107;">Entrar</div>
+        <div id="t2" style="flex:1; text-align:center; padding:10px; cursor:pointer; color: #94a3b8;">Cadastrar</div>
+    </div>
+
+    <form id="f-login" style="display: flex; flex-direction: column; gap: 10px;" onsubmit="entrar(event)">
+        <input type="text" id="l-apelido" placeholder="Apelido" style="padding:10px; background:#0f172a; border:1px solid #334155; color:white;" required>
+        <input type="password" id="l-senha" placeholder="Senha" style="padding:10px; background:#0f172a; border:1px solid #334155; color:white;" required>
+        <button type="submit" style="padding:10px; background:#ffc107; font-weight:bold; cursor:pointer;">Acessar</button>
+    </form>
+
+    </div>
+
+<script>
+    async function entrar(e) {
+        e.preventDefault();
+        const apelido = document.getElementById('l-apelido').value;
+        const senha = document.getElementById('l-senha').value;
+        const res = await fetch('/login', { 
+            method: 'POST', 
+            headers: {'Content-Type': 'application/json'}, 
+            body: JSON.stringify({apelido, senha}) 
+        });
+        const result = await res.json();
+        if(result.success) {
+            usuarioLogado = result.user; // Atualiza a variável no index.html
+            alert("Sucesso!");
+            document.getElementById('conteudo-central').innerHTML = "<h1>Bem-vindo!</h1>";
+        } else {
+            alert(result.message);
+        }
+    }
+</script>
