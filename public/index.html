@@ -13,7 +13,7 @@
             height: 100vh; 
             overflow: hidden; 
             display: grid; 
-            /* Ajuste de colunas: Lateral 220px, Centro Flex, Widgets 300px cada */
+            /* Colunas: Menu(220px), Centro(Flex), Ranking(300px), Chat(300px) */
             grid-template-columns: 220px 1fr 300px 300px; 
             grid-template-rows: 80px 1fr; 
         }
@@ -29,7 +29,6 @@
             z-index: 10;
         }
         header h1 { font-size: 26px; font-weight: bold; color: white; letter-spacing: 2px; text-transform: uppercase; }
-        /* Informação de Login/Visitante no topo */
         #user-display { font-size: 0.9rem; color: var(--accent); margin-top: 5px; font-weight: 500; }
 
         .sidebar-l { 
@@ -43,6 +42,8 @@
         .menu-btn { padding: 12px 15px; margin-bottom: 5px; border-radius: 8px; cursor: pointer; color: #94a3b8; transition: 0.3s; display: flex; align-items: center; gap: 10px; border: none; background: transparent; width: 100%; text-align: left; font-size: 1rem; }
         .menu-btn:hover, .menu-btn.active { background: var(--border); color: white; }
         .spacer { flex-grow: 1; }
+        
+        .version-tag { font-size: 10px; color: #334155; text-align: center; margin-top: 10px; font-family: monospace; }
 
         main { 
             padding: 20px; 
@@ -54,7 +55,6 @@
             overflow-y: auto;
         }
 
-        /* Widgets Laterais */
         .widget-col { background: #162033; padding: 15px; display: flex; flex-direction: column; gap: 15px; border-left: 1px solid var(--border); }
         .widget-box { flex: 1; display: flex; flex-direction: column; background: #0f172a; border-radius: 12px; padding: 15px; border: 1px solid var(--border); overflow: hidden; }
         .widget-title { color: var(--accent); font-weight: bold; margin-bottom: 15px; font-size: 0.85rem; text-transform: uppercase; text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
@@ -77,8 +77,10 @@
         <button class="menu-btn" onclick="limparCentro()">👥 Galera</button>
         <button class="menu-btn" onclick="limparCentro()">📜 Regulamento</button>
         <button class="menu-btn" onclick="limparCentro()">⚙️ Admin</button>
+        
         <div class="spacer"></div>
         <button class="menu-btn" style="color:#ef4444; border: 1px solid #ef444433; justify-content: center; font-weight: bold;" onclick="location.reload()">🚪 Sair</button>
+        <div class="version-tag">2026-04-03_16:00</div>
     </aside>
 
     <main id="conteudo-central">
@@ -101,7 +103,6 @@
     </div>
 
 <script>
-    // Variável global de controle de sessão
     let usuarioLogado = null;
 
     function limparCentro() {
@@ -109,42 +110,44 @@
         document.getElementById('conteudo-central').innerHTML = '<div class="empty-state">Selecione uma opção no menu lateral...</div>';
     }
 
-    // Função central de carregamento modular
     async function carregarModulo(arquivo, idBotao) {
         limparCentro();
         if(idBotao) document.getElementById(idBotao).classList.add('active');
         
         try {
-            const response = await fetch(arquivo);
-            if (!response.ok) throw new Error('Arquivo não encontrado');
-            const html = await response.text();
+            // Adicionado parâmetro timestamp para evitar cache do navegador
+            const response = await fetch(`${arquivo}?v=${new Date().getTime()}`);
+            if (!response.ok) throw new Error(`Status: ${response.status}`);
             
+            const html = await response.text();
             const centro = document.getElementById('conteudo-central');
             centro.innerHTML = html;
 
-            // Ativa scripts do módulo carregado
+            // Recriar scripts para garantir execução
             const scripts = centro.querySelectorAll('script');
             scripts.forEach(oldScript => {
                 const newScript = document.createElement('script');
                 Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                newScript.text = oldScript.text;
                 oldScript.parentNode.replaceChild(newScript, oldScript);
             });
         } catch (e) {
-            document.getElementById('conteudo-central').innerHTML = `<div class="empty-state">Erro ao carregar módulo: ${arquivo}</div>`;
+            console.error("Falha ao carregar módulo:", e);
+            document.getElementById('conteudo-central').innerHTML = 
+                `<div class="empty-state" style="color: #ef4444;">Erro ao carregar módulo: ${arquivo}<br><small>${e.message}</small></div>`;
         }
     }
 
     function abrirPalpites() {
         if(!usuarioLogado) {
-            alert("Faça login para acessar seus palpites!");
+            alert("Acesse sua conta primeiro!");
             carregarModulo('login.html', 'btn-login');
             return;
         }
         carregarModulo('palpites.html', 'btn-palpites');
     }
 
-    // Função que será chamada pelo login.html após sucesso
+    // Função de callback para ser chamada pelo login.html
     function definirUsuario(dados) {
         usuarioLogado = dados;
         document.getElementById('user-display').innerText = `Logado como: ${usuarioLogado.Apelido}`;
