@@ -13,7 +13,7 @@
             height: 100vh; 
             overflow: hidden; 
             display: grid; 
-            /* Colunas Ajustadas: Lateral esquerda 220px, Centro Flexível, Laterais Direitas 300px cada */
+            /* Layout de colunas ajustado conforme sua solicitação anterior */
             grid-template-columns: 220px 1fr 300px 300px; 
             grid-template-rows: 80px 1fr; 
         }
@@ -53,10 +53,6 @@
             overflow-y: auto;
         }
 
-        /* Estilo dos Cards de Conteúdo Central */
-        .content-card { background: var(--panel); padding: 25px; border-radius: 12px; width: 100%; max-width: 900px; border: 1px solid var(--border); position: relative; }
-        .close-btn { position: absolute; top: 15px; right: 15px; background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-
         /* Laterais Direitas (Widgets) */
         .widget-col { background: #162033; padding: 15px; display: flex; flex-direction: column; gap: 15px; border-left: 1px solid var(--border); }
         .widget-box { flex: 1; display: flex; flex-direction: column; background: #0f172a; border-radius: 12px; padding: 15px; border: 1px solid var(--border); overflow: hidden; }
@@ -64,15 +60,6 @@
         
         .list-scroll { overflow-y: auto; flex-grow: 1; font-size: 0.85rem; color: #94a3b8; text-align: center; }
         .empty-state { color: #334155; font-style: italic; font-size: 1.1rem; text-align: center; margin-top: 50px; width: 100%; }
-
-        /* Formulários */
-        .auth-tabs { display: flex; margin-bottom: 25px; border-bottom: 1px solid var(--border); }
-        .auth-tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; color: #94a3b8; font-weight: bold; transition: 0.3s; }
-        .auth-tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
-        .auth-form { display: flex; flex-direction: column; gap: 12px; }
-        .auth-form input { padding: 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: white; outline: none; }
-        .auth-form button { padding: 12px; border-radius: 6px; border: none; background: var(--accent); color: black; font-weight: bold; cursor: pointer; }
-        .btn-reg { background: var(--success) !important; color: white !important; }
     </style>
 </head>
 <body>
@@ -121,75 +108,55 @@
     }
 
     function atualizarCabecalho() {
-        const display = document.getElementById('user-display');
-        display.innerText = usuarioLogado ? `Logado como: ${usuarioLogado.Apelido}` : "Visitante";
+        document.getElementById('user-display').innerText = usuarioLogado ? `${usuarioLogado.Apelido}` : "Visitante";
+    }
+
+    // Função GENÉRICA para carregar qualquer módulo .html externo
+    async function carregarModulo(arquivo, idBotao) {
+        limparCentro();
+        if(idBotao) document.getElementById(idBotao).classList.add('active');
+        
+        try {
+            const response = await fetch(arquivo);
+            if (!response.ok) throw new Error('Módulo não encontrado');
+            const html = await response.text();
+            
+            const centro = document.getElementById('conteudo-central');
+            centro.innerHTML = html;
+
+            // EXECUTAR SCRIPTS: Necessário para que a lógica dentro do .html carregado funcione
+            const scripts = centro.querySelectorAll('script');
+            scripts.forEach(oldScript => {
+                const newScript = document.createElement('script');
+                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        } catch (e) {
+            document.getElementById('conteudo-central').innerHTML = `<div class="empty-state">Erro ao carregar ${arquivo}</div>`;
+        }
     }
 
     function abrirLogin() {
+        // Exemplo de login simplificado ou carregando login.html
+        carregarModulo('login.html', 'btn-login');
+    }
+
+    async function abrirPalpites() {
+        if(!usuarioLogado) {
+            alert("Acesse sua conta primeiro!");
+            return;
+        }
+        // Chama o arquivo físico palpites.html
+        carregarModulo('palpites.html', 'btn-palpites');
+    }
+
+    // Escuta eventos de login bem-sucedido vindo dos módulos
+    window.addEventListener('loginSucesso', (e) => {
+        usuarioLogado = e.detail;
+        atualizarCabecalho();
         limparCentro();
-        document.getElementById('btn-login').classList.add('active');
-        document.getElementById('conteudo-central').innerHTML = `
-            <div class="content-card" style="max-width: 400px;">
-                <div class="auth-tabs">
-                    <div id="t-entrar" class="auth-tab active" onclick="guiaAuth('entrar')">Entrar</div>
-                    <div id="t-cadastrar" class="auth-tab" onclick="guiaAuth('cadastrar')">Cadastrar</div>
-                </div>
-                <div id="f-entrar">
-                    <form class="auth-form" onsubmit="login(event)">
-                        <input type="text" id="l-apelido" placeholder="Seu Apelido" required>
-                        <input type="password" id="l-senha" placeholder="Sua Senha" required>
-                        <button type="submit">Acessar Conta</button>
-                    </form>
-                </div>
-                <div id="f-cadastrar" style="display:none;">
-                    <form class="auth-form" onsubmit="cadastro(event)">
-                        <input type="text" id="r-voucher" placeholder="Voucher Admin" required>
-                        <input type="text" id="r-apelido" placeholder="Apelido no Ranking" required>
-                        <input type="password" id="r-senha" placeholder="Senha (6 dígitos)" required minlength="6" maxlength="6">
-                        <button type="submit" class="btn-reg">Criar Minha Conta</button>
-                    </form>
-                </div>
-            </div>`;
-    }
-
-    function guiaAuth(tipo) {
-        document.getElementById('f-entrar').style.display = tipo === 'entrar' ? 'block' : 'none';
-        document.getElementById('f-cadastrar').style.display = tipo === 'entrar' ? 'none' : 'block';
-        document.getElementById('t-entrar').classList.toggle('active', tipo === 'entrar');
-        document.getElementById('t-cadastrar').classList.toggle('active', tipo === 'cadastrar');
-    }
-
-    async function login(e) {
-        e.preventDefault();
-        try {
-            const res = await fetch('/login', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ 
-                    apelido: document.getElementById('l-apelido').value, 
-                    senha: document.getElementById('l-senha').value 
-                })
-            });
-            const data = await res.json();
-            if(data.success) {
-                usuarioLogado = data.user;
-                atualizarCabecalho();
-                limparCentro();
-            } else alert(data.message);
-        } catch (err) { alert("Erro ao conectar com servidor."); }
-    }
-
-    function abrirPalpites() {
-        if(!usuarioLogado) return alert("Acesse sua conta primeiro!");
-        limparCentro();
-        document.getElementById('btn-palpites').classList.add('active');
-        document.getElementById('conteudo-central').innerHTML = `
-            <div class="content-card">
-                <button class="close-btn" onclick="limparCentro()">X</button>
-                <h2 style="color:var(--accent); margin-bottom:20px;">⚽ Meus Palpites</h2>
-                <p style="color:#64748b">A lista de jogos aparecerá aqui para ${usuarioLogado.Apelido}...</p>
-            </div>`;
-    }
+    });
 </script>
 </body>
 </html>
