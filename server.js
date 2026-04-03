@@ -18,7 +18,7 @@ app.post('/cadastrar', async (req, res) => {
     try {
         // 1. Verifica se o Voucher existe e se o Apelido ainda é NULL
         const vCheck = await db.execute({
-            sql: "SELECT * FROM dVouchers WHERE ID = ?",
+            sql: "SELECT * FROM dVoucher WHERE ID = ?",
             args: [id]
         });
 
@@ -36,9 +36,9 @@ app.post('/cadastrar', async (req, res) => {
             args: [id, nome, apelido, senha, time]
         });
 
-        // 3. Atualiza o Apelido na tabela dVouchers para o ID correspondente
+        // 3. Atualiza o Apelido na tabela dVoucher para o ID correspondente
         await db.execute({
-            sql: "UPDATE dVouchers SET Apelido = ? WHERE ID = ?",
+            sql: "UPDATE dVoucher SET Apelido = ? WHERE ID = ?",
             args: [apelido, id]
         });
 
