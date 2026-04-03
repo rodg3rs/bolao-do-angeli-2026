@@ -1,34 +1,93 @@
-<div class="auth-card" style="background: #1e293b; padding: 30px; border-radius: 12px; width: 100%; max-width: 400px; border: 1px solid #334155;">
-    <div style="display: flex; margin-bottom: 20px; border-bottom: 1px solid #334155;">
-        <div id="t1" style="flex:1; text-align:center; padding:10px; cursor:pointer; color: #ffc107; border-bottom: 2px solid #ffc107;">Entrar</div>
-        <div id="t2" style="flex:1; text-align:center; padding:10px; cursor:pointer; color: #94a3b8;">Cadastrar</div>
+<div class="auth-card">
+    <div class="auth-tabs">
+        <div id="tab-entrar" class="auth-tab active" onclick="alternarAuth('entrar')">Entrar</div>
+        <div id="tab-cadastrar" class="auth-tab" onclick="alternarAuth('cadastrar')">Cadastrar</div>
     </div>
 
-    <form id="f-login" style="display: flex; flex-direction: column; gap: 10px;" onsubmit="entrar(event)">
-        <input type="text" id="l-apelido" placeholder="Apelido" style="padding:10px; background:#0f172a; border:1px solid #334155; color:white;" required>
-        <input type="password" id="l-senha" placeholder="Senha" style="padding:10px; background:#0f172a; border:1px solid #334155; color:white;" required>
-        <button type="submit" style="padding:10px; background:#ffc107; font-weight:bold; cursor:pointer;">Acessar</button>
-    </form>
-
+    <div id="form-entrar">
+        <form class="auth-form" onsubmit="realizarLogin(event)">
+            <input type="text" id="login-apelido" placeholder="Seu Apelido" required>
+            <input type="password" id="login-senha" placeholder="Sua Senha" required>
+            <button type="submit">Acessar Conta</button>
+        </form>
     </div>
+
+    <div id="form-cadastrar" style="display: none;">
+        <form class="auth-form" onsubmit="realizarCadastro(event)">
+            <input type="text" id="reg-voucher" placeholder="ID (Voucher do Admin)" required>
+            <input type="text" id="reg-nome" placeholder="Nome Completo" required>
+            <input type="text" id="reg-apelido" placeholder="Apelido (exibido no ranking)" required>
+            <input type="password" id="reg-senha" placeholder="Crie uma Senha (mín. 6 carac.)" required minlength="6">
+            <input type="text" id="reg-time" placeholder="Seu Time do Coração" required>
+            <button type="submit" class="btn-reg">Criar Minha Conta</button>
+        </form>
+    </div>
+</div>
 
 <script>
-    async function entrar(e) {
-        e.preventDefault();
-        const apelido = document.getElementById('l-apelido').value;
-        const senha = document.getElementById('l-senha').value;
-        const res = await fetch('/login', { 
-            method: 'POST', 
-            headers: {'Content-Type': 'application/json'}, 
-            body: JSON.stringify({apelido, senha}) 
-        });
-        const result = await res.json();
-        if(result.success) {
-            usuarioLogado = result.user; // Atualiza a variável no index.html
-            alert("Sucesso!");
-            document.getElementById('conteudo-central').innerHTML = "<h1>Bem-vindo!</h1>";
+    // Lógica visual de alternância entre abas
+    function alternarAuth(tipo) {
+        const tabE = document.getElementById('tab-entrar'), tabC = document.getElementById('tab-cadastrar');
+        const formE = document.getElementById('form-entrar'), formC = document.getElementById('form-cadastrar');
+        if (tipo === 'entrar') {
+            tabE.classList.add('active'); tabC.classList.remove('active');
+            formE.style.display = 'block'; formC.style.display = 'none';
         } else {
+            tabC.classList.add('active'); tabE.classList.remove('active');
+            formC.style.display = 'block'; formE.style.display = 'none';
+        }
+    }
+
+    // Lógica de comunicação com o server.js para Cadastro
+    async function realizarCadastro(event) {
+        event.preventDefault();
+        const dados = {
+            id: document.getElementById('reg-voucher').value,
+            nome: document.getElementById('reg-nome').value,
+            apelido: document.getElementById('reg-apelido').value,
+            senha: document.getElementById('reg-senha').value,
+            time: document.getElementById('reg-time').value
+        };
+        try {
+            const res = await fetch('/cadastrar', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(dados)
+            });
+            const result = await res.json();
             alert(result.message);
+            if(result.success) alternarAuth('entrar');
+        } catch (e) { 
+            alert("Erro de conexão com o servidor."); 
+        }
+    }
+
+    // Lógica de comunicação com o server.js para Login
+    async function realizarLogin(event) {
+        event.preventDefault();
+        const dados = {
+            apelido: document.getElementById('login-apelido').value,
+            senha: document.getElementById('login-senha').value
+        };
+        try {
+            const res = await fetch('/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(dados)
+            });
+            const result = await res.json();
+            
+            if(result.success) {
+                alert("Olá, " + result.user.Apelido + "! Login realizado.");
+                // CHAMA A FUNÇÃO NO INDEX.HTML PARA ATUALIZAR O ESTADO GLOBAL
+                if (typeof definirUsuario === "function") {
+                    definirUsuario(result.user);
+                }
+            } else { 
+                alert(result.message); 
+            }
+        } catch (e) { 
+            alert("Erro de conexão."); 
         }
     }
 </script>
