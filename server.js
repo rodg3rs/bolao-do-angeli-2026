@@ -15,7 +15,7 @@ const db = createClient({
 app.post('/cadastrar', async (req, res) => {
     const { id, nome, apelido, senha, time } = req.body;
     try {
-        const vCheck = await db.execute({ sql: "SELECT * FROM dVouchers WHERE ID = ?", args: [id] });
+        const vCheck = await db.execute({ sql: "SELECT * FROM dVoucher WHERE ID = ?", args: [id] });
         if (vCheck.rows.length === 0) return res.json({ success: false, message: "Voucher não encontrado!" });
         if (vCheck.rows[0].Apelido !== null) return res.json({ success: false, message: "Voucher já utilizado!" });
 
@@ -24,7 +24,7 @@ app.post('/cadastrar', async (req, res) => {
             args: [id, nome, apelido, senha, time]
         });
 
-        await db.execute({ sql: "UPDATE dVouchers SET Apelido = ? WHERE ID = ?", args: [apelido, id] });
+        await db.execute({ sql: "UPDATE dVoucher SET Apelido = ? WHERE ID = ?", args: [apelido, id] });
 
         const jogos = await db.execute("SELECT * FROM dTabela");
         for (const jogo of jogos.rows) {
