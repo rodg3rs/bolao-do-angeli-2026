@@ -1,3 +1,76 @@
+<style>
+    /* Estilos específicos do Card de Autenticação */
+    .auth-card { 
+        background: var(--panel); 
+        padding: 40px; 
+        border-radius: 16px; 
+        width: 100%; 
+        max-width: 450px; 
+        border: 1px solid var(--border); 
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .auth-tabs { display: flex; margin-bottom: 30px; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 5px; }
+    .auth-tab { 
+        flex: 1; 
+        padding: 12px; 
+        text-align: center; 
+        cursor: pointer; 
+        color: #94a3b8; 
+        font-weight: 600; 
+        transition: 0.3s; 
+        border-radius: 6px;
+    }
+    .auth-tab.active { 
+        color: var(--bg); 
+        background: var(--accent); 
+    }
+    
+    .auth-form { display: flex; flex-direction: column; gap: 18px; }
+    .input-group { display: flex; flex-direction: column; gap: 8px; }
+    .input-group label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: bold; }
+    
+    .auth-form input { 
+        padding: 14px; 
+        border-radius: 8px; 
+        border: 1px solid var(--border); 
+        background: var(--bg); 
+        color: white; 
+        font-size: 1rem;
+        transition: 0.3s;
+    }
+    .auth-form input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.2); outline: none; }
+    
+    .auth-form button { 
+        padding: 16px; 
+        border-radius: 8px; 
+        border: none; 
+        background: var(--accent); 
+        color: var(--bg); 
+        font-weight: 800; 
+        cursor: pointer; 
+        font-size: 1rem; 
+        text-transform: uppercase;
+        margin-top: 10px;
+        transition: 0.3s; 
+    }
+    .auth-form button:hover { transform: scale(1.02); filter: brightness(1.1); }
+    .btn-reg { background: var(--success) !important; color: white !important; }
+
+    .voucher-info {
+        font-size: 0.7rem;
+        color: #64748b;
+        text-align: center;
+        margin-top: 10px;
+    }
+</style>
+
 <div class="auth-card">
     <div class="auth-tabs">
         <div id="tab-entrar" class="auth-tab active" onclick="alternarAuth('entrar')">Entrar</div>
@@ -6,26 +79,47 @@
 
     <div id="form-entrar">
         <form class="auth-form" onsubmit="realizarLogin(event)">
-            <input type="text" id="login-apelido" placeholder="Seu Apelido" required>
-            <input type="password" id="login-senha" placeholder="Sua Senha" required>
-            <button type="submit">Acessar Conta</button>
+            <div class="input-group">
+                <label>Apelido</label>
+                <input type="text" id="login-apelido" placeholder="Ex: Artilheiro10" required>
+            </div>
+            <div class="input-group">
+                <label>Senha</label>
+                <input type="password" id="login-senha" placeholder="••••••••" required>
+            </div>
+            <button type="submit">Acessar Arena</button>
         </form>
     </div>
 
     <div id="form-cadastrar" style="display: none;">
         <form class="auth-form" onsubmit="realizarCadastro(event)">
-            <input type="text" id="reg-voucher" placeholder="ID (Voucher do Admin)" required>
-            <input type="text" id="reg-nome" placeholder="Nome Completo" required>
-            <input type="text" id="reg-apelido" placeholder="Apelido (exibido no ranking)" required>
-            <input type="password" id="reg-senha" placeholder="Crie uma Senha (mín. 6 carac.)" required minlength="6">
-            <input type="text" id="reg-time" placeholder="Seu Time do Coração" required>
+            <div class="input-group">
+                <label>Voucher Convite (ID)</label>
+                <input type="text" id="reg-voucher" placeholder="Código enviado pelo Adm" required>
+            </div>
+            <div class="input-group">
+                <label>Nome Completo</label>
+                <input type="text" id="reg-nome" placeholder="Seu nome real" required>
+            </div>
+            <div class="input-group">
+                <label>Apelido no Ranking</label>
+                <input type="text" id="reg-apelido" placeholder="Como os outros te verão" required>
+            </div>
+            <div class="input-group">
+                <label>Senha (Mín. 6 caracteres)</label>
+                <input type="password" id="reg-senha" placeholder="Crie uma senha forte" required minlength="6">
+            </div>
+            <div class="input-group">
+                <label>Time do Coração</label>
+                <input type="text" id="reg-time" placeholder="Ex: Palmeiras" required>
+            </div>
             <button type="submit" class="btn-reg">Criar Minha Conta</button>
+            <p class="voucher-info">O voucher será validado e ativado após o clique.</p>
         </form>
     </div>
 </div>
 
 <script>
-    // Lógica visual de alternância entre abas
     function alternarAuth(tipo) {
         const tabE = document.getElementById('tab-entrar'), tabC = document.getElementById('tab-cadastrar');
         const formE = document.getElementById('form-entrar'), formC = document.getElementById('form-cadastrar');
@@ -38,7 +132,6 @@
         }
     }
 
-    // Lógica de comunicação com o server.js para Cadastro
     async function realizarCadastro(event) {
         event.preventDefault();
         const dados = {
@@ -48,6 +141,7 @@
             senha: document.getElementById('reg-senha').value,
             time: document.getElementById('reg-time').value
         };
+
         try {
             const res = await fetch('/cadastrar', {
                 method: 'POST',
@@ -55,20 +149,25 @@
                 body: JSON.stringify(dados)
             });
             const result = await res.json();
-            alert(result.message);
-            if(result.success) alternarAuth('entrar');
+            
+            if(result.success) {
+                alert("Sucesso! Voucher validado e apostas geradas.");
+                alternarAuth('entrar');
+            } else {
+                alert("Falha no cadastro: " + result.message);
+            }
         } catch (e) { 
-            alert("Erro de conexão com o servidor."); 
+            alert("Erro de conexão. Verifique se o servidor está rodando."); 
         }
     }
 
-    // Lógica de comunicação com o server.js para Login
     async function realizarLogin(event) {
         event.preventDefault();
         const dados = {
             apelido: document.getElementById('login-apelido').value,
             senha: document.getElementById('login-senha').value
         };
+
         try {
             const res = await fetch('/login', {
                 method: 'POST',
@@ -78,16 +177,16 @@
             const result = await res.json();
             
             if(result.success) {
-                alert("Olá, " + result.user.Apelido + "! Login realizado.");
-                // CHAMA A FUNÇÃO NO INDEX.HTML PARA ATUALIZAR O ESTADO GLOBAL
+                alert("Bem-vindo, " + result.user.Apelido + "!");
+                // Comunica ao index.html (Pai) a mudança de estado
                 if (typeof definirUsuario === "function") {
                     definirUsuario(result.user);
                 }
             } else { 
-                alert(result.message); 
+                alert("Acesso negado: " + result.message); 
             }
         } catch (e) { 
-            alert("Erro de conexão."); 
+            alert("Erro ao tentar logar."); 
         }
     }
 </script>
