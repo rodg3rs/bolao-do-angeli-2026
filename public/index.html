@@ -13,7 +13,7 @@
             height: 100vh; 
             overflow: hidden; 
             display: grid; 
-            /* Layout de colunas ajustado conforme sua solicitação anterior */
+            /* Ajuste de colunas: Lateral 220px, Centro Flex, Widgets 300px cada */
             grid-template-columns: 220px 1fr 300px 300px; 
             grid-template-rows: 80px 1fr; 
         }
@@ -29,6 +29,7 @@
             z-index: 10;
         }
         header h1 { font-size: 26px; font-weight: bold; color: white; letter-spacing: 2px; text-transform: uppercase; }
+        /* Informação de Login/Visitante no topo */
         #user-display { font-size: 0.9rem; color: var(--accent); margin-top: 5px; font-weight: 500; }
 
         .sidebar-l { 
@@ -53,12 +54,12 @@
             overflow-y: auto;
         }
 
-        /* Laterais Direitas (Widgets) */
+        /* Widgets Laterais */
         .widget-col { background: #162033; padding: 15px; display: flex; flex-direction: column; gap: 15px; border-left: 1px solid var(--border); }
         .widget-box { flex: 1; display: flex; flex-direction: column; background: #0f172a; border-radius: 12px; padding: 15px; border: 1px solid var(--border); overflow: hidden; }
         .widget-title { color: var(--accent); font-weight: bold; margin-bottom: 15px; font-size: 0.85rem; text-transform: uppercase; text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
         
-        .list-scroll { overflow-y: auto; flex-grow: 1; font-size: 0.85rem; color: #94a3b8; text-align: center; }
+        .list-scroll { overflow-y: auto; flex-grow: 1; font-size: 0.85rem; color: #64748b; text-align: center; padding-top: 20px; }
         .empty-state { color: #334155; font-style: italic; font-size: 1.1rem; text-align: center; margin-top: 50px; width: 100%; }
     </style>
 </head>
@@ -71,7 +72,7 @@
 
     <aside class="sidebar-l">
         <div class="menu-label">Menu Principal</div>
-        <button class="menu-btn" id="btn-login" onclick="abrirLogin()">👤 Login</button>
+        <button class="menu-btn" id="btn-login" onclick="carregarModulo('login.html', 'btn-login')">👤 Login</button>
         <button class="menu-btn" id="btn-palpites" onclick="abrirPalpites()">⚽ Meus Palpites</button>
         <button class="menu-btn" onclick="limparCentro()">👥 Galera</button>
         <button class="menu-btn" onclick="limparCentro()">📜 Regulamento</button>
@@ -100,6 +101,7 @@
     </div>
 
 <script>
+    // Variável global de controle de sessão
     let usuarioLogado = null;
 
     function limparCentro() {
@@ -107,24 +109,20 @@
         document.getElementById('conteudo-central').innerHTML = '<div class="empty-state">Selecione uma opção no menu lateral...</div>';
     }
 
-    function atualizarCabecalho() {
-        document.getElementById('user-display').innerText = usuarioLogado ? `${usuarioLogado.Apelido}` : "Visitante";
-    }
-
-    // Função GENÉRICA para carregar qualquer módulo .html externo
+    // Função central de carregamento modular
     async function carregarModulo(arquivo, idBotao) {
         limparCentro();
         if(idBotao) document.getElementById(idBotao).classList.add('active');
         
         try {
             const response = await fetch(arquivo);
-            if (!response.ok) throw new Error('Módulo não encontrado');
+            if (!response.ok) throw new Error('Arquivo não encontrado');
             const html = await response.text();
             
             const centro = document.getElementById('conteudo-central');
             centro.innerHTML = html;
 
-            // EXECUTAR SCRIPTS: Necessário para que a lógica dentro do .html carregado funcione
+            // Ativa scripts do módulo carregado
             const scripts = centro.querySelectorAll('script');
             scripts.forEach(oldScript => {
                 const newScript = document.createElement('script');
@@ -133,30 +131,25 @@
                 oldScript.parentNode.replaceChild(newScript, oldScript);
             });
         } catch (e) {
-            document.getElementById('conteudo-central').innerHTML = `<div class="empty-state">Erro ao carregar ${arquivo}</div>`;
+            document.getElementById('conteudo-central').innerHTML = `<div class="empty-state">Erro ao carregar módulo: ${arquivo}</div>`;
         }
     }
 
-    function abrirLogin() {
-        // Exemplo de login simplificado ou carregando login.html
-        carregarModulo('login.html', 'btn-login');
-    }
-
-    async function abrirPalpites() {
+    function abrirPalpites() {
         if(!usuarioLogado) {
-            alert("Acesse sua conta primeiro!");
+            alert("Faça login para acessar seus palpites!");
+            carregarModulo('login.html', 'btn-login');
             return;
         }
-        // Chama o arquivo físico palpites.html
         carregarModulo('palpites.html', 'btn-palpites');
     }
 
-    // Escuta eventos de login bem-sucedido vindo dos módulos
-    window.addEventListener('loginSucesso', (e) => {
-        usuarioLogado = e.detail;
-        atualizarCabecalho();
+    // Função que será chamada pelo login.html após sucesso
+    function definirUsuario(dados) {
+        usuarioLogado = dados;
+        document.getElementById('user-display').innerText = `Logado como: ${usuarioLogado.Apelido}`;
         limparCentro();
-    });
+    }
 </script>
 </body>
 </html>
