@@ -1,40 +1,164 @@
-<div class="palpites-container" style="background: #1e293b; padding: 20px; border-radius: 12px; width: 100%;">
-    <h2 id="titulo-p">Meus Palpites</h2>
-    <div id="lista-jogos">Carregando...</div>
+<style>
+    .palpites-card {
+        background: var(--panel);
+        border-radius: 12px;
+        padding: 25px;
+        width: 100%;
+        max-width: 600px; /* Centraliza e limita a largura para melhor leitura */
+        border: 1px solid var(--border);
+        position: relative;
+        animation: fadeIn 0.3s ease-in;
+    }
+
+    .palpites-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 10px;
+    }
+
+    .palpites-header h2 {
+        font-size: 1.2rem;
+        color: var(--accent);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-fechar {
+        background: #ef4444;
+        color: white;
+        border: none;
+        padding: 5px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.2s;
+    }
+
+    .btn-fechar:hover { background: #dc2626; }
+
+    .jogo-item {
+        display: grid;
+        grid-template-columns: 1fr 50px 20px 50px 1fr;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        text-align: center;
+    }
+
+    .time-nome { font-size: 0.95rem; font-weight: 500; }
+    .time-dir { text-align: right; }
+    .time-esq { text-align: left; }
+
+    .input-gols {
+        width: 45px;
+        height: 35px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        color: var(--accent);
+        text-align: center;
+        border-radius: 6px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        outline: none;
+    }
+
+    .input-gols:focus { border-color: var(--accent); }
+
+    /* Remove as setas padrão do input number */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+    .divisor { color: #64748b; font-weight: bold; }
+</style>
+
+<div class="palpites-card">
+    <div class="palpites-header">
+        <h2>⚽ Meus Palpites</h2>
+        <button class="btn-fechar" onclick="limparCentro()">X</button>
+    </div>
+    
+    <div id="lista-jogos">
+        <div style="text-align:center; color:#64748b;">Carregando jogos...</div>
+    </div>
 </div>
 
 <script>
-    (async function() {
-        if(!usuarioLogado) {
-            document.getElementById('conteudo-central').innerHTML = "<h2>Por favor, faça login primeiro!</h2>";
+    (async function carregarPalpites() {
+        if (!window.usuarioLogado) {
+            document.getElementById('conteudo-central').innerHTML = "<div class='empty-state'>Faça login para apostar.</div>";
             return;
         }
-        document.getElementById('titulo-p').innerText = "Palpites de: " + usuarioLogado.Apelido;
-        
-        const res = await fetch(`/minhas-apostas/${usuarioLogado.Apelido}`);
-        const data = await res.json();
-        
-        let html = '<table style="width:100%; border-collapse: collapse;">';
-        data.apostas.forEach(j => {
-            html += `
-                <tr style="border-bottom: 1px solid #334155;">
-                    <td style="padding:10px;">${j.Sel1}</td>
-                    <td><input type="number" value="${j.Ap1}" onchange="salvar('${j.Jogo}', this.value, ${j.Ap2})"></td>
-                    <td>X</td>
-                    <td><input type="number" value="${j.Ap2}" onchange="salvar('${j.Jogo}', ${j.Ap1}, this.value)"></td>
-                    <td>${j.Sel2}</td>
-                </tr>`;
-        });
-        document.getElementById('lista-jogos').innerHTML = html + "</table>";
+
+        try {
+            const res = await fetch(`/minhas-apostas/${usuarioLogado.Apelido}`);
+            const data = await res.json();
+
+            if (data.success) {
+                renderizarJogos(data.apostas);
+            }
+        } catch (e) {
+            document.getElementById('lista-jogos').innerHTML = "Erro ao carregar.";
+        }
     })();
 
-    async function salvar(jogo, a1, a2) {
-        const res = await fetch('/salvar-palpite', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ apelido: usuarioLogado.Apelido, jogo, ap1: a1, ap2: a2 })
+    function renderizarJogos(apostas) {
+        const container = document.getElementById('lista-jogos');
+        let html = '';
+
+        apostas.forEach(j => {
+            html += `
+                <div class="jogo-item">
+                    <span class="time-nome time-dir">${j.Sel1}</span>
+                    <input type="number" class="input-gols" 
+                        value="${j.Ap1}" min="0" max="10"
+                        onchange="salvarPalpite('${j.Jogo}', this.value, 'ap1', this)">
+                    <span class="divisor">x</span>
+                    <input type="number" class="input-gols" 
+                        value="${j.Ap2}" min="0" max="10"
+                        onchange="salvarPalpite('${j.Jogo}', this.value, 'ap2', this)">
+                    <span class="time-nome time-esq">${j.Sel2}</span>
+                </div>
+            `;
         });
-        const r = await res.json();
-        if(!r.success) alert(r.message);
+        container.innerHTML = html;
+    }
+
+    async function salvarPalpite(nomeJogo, valor, tipo, inputElement) {
+        // Validação local de 0 a 10
+        if (valor < 0) { inputElement.value = 0; valor = 0; }
+        if (valor > 10) { inputElement.value = 10; valor = 10; }
+
+        // Busca os valores atuais do card para garantir que enviamos ambos
+        const pai = inputElement.closest('.jogo-item');
+        const inputs = pai.querySelectorAll('.input-gols');
+        const v1 = inputs[0].value;
+        const v2 = inputs[1].value;
+
+        try {
+            const res = await fetch('/salvar-palpite', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    apelido: usuarioLogado.Apelido, 
+                    jogo: nomeJogo, 
+                    ap1: parseInt(v1), 
+                    ap2: parseInt(v2) 
+                })
+            });
+            const r = await res.json();
+            
+            if (!r.success) {
+                alert(r.message);
+                // Opcional: recarregar a tela se o tempo expirou
+                if(r.message.includes("Tempo esgotado")) location.reload();
+            }
+        } catch (e) {
+            console.error("Erro ao salvar:", e);
+        }
     }
 </script>
