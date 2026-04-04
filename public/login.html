@@ -94,8 +94,9 @@
     <div id="form-cadastrar" style="display: none;">
         <form class="auth-form" onsubmit="realizarCadastro(event)">
             <div class="input-group">
-                <label>Voucher Convite (ID)</label>
-                <input type="text" id="reg-voucher" placeholder="Código enviado pelo Adm" required>
+                <label>CPF (Identificador único)</label>
+                <input type="text" id="reg-cpf" placeholder="000.000.000-00" 
+                       oninput="aplicarMascaraCPF(this)" maxlength="14" required>
             </div>
             <div class="input-group">
                 <label>Nome Completo</label>
@@ -114,12 +115,30 @@
                 <input type="text" id="reg-time" placeholder="Ex: Palmeiras" required>
             </div>
             <button type="submit" class="btn-reg">Criar Minha Conta</button>
-            <p class="voucher-info">O voucher será validado e ativado após o clique.</p>
+            <p class="voucher-info">Seu CPF será seu ID único no sistema.</p>
         </form>
     </div>
 </div>
 
 <script>
+    // --- FUNÇÕES DE VALIDAÇÃO DE CPF ---
+    function aplicarMascaraCPF(i) {
+        let v = i.value.replace(/\D/g, ""); // Remove tudo que não é dígito
+        if (v.length > 11) v = v.substring(0, 11);
+        v = v.replace(/(\d{3})(\d)/, "$1.$2");
+        v = v.replace(/(\d{3})(\d)/, "$1.$2");
+        v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+        i.value = v;
+    }
+
+    function validarCPF(cpf) {
+        cpf = cpf.replace(/[^\d]+/g, ''); // Limpa a formatação
+        if (cpf.length !== 11 || !!cpf.match(/(\d)\1{10}/)) return false;
+        let cpfs = cpf.split('').map(el => +el);
+        const rest = (count) => (cpfs.slice(0, count-12).reduce((soma, el, i) => soma + el * (count - i), 0) * 10) % 11 % 10;
+        return rest(10) === cpfs[9] && rest(11) === cpfs[10];
+    }
+
     function alternarAuth(tipo) {
         const tabE = document.getElementById('tab-entrar'), tabC = document.getElementById('tab-cadastrar');
         const formE = document.getElementById('form-entrar'), formC = document.getElementById('form-cadastrar');
@@ -134,8 +153,17 @@
 
     async function realizarCadastro(event) {
         event.preventDefault();
+
+        const campoCpf = document.getElementById('reg-cpf').value;
+        
+        // Validação do CPF antes de enviar ao servidor
+        if (!validarCPF(campoCpf)) {
+            alert("CPF inválido! Por favor, verifique os números digitados.");
+            return;
+        }
+
         const dados = {
-            id: document.getElementById('reg-voucher').value,
+            id: campoCpf.replace(/[^\d]+/g, ''), // Envia apenas os 11 dígitos limpos
             nome: document.getElementById('reg-nome').value,
             apelido: document.getElementById('reg-apelido').value,
             senha: document.getElementById('reg-senha').value,
@@ -151,7 +179,7 @@
             const result = await res.json();
             
             if(result.success) {
-                alert("Sucesso! Voucher validado e apostas geradas.");
+                alert("Sucesso! Cadastro realizado e apostas geradas.");
                 alternarAuth('entrar');
             } else {
                 alert("Falha no cadastro: " + result.message);
@@ -176,13 +204,11 @@
             });
             const result = await res.json();
             
-	    if(result.success) {
-            	// REMOVIDO O ALERT DAQUI
-            
-            	// Comunica ao index.html (Pai) a mudança de estado imediatamente
-            	if (typeof definirUsuario === "function") {
-                	definirUsuario(result.user); // Esta função já limpa o centro e atualiza o header
-            	}
+            if(result.success) {
+                // Comunica ao index.html (Pai) a mudança de estado imediatamente sem alert
+                if (typeof definirUsuario === "function") {
+                    definirUsuario(result.user); 
+                }
             } else { 
                 alert("Acesso negado: " + result.message); 
             }

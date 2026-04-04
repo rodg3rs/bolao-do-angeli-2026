@@ -13,30 +13,35 @@ const db = createClient({
 
 // Cadastro e Login (Mantidos conforme regras anteriores)
 app.post('/cadastrar', async (req, res) => {
+    // Pegamos o 'id' que vem do login.html (que agora é o CPF)
     const { id, nome, apelido, senha, time } = req.body;
-    try {
-        const vCheck = await db.execute({ sql: "SELECT * FROM dVoucher WHERE ID = ?", args: [id] });
-        if (vCheck.rows.length === 0) return res.json({ success: false, message: "Voucher não encontrado!" });
-        if (vCheck.rows[0].Apelido !== null) return res.json({ success: false, message: "Voucher já utilizado!" });
 
+    try {
+        // 1. Verifica se o CPF já está cadastrado na tabela dLogin
+        const usuarioExistente = await db.execute({
+            sql: "SELECT ID FROM dLogin WHERE ID = ?",
+            args: [id]
+        });
+
+        if (usuarioExistente.rows.length > 0) {
+            return res.json({ success: false, message: "Este CPF já está cadastrado no sistema." });
+        }
+
+        // 2. Insere o novo usuário usando o CPF como ID primário
         await db.execute({
             sql: "INSERT INTO dLogin (ID, Nome, Apelido, Senha, Time) VALUES (?, ?, ?, ?, ?)",
             args: [id, nome, apelido, senha, time]
         });
 
-        await db.execute({ sql: "UPDATE dVoucher SET Apelido = ? WHERE ID = ?", args: [apelido, id] });
+        // 3. Opcional: Aqui você mantém sua lógica de gerar os palpites iniciais
+        // Exemplo: await db.execute({ sql: "INSERT INTO dApostas...", args: [id, ...] });
 
-        const jogos = await db.execute("SELECT * FROM dTabela");
-        for (const jogo of jogos.rows) {
-            await db.execute({
-                sql: "INSERT INTO dApostas (ID, Apelido, Jogo, Sel1, Ap1, Sel2, Ap2, Data, Horario) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                args: [id, apelido, jogo.Jogo, jogo.Sel1, 0, jogo.Sel2, 0, jogo.Data, jogo.Horario]
-            });
-        }
-        res.json({ success: true, message: "Cadastro realizado!" });
-    } catch (e) { res.status(500).json({ success: false, message: "Erro no cadastro." }); }
+        res.json({ success: true, message: "Cadastro realizado com sucesso!" });
+    } catch (e) {
+        console.error("Erro no cadastro:", e);
+        res.status(500).json({ success: false, message: "Erro interno ao cadastrar." });
+    }
 });
-
 app.post('/login', async (req, res) => {
     const { apelido, senha } = req.body;
     try {
