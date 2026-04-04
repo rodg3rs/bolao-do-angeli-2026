@@ -105,26 +105,31 @@
 
 <script>
     (async function inicializarPalpites() {
-        // Verifica se existe usuário logado no contexto global (index.html)
-        if (!window.usuarioLogado) {
+        // Tenta buscar a variável global em diferentes contextos comuns
+        const usuario = window.usuarioLogado || window.parent.usuarioLogado; 
+
+        if (!usuario || !usuario.Apelido) {
+            console.error("Usuário não detectado no sistema.");
             document.getElementById('lista-jogos-container').innerHTML = 
-                "<div style='text-align:center; padding:20px;'>⚠️ Por favor, realize o login para ver seus palpites.</div>";
+                "<div style='text-align:center; padding:40px; color:#64748b;'>⚠️ Sessão não encontrada. Por favor, clique em Login novamente.</div>";
             return;
         }
 
         try {
-            // Busca as apostas filtrando pelo apelido do usuário logado
-            const res = await fetch(`/minhas-apostas/${window.usuarioLogado.Apelido}`);
+            // Usa o apelido confirmado para buscar os dados no servidor
+            const res = await fetch(`/minhas-apostas/${usuario.Apelido}`);
             const data = await res.json();
 
             if (data.success) {
                 renderizarTabela(data.apostas);
-            } else {
-                throw new Error("Erro ao carregar dados.");
             }
         } catch (e) {
-            document.getElementById('lista-jogos-container').innerHTML = "Erro ao conectar com o servidor.";
+            console.error("Erro na requisição:", e);
         }
+    })();
+    
+    // ... restante das funções renderizarTabela e enviarPalpite
+</script>
     })();
 
     function renderizarTabela(apostas) {
