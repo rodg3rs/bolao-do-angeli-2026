@@ -96,11 +96,11 @@
 
     <div class="widget-col">
         <div class="widget-box">
-            <div class="widget-title">💬 Zoação (24h)</div>
-            <div class="list-scroll">Faça login para ver</div>
-            <input type="text" style="width: 100%; padding: 8px; margin-top: 10px; background: var(--panel); border: 1px solid var(--border); color: white; border-radius: 4px;" placeholder="Zoe aqui...">
-        </div>
+    	<div class="widget-title">💬 Zoação (24h)</div>
+    	<div id="container-chat-fixo" style="height: 100%; display: flex; flex-direction: column;">
+             <div class="list-scroll">Iniciando...</div>
     </div>
+</div>
 
 <script>
     let usuarioLogado = null;
@@ -153,6 +153,29 @@ function definirUsuario(dados) {
     document.getElementById('user-display').innerText = `Logado como: ${usuarioLogado.Apelido}`;
     limparCentro();
 }
+// Função para carregar o chat na coluna fixa assim que a página abrir
+async function inicializarChatFixo() {
+    try {
+        const res = await fetch('chat.html');
+        const html = await res.text();
+        const container = document.getElementById('container-chat-fixo');
+        container.innerHTML = html;
+
+        // Executa os scripts do chat.html
+        const scripts = container.querySelectorAll('script');
+        scripts.forEach(oldScript => {
+            const newScript = document.createElement('script');
+            newScript.text = oldScript.text;
+            document.body.appendChild(newScript);
+        });
+    } catch (e) {
+        console.error("Erro ao carregar chat fixo:", e);
+    }
+}
+
+// Chama a inicialização
+inicializarChatFixo();
+
 </script>
 </body>
 </html>
