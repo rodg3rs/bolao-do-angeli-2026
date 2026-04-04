@@ -147,12 +147,14 @@
         carregarModulo('palpites.html', 'btn-palpites');
     }
 
-    // Função de callback para ser chamada pelo login.html
-    function definirUsuario(dados) {
-        usuarioLogado = dados;
-        document.getElementById('user-display').innerText = `Logado como: ${usuarioLogado.Apelido}`;
-        limparCentro();
-    }
+// Função de callback para ser chamada pelo login.html
+function definirUsuario(dados) {
+    // SALVA NA WINDOW PARA SER GLOBAL [CORREÇÃO]
+    window.usuarioLogado = dados; 
+    
+    document.getElementById('user-display').innerText = `Logado como: ${window.usuarioLogado.Apelido}`;
+    limparCentro();
+}
 </script>
 </body>
 </html>

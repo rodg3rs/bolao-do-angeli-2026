@@ -1,46 +1,40 @@
 <style>
     .palpites-card {
-        background: var(--panel);
+        background: var(--panel, #1e293b);
         border-radius: 12px;
         padding: 20px;
         width: 100%;
         max-width: 650px;
-        border: 1px solid var(--border);
+        border: 1px solid var(--border, #334155);
         box-shadow: 0 10px 30px rgba(0,0,0,0.4);
     }
-
     .palpites-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 20px;
         padding-bottom: 10px;
-        border-bottom: 1px solid var(--border);
+        border-bottom: 1px solid var(--border, #334155);
     }
-
-    .palpites-header h2 { font-size: 1.1rem; color: var(--accent); text-transform: uppercase; }
-
+    .palpites-header h2 { font-size: 1.1rem; color: var(--accent, #ffc107); text-transform: uppercase; }
     .btn-fechar {
         background: #ef4444; color: white; border: none; padding: 6px 12px;
         border-radius: 6px; cursor: pointer; font-weight: bold;
     }
-
     .tabela-palpites { width: 100%; border-collapse: collapse; }
     .linha-jogo { border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .col-time { padding: 12px 5px; font-size: 0.9rem; width: 35%; }
+    .col-time { padding: 12px 5px; font-size: 0.9rem; width: 35%; color: white; }
     .time-dir { text-align: right; }
     .time-esq { text-align: left; }
     .col-placar { width: 30%; text-align: center; white-space: nowrap; }
-
     .input-palpite {
-        width: 45px; height: 35px; background: var(--bg);
-        border: 1px solid var(--border); color: var(--accent);
+        width: 45px; height: 35px; background: #0f172a;
+        border: 1px solid #334155; color: #ffc107;
         text-align: center; border-radius: 6px; font-weight: bold;
         font-size: 1.1rem; margin: 0 5px;
     }
     .input-palpite:disabled { opacity: 0.4; cursor: not-allowed; }
     input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-
     .info-data { font-size: 0.7rem; color: #64748b; display: block; }
 </style>
 
@@ -49,99 +43,86 @@
         <h2>⚽ Meus Palpites</h2>
         <button class="btn-fechar" onclick="limparCentro()">Sair</button>
     </div>
-
     <div id="lista-jogos-container">
-        <div style="text-align:center; padding:20px; color:#64748b;">A carregar jogos...</div>
+        <div style="text-align:center; padding:20px; color:#64748b;">Carregando jogos...</div>
     </div>
 </div>
 
 <script>
     (async function inicializar() {
-        // Busca o usuário logado de forma segura
-        const usuario = window.usuarioLogado || (window.parent ? window.parent.usuarioLogado : null);
+        // CORREÇÃO: Busca o usuário diretamente da window global
+        const usuario = window.usuarioLogado;
 
         if (!usuario || !usuario.Apelido) {
-            document.getElementById('lista-jogos-container').innerHTML = "⚠️ Erro: Usuário não identificado.";
+            document.getElementById('lista-jogos-container').innerHTML = 
+                "<div style='text-align:center; padding:20px;'>⚠️ Erro: Usuário não identificado. Faça login novamente.</div>";
             return;
         }
 
         try {
+            // Filtra as apostas pelo apelido do usuário logado
             const res = await fetch(`/minhas-apostas/${usuario.Apelido}`);
             const data = await res.json();
 
             if (data.success && data.apostas) {
                 renderizar(data.apostas);
-            } else {
-                document.getElementById('lista-jogos-container').innerHTML = "Nenhum jogo encontrado para este utilizador.";
             }
         } catch (e) {
-            console.error(e);
             document.getElementById('lista-jogos-container').innerHTML = "Erro ao conectar ao servidor.";
         }
     })();
 
     function renderizar(apostas) {
         const container = document.getElementById('lista-jogos-container');
-        if (apostas.length === 0) {
-            container.innerHTML = "Sem jogos agendados.";
-            return;
-        }
-
         let html = '<table class="tabela-palpites">';
 
         apostas.forEach(j => {
-            // Normalização: Turso pode retornar campos em minúsculas ou maiúsculas
-            const sel1 = j.Sel1 || j.sel1;
-            const sel2 = j.Sel2 || j.sel2;
-            const ap1 = (j.Ap1 !== undefined) ? j.Ap1 : j.ap1;
-            const ap2 = (j.Ap2 !== undefined) ? j.Ap2 : j.ap2;
-            const nomeJogo = j.Jogo || j.jogo;
-            const dataJ = j.Data || j.data;
-            const horaJ = j.Horario || j.horario;
-
-            // Lógica de Bloqueio (10 min antes)
+            // Trava de 10 minutos antes do início
             const agora = new Date();
-            const limite = new Date(`${dataJ}T${horaJ}:00`);
+            const limite = new Date(`${j.Data}T${j.Horario}:00`);
             limite.setMinutes(limite.getMinutes() - 10);
             const bloqueado = agora > limite;
 
             html += `
                 <tr class="linha-jogo">
-                    <td class="col-time time-dir">${sel1} <span class="info-data">${dataJ}</span></td>
+                    <td class="col-time time-dir">${j.Sel1} <span class="info-data">${j.Data}</span></td>
                     <td class="col-placar">
-                        <input type="number" class="input-palpite" value="${ap1}" min="0" max="10" 
-                            ${bloqueado ? 'disabled' : ''} onchange="salvar('${nomeJogo}', this)">
-                        <b style="color:#334155">x</b>
-                        <input type="number" class="input-palpite" value="${ap2}" min="0" max="10" 
-                            ${bloqueado ? 'disabled' : ''} onchange="salvar('${nomeJogo}', this)">
+                        <input type="number" class="input-palpite" value="${j.Ap1}" min="0" max="10" 
+                            ${bloqueado ? 'disabled' : ''} onchange="salvar('${j.Jogo}', this)">
+                        <b style="color:#64748b">x</b>
+                        <input type="number" class="input-palpite" value="${j.Ap2}" min="0" max="10" 
+                            ${bloqueado ? 'disabled' : ''} onchange="salvar('${j.Jogo}', this)">
                     </td>
-                    <td class="col-time time-esq">${sel2} <span class="info-data">${horaJ}h</span></td>
+                    <td class="col-time time-esq">${j.Sel2} <span class="info-data">${j.Horario}h</span></td>
                 </tr>`;
         });
         container.innerHTML = html + '</table>';
     }
 
     async function salvar(nomeJogo, inputEl) {
-        const usuario = window.usuarioLogado || (window.parent ? window.parent.usuarioLogado : null);
+        const usuario = window.usuarioLogado;
         const linha = inputEl.closest('tr');
         const inputs = linha.querySelectorAll('.input-palpite');
         
         let v1 = parseInt(inputs[0].value) || 0;
         let v2 = parseInt(inputs[1].value) || 0;
 
-        // Forçar limites 0-10
+        // Regra: Valores somente de 0 a 10
         if(v1 < 0) v1 = 0; if(v1 > 10) v1 = 10;
         if(v2 < 0) v2 = 0; if(v2 > 10) v2 = 10;
         inputs[0].value = v1; inputs[1].value = v2;
 
         try {
-            const res = await fetch('/salvar-palpite', {
+            await fetch('/salvar-palpite', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ apelido: usuario.Apelido, jogo: nomeJogo, ap1: v1, ap2: v2 })
+                body: JSON.stringify({ 
+                    apelido: usuario.Apelido, 
+                    jogo: nomeJogo, 
+                    ap1: v1, 
+                    ap2: v2 
+                })
             });
-            const r = await res.json();
-            if (!r.success) alert(r.message);
-        } catch (e) { alert("Erro ao salvar."); }
+        } catch (e) { console.error("Erro ao salvar palpite"); }
     }
 </script>
