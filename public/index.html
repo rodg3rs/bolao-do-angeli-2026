@@ -139,20 +139,18 @@
     }
 
     function abrirPalpites() {
-        if(!usuarioLogado) {
-            alert("Acesse sua conta primeiro!");
-            carregarModulo('login.html', 'btn-login');
-            return;
-        }
-        carregarModulo('palpites.html', 'btn-palpites');
+    if(!usuarioLogado) {
+        alert("Acesse sua conta primeiro!");
+        carregarModulo('login.html', 'btn-login');
+        return;
     }
+    carregarModulo('palpites.html', 'btn-palpites');
+}
 
-// Função de callback para ser chamada pelo login.html
+// Voltando ao padrão original do seu index.html
 function definirUsuario(dados) {
-    // SALVA NA WINDOW PARA SER GLOBAL [CORREÇÃO]
-    window.usuarioLogado = dados; 
-    
-    document.getElementById('user-display').innerText = `Logado como: ${window.usuarioLogado.Apelido}`;
+    usuarioLogado = dados; // Variável simples, como você usava
+    document.getElementById('user-display').innerText = `Logado como: ${usuarioLogado.Apelido}`;
     limparCentro();
 }
 </script>
