@@ -176,12 +176,13 @@
             });
             const result = await res.json();
             
-            if(result.success) {
-                alert("Bem-vindo, " + result.user.Apelido + "!");
-                // Comunica ao index.html (Pai) a mudança de estado
-                if (typeof definirUsuario === "function") {
-                    definirUsuario(result.user);
-                }
+	    if(result.success) {
+            	// REMOVIDO O ALERT DAQUI
+            
+            	// Comunica ao index.html (Pai) a mudança de estado imediatamente
+            	if (typeof definirUsuario === "function") {
+                	definirUsuario(result.user); // Esta função já limpa o centro e atualiza o header
+            	}
             } else { 
                 alert("Acesso negado: " + result.message); 
             }
