@@ -29,72 +29,38 @@
             z-index: 10;
         }
         header h1 { font-size: 26px; font-weight: bold; color: white; letter-spacing: 2px; text-transform: uppercase; }
-        
-        #user-display {
-            font-size: 14px;
-            color: var(--accent);
-            margin-top: 5px;
-            font-weight: 600;
-        }
+        #user-display { font-size: 0.9rem; color: var(--accent); margin-top: 5px; font-weight: 500; }
 
-        /* Menu Lateral Esquerdo */
         .sidebar-l { 
             background: var(--panel); 
             border-right: 1px solid var(--border); 
             padding: 20px; 
             display: flex; 
-            flex-direction: column; 
+            flex-direction: column;
         }
-        .menu-btn { 
-            padding: 12px 15px; 
-            margin-bottom: 8px; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            color: #94a3b8; 
-            font-weight: 600;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .menu-label { color: #64748b; font-size: 0.75rem; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+        .menu-btn { padding: 12px 15px; margin-bottom: 5px; border-radius: 8px; cursor: pointer; color: #94a3b8; transition: 0.3s; display: flex; align-items: center; gap: 10px; border: none; background: transparent; width: 100%; text-align: left; font-size: 1rem; }
         .menu-btn:hover, .menu-btn.active { background: var(--border); color: white; }
-        .menu-btn.active { border-left: 4px solid var(--accent); border-radius: 4px 8px 8px 4px; }
-
-        /* Área Central (Iframe ou Conteúdo) */
-        main { padding: 30px; overflow-y: auto; display: flex; justify-content: center; align-items: center; }
-        .content-area { width: 100%; height: 100%; max-width: 900px; display: flex; justify-content: center; align-items: center;}
-
-        /* Coluna do Ranking */
-        .sidebar-r { background: #162033; padding: 15px; border-left: 1px solid var(--border); }
+        .spacer { flex-grow: 1; }
         
-        /* Coluna do Chat */
-        .sidebar-chat { background: #1a2438; padding: 15px; border-left: 1px solid var(--border); }
+        .version-tag { font-size: 10px; color: #334155; text-align: center; margin-top: 10px; font-family: monospace; }
 
-        /* Widgets (Caixas de conteúdo lateral) */
-        .widget { 
-            background: var(--bg); 
-            border: 1px solid var(--border); 
-            border-radius: 12px; 
-            padding: 15px; 
-            height: 100%; 
-            display: flex; 
-            flex-direction: column; 
+        main { 
+            padding: 20px; 
+            background: var(--bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overflow-y: auto;
         }
-        .widget-title { 
-            color: var(--accent); 
-            font-size: 12px; 
-            font-weight: bold; 
-            text-transform: uppercase; 
-            text-align: center; 
-            margin-bottom: 12px; 
-            border-bottom: 1px solid var(--border); 
-            padding-bottom: 8px; 
-        }
-        .list-scroll { flex-grow: 1; overflow-y: auto; }
+
+        .widget-col { background: #162033; padding: 15px; display: flex; flex-direction: column; gap: 15px; border-left: 1px solid var(--border); }
+        .widget-box { flex: 1; display: flex; flex-direction: column; background: #0f172a; border-radius: 12px; padding: 15px; border: 1px solid var(--border); overflow: hidden; }
+        .widget-title { color: var(--accent); font-weight: bold; margin-bottom: 15px; font-size: 0.85rem; text-transform: uppercase; text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
         
-        /* Estilo das mensagens do chat */
-        .chat-msg { margin-bottom: 8px; font-size: 0.85rem; line-height: 1.4; }
-        .chat-msg b { color: var(--accent); }
+        .list-scroll { overflow-y: auto; flex-grow: 1; font-size: 0.85rem; color: #64748b; text-align: center; padding-top: 20px; }
+        .empty-state { color: #334155; font-style: italic; font-size: 1.1rem; text-align: center; margin-top: 50px; width: 100%; }
     </style>
 </head>
 <body>
@@ -105,43 +71,117 @@
     </header>
 
     <aside class="sidebar-l">
-        <div class="menu-btn active" onclick="abrirAuth()">🔑 Entrar / Cadastrar</div>
-        <div class="menu-btn" style="opacity: 0.5; cursor: not-allowed;">⚽ Meus Palpites</div>
-        <div class="menu-btn" style="opacity: 0.5; cursor: not-allowed;">👥 Galera</div>
-        <div class="menu-btn" style="opacity: 0.5; cursor: not-allowed;">📜 Regulamento</div>
-        <div style="flex-grow: 1;"></div>
-        <div class="menu-btn" style="color: #ef4444;" onclick="alert('Você já está deslogado!')">🚪 Sair</div>
+        <div class="menu-label">Menu Principal</div>
+        <button class="menu-btn" id="btn-login" onclick="carregarModulo('login.html', 'btn-login')">👤 Login</button>
+        <button class="menu-btn" id="btn-palpites" onclick="abrirPalpites()">⚽ Meus Palpites</button>
+        <button class="menu-btn" onclick="limparCentro()">👥 Galera</button>
+        <button class="menu-btn" onclick="limparCentro()">📜 Regulamento</button>
+        <button class="menu-btn" onclick="limparCentro()">⚙️ Admin</button>
+        
+        <div class="spacer"></div>
+        <button class="menu-btn" style="color:#ef4444; border: 1px solid #ef444433; justify-content: center; font-weight: bold;" onclick="location.reload()">🚪 Sair</button>
+        <div class="version-tag">2026-04-03_16:00</div>
     </aside>
 
-    <main>
-        <div class="content-area" id="conteudo-principal">
-            <iframe src="login.html" style="width:100%; height:100%; border:none;"></iframe>
-        </div>
+    <main id="conteudo-central">
+        <div class="empty-state">Selecione uma opção no menu lateral...</div>
     </main>
 
-    <aside class="sidebar-r">
-        <div class="widget">
+    <div class="widget-col">
+        <div class="widget-box">
             <div class="widget-title">🏆 Ranking Geral</div>
-            <div id="lista-ranking" class="list-scroll">
-                </div>
+            <div class="list-scroll">Faça login para ver</div>
+	    <div id="lista-ranking"></div>
         </div>
-    </aside>
+    </div>
 
-    <aside class="sidebar-chat">
-        <div class="widget">
-            <div class="widget-title">💬 Zoação (24h)</div>
-            <div id="chat-box" class="list-scroll">
-                </div>
-            <div style="display: flex; gap: 5px; margin-top: 10px;">
-                <input type="text" id="chat-input" placeholder="Digite algo..." 
-                       style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg); color: white;">
-                <button onclick="enviarMensagem()" style="background: var(--success); color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;">Enviar</button>
-            </div>
-        </div>
-    </aside>
+    <div class="widget-col">
+        <div class="widget-box">
+    	<div class="widget-title">💬 Zoação (24h)</div>
+    	<div id="container-chat-fixo" style="height: 100%; display: flex; flex-direction: column;">
+             <div class="list-scroll">Iniciando...</div>
+    </div>
+</div>
 
-    <script>
-        // --- 1. FUNÇÃO DO RANKING ---
+<script>
+    let usuarioLogado = null;
+
+    function limparCentro() {
+        document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('conteudo-central').innerHTML = '<div class="empty-state">Selecione uma opção no menu lateral...</div>';
+    }
+
+    async function carregarModulo(arquivo, idBotao) {
+        limparCentro();
+        if(idBotao) document.getElementById(idBotao).classList.add('active');
+        
+        try {
+            // Adicionado parâmetro timestamp para evitar cache do navegador
+            const response = await fetch(`${arquivo}?v=${new Date().getTime()}`);
+            if (!response.ok) throw new Error(`Status: ${response.status}`);
+            
+            const html = await response.text();
+            const centro = document.getElementById('conteudo-central');
+            centro.innerHTML = html;
+
+            // Recriar scripts para garantir execução
+            const scripts = centro.querySelectorAll('script');
+            scripts.forEach(oldScript => {
+                const newScript = document.createElement('script');
+                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                newScript.text = oldScript.text;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        } catch (e) {
+            console.error("Falha ao carregar módulo:", e);
+            document.getElementById('conteudo-central').innerHTML = 
+                `<div class="empty-state" style="color: #ef4444;">Erro ao carregar módulo: ${arquivo}<br><small>${e.message}</small></div>`;
+        }
+    }
+
+    function abrirPalpites() {
+    if(!usuarioLogado) {
+        alert("Acesse sua conta primeiro!");
+        carregarModulo('login.html', 'btn-login');
+        return;
+    }
+    carregarModulo('palpites.html', 'btn-palpites');
+}
+
+// Voltando ao padrão original do seu index.html
+function definirUsuario(dados) {
+    usuarioLogado = dados; // Variável simples, como você usava
+    document.getElementById('user-display').innerText = `Logado como: ${usuarioLogado.Apelido}`;
+    limparCentro();
+}
+// Função para carregar o chat na coluna fixa assim que a página abrir
+async function inicializarChatFixo() {
+    try {
+        const res = await fetch('chat.html');
+        const html = await res.text();
+        const container = document.getElementById('container-chat-fixo');
+        container.innerHTML = html;
+
+        // Executa os scripts do chat.html
+        const scripts = container.querySelectorAll('script');
+        scripts.forEach(oldScript => {
+            const newScript = document.createElement('script');
+            newScript.text = oldScript.text;
+            document.body.appendChild(newScript);
+        });
+    } catch (e) {
+        console.error("Erro ao carregar chat fixo:", e);
+    }
+}
+</script>
+</body>
+</html>
+
+// Chama a inicialização
+inicializarChatFixo();
+
+<script>
+        // --- FUNÇÃO DO RANKING ---
         async function carregarRanking() {
             try {
                 const res = await fetch('/api/ranking');
@@ -151,7 +191,7 @@
                     let html = '';
                     data.ranking.forEach((user, index) => {
                         html += `
-                            <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid var(--border); font-size: 0.9rem;">
+                            <div style="display:flex; justify-content:space-between; padding:8px 10px; border-bottom:1px solid var(--border); font-size: 0.85rem;">
                                 <span><b>${index + 1}º</b> ${user.Apelido}</span>
                                 <b style="color: var(--accent);">${user.Total || 0} pts</b>
                             </div>
@@ -161,95 +201,24 @@
                     if (container) container.innerHTML = html;
                 }
             } catch(e) {
-                console.error("Erro ao carregar ranking:", e);
+                console.error("Erro ao conectar com o ranking", e);
             }
         }
 
-        // --- 2. FUNÇÕES DO CHAT ---
-        async function carregarChat() {
-            try {
-                const res = await fetch('/get-chat');
-                const data = await res.json();
-                
-                if (data.success && data.mensagens) {
-                    let html = '';
-                    data.mensagens.forEach(m => {
-                        html += `
-                            <div class="chat-msg">
-                                <b>${m.Apelido}:</b> ${m.Mensagem}
-                            </div>
-                        `;
-                    });
-                    const container = document.getElementById('chat-box');
-                    if (container) {
-                        container.innerHTML = html;
-                        container.scrollTop = container.scrollHeight; // Rola o chat para a última mensagem
-                    }
-                }
-            } catch(e) {
-                console.error("Erro ao carregar chat:", e);
-            }
-        }
-
-        async function enviarMensagem() {
-            const input = document.getElementById('chat-input');
-            const mensagem = input.value.trim();
-            const apelido = document.getElementById('user-display').innerText;
-
-            if (!mensagem) return;
-
-            if (apelido === "Visitante") {
-                alert("Você precisa estar logado para enviar mensagens!");
-                return;
-            }
-
-            try {
-                const res = await fetch('/enviar-msg', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ apelido, mensagem })
-                });
-
-                const data = await res.json();
-                if (data.success) {
-                    input.value = '';
-                    carregarChat();
-                }
-            } catch(e) {
-                console.error("Erro ao enviar mensagem:", e);
-            }
-        }
-
-        // Enviar mensagem ao apertar Enter
-        document.getElementById('chat-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                enviarMensagem();
-            }
-        });
-
-        // --- 3. INICIALIZAÇÃO E LOOPS (Varredura) ---
+        // --- INICIALIZAÇÃO GERAL ---
         document.addEventListener('DOMContentLoaded', () => {
-            // Carrega os dados assim que o site abre
+            // 1. Carrega o ranking assim que a página abre
             carregarRanking();
-            carregarChat();
             
-            // Loop para atualizar o Ranking a cada 10 segundos
-            setInterval(carregarRanking, 10000);
+            // 2. Inicializa o Chat (se a função existir no seu arquivo)
+            if (typeof inicializarChatFixo === "function") {
+                inicializarChatFixo();
+            }
 
-            // Loop para atualizar o Chat a cada 3 segundos
-            setInterval(carregarChat, 3000);
+            // 3. Define os loops de atualização (Varredura)
+            setInterval(carregarRanking, 10000); // Ranking a cada 10s
         });
-
-        // --- 4. FUNÇÕES DE NAVEGAÇÃO ---
-        function abrirAuth() {
-            document.getElementById('conteudo-principal').innerHTML = '<iframe src="login.html" style="width:100%; height:100%; border:none;"></iframe>';
-        }
-
-        // Função escutada pelo iframe (login.html) quando o usuário loga
-        window.definirUsuario = function(usuario) {
-            document.getElementById('user-display').innerText = usuario.apelido;
-            location.href = `dashboard.html?id=${usuario.id}&apelido=${usuario.apelido}`;
-        };
-    </script>
+}
+</script>
 </body>
 </html>
