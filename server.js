@@ -30,14 +30,14 @@ app.post('/cadastrar', async (req, res) => {
             args: [id, nome, apelido, senha, time]
         });
 
-        // 1. Busca jogos da dTabela
-        const jogos = await db.execute("SELECT Jogo, Data, Horario FROM dTabela");
+	// 1. Busca jogos completos da dTabela
+        const jogos = await db.execute("SELECT Jogo, Sel1, Sel2, Data, Horario FROM dTabela");
 
-        // 2. CORREÇÃO DO LOOP: 'of' em vez de 'de'
+        // 2. Loop para carregar a tabela dApostas com todas as informações
         for (const jogo of jogos.rows) {
             await db.execute({
-                sql: "INSERT INTO dApostas (ID, Apelido, Jogo, Data, Horario, Ap1, Ap2) VALUES (?, ?, ?, ?, ?, 0, 0)",
-                args: [id, apelido, jogo.Jogo, jogo.Data, jogo.Horario]
+                sql: "INSERT INTO dApostas (ID, Apelido, Jogo, Sel1, Sel2, Data, Horario, Ap1, Ap2) VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0)",
+                args: [id, apelido, jogo.Jogo, jogo.Sel1, jogo.Sel2, jogo.Data, jogo.Horario]
             });
         }
 
