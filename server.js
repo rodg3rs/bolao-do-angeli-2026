@@ -11,32 +11,29 @@ const db = createClient({
   authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
-// --- CADASTRO ---
+// CORREÇÃO NO CADASTRO
 app.post('/cadastrar', async (req, res) => {
     const { id, nome, apelido, senha, time } = req.body; 
 
     try {
-        // 1. Verifica se o CPF já foi usado
         const usuarioExistente = await db.execute({
             sql: "SELECT ID FROM dLogin WHERE ID = ?",
             args: [id]
         });
 
         if (usuarioExistente.rows.length > 0) {
-            return res.json({ success: false, message: "Este CPF já possui um cadastro ativo." });
+            return res.json({ success: false, message: "CPF já cadastrado." });
         }
 
-        // 2. Insere o novo usuário na dLogin
         await db.execute({
             sql: "INSERT INTO dLogin (ID, Nome, Apelido, Senha, Time) VALUES (?, ?, ?, ?, ?)",
             args: [id, nome, apelido, senha, time]
         });
 
-        // 3. Busca todos os jogos da dTabela para gerar as apostas iniciais
+        // 1. Busca jogos da dTabela
         const jogos = await db.execute("SELECT Jogo, Data, Horario FROM dTabela");
 
-        // 4. Preenche a tabela dApostas
-        // CORREÇÃO: Usando um loop for...of correto para garantir que todas as inserções terminem
+        // 2. CORREÇÃO DO LOOP: 'of' em vez de 'de'
         for (const jogo of jogos.rows) {
             await db.execute({
                 sql: "INSERT INTO dApostas (ID_Usuario, Apelido, Jogo, Data, Horario, Ap1, Ap2) VALUES (?, ?, ?, ?, ?, 0, 0)",
@@ -44,14 +41,14 @@ app.post('/cadastrar', async (req, res) => {
             });
         }
 
-        res.json({ success: true, message: "Cadastro realizado e apostas geradas!" });
+        res.json({ success: true, message: "Cadastro e apostas criadas!" });
     } catch (e) {
         console.error("Erro no cadastro:", e);
-        res.status(500).json({ success: false, message: "Erro ao processar cadastro no banco." });
+        res.status(500).json({ success: false, message: "Erro ao processar base de dados." });
     }
 });
 
-// --- LOGIN ---
+// CORREÇÃO NO LOGIN
 app.post('/login', async (req, res) => {
     const { apelido, senha } = req.body;
     try {
@@ -59,15 +56,14 @@ app.post('/login', async (req, res) => {
             sql: "SELECT * FROM dLogin WHERE Apelido = ? AND Senha = ?",
             args: [apelido, senha]
         });
-        // CORREÇÃO: Certificando que o objeto 'user' contém o ID (CPF) para o frontend usar
+        
         if (result.rows.length > 0) {
+            // Garante que o ID (CPF) está a ser enviado para o frontend
             res.json({ success: true, user: result.rows[0] }); 
         } else {
-            res.json({ success: false, message: "Apelido ou senha incorretos." });
+            res.json({ success: false, message: "Credenciais incorretas." });
         }
-    } catch (e) { 
-        res.status(500).json({ success: false, message: "Erro no servidor." }); 
-    }
+    } catch (e) { res.status(500).json({ success: false }); }
 });
 
 // --- MEUS PALPITES ---
