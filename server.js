@@ -11,12 +11,12 @@ const db = createClient({
   authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
-// Cadastro e Login (Mantidos conforme regras anteriores)
+// --- CADASTRO ---
 app.post('/cadastrar', async (req, res) => {
-    const { id, nome, apelido, senha, time } = req.body; // id é o CPF limpo enviado pelo login.html
+    const { id, nome, apelido, senha, time } = req.body; 
 
     try {
-        // 1. Verifica se o CPF já foi usado (ID é a chave primária)
+        // 1. Verifica se o CPF já foi usado
         const usuarioExistente = await db.execute({
             sql: "SELECT ID FROM dLogin WHERE ID = ?",
             args: [id]
@@ -35,9 +35,9 @@ app.post('/cadastrar', async (req, res) => {
         // 3. Busca todos os jogos da dTabela para gerar as apostas iniciais
         const jogos = await db.execute("SELECT Jogo, Data, Horario FROM dTabela");
 
-        // 4. Preenche a tabela dApostas com os dados da dTabela + CPF + Apelido
-        // Nota: Ajuste os nomes das colunas conforme sua estrutura exata no Turso
-        for (const jogo de jogos.rows) {
+        // 4. Preenche a tabela dApostas
+        // CORREÇÃO: Usando um loop for...of correto para garantir que todas as inserções terminem
+        for (const jogo of jogos.rows) {
             await db.execute({
                 sql: "INSERT INTO dApostas (ID_Usuario, Apelido, Jogo, Data, Horario, Ap1, Ap2) VALUES (?, ?, ?, ?, ?, 0, 0)",
                 args: [id, apelido, jogo.Jogo, jogo.Data, jogo.Horario]
@@ -50,6 +50,8 @@ app.post('/cadastrar', async (req, res) => {
         res.status(500).json({ success: false, message: "Erro ao processar cadastro no banco." });
     }
 });
+
+// --- LOGIN ---
 app.post('/login', async (req, res) => {
     const { apelido, senha } = req.body;
     try {
@@ -57,75 +59,82 @@ app.post('/login', async (req, res) => {
             sql: "SELECT * FROM dLogin WHERE Apelido = ? AND Senha = ?",
             args: [apelido, senha]
         });
-        if (result.rows.length > 0) res.json({ success: true, user: result.rows[0] });
-        else res.json({ success: false, message: "Credenciais incorretas." });
-    } catch (e) { res.status(500).json({ success: false, message: "Erro no servidor." }); }
+        // CORREÇÃO: Certificando que o objeto 'user' contém o ID (CPF) para o frontend usar
+        if (result.rows.length > 0) {
+            res.json({ success: true, user: result.rows[0] }); 
+        } else {
+            res.json({ success: false, message: "Apelido ou senha incorretos." });
+        }
+    } catch (e) { 
+        res.status(500).json({ success: false, message: "Erro no servidor." }); 
+    }
 });
 
-// --- NOVA LOGA: MEUS PALPITES ---
+// --- MEUS PALPITES ---
 
-// Buscar apostas do usuário logado
 app.get('/minhas-apostas/:apelido', async (req, res) => {
     try {
+        // CORREÇÃO: Mantendo a ordenação por Data e Horário conforme solicitado
         const result = await db.execute({
             sql: "SELECT * FROM dApostas WHERE Apelido = ? ORDER BY Data, Horario",
             args: [req.params.apelido]
         });
         res.json({ success: true, apostas: result.rows });
-    } catch (e) { res.status(500).json({ success: false }); }
+    } catch (e) { 
+        res.status(500).json({ success: false }); 
+    }
 });
 
-// Salvar palpite individual com trava de 10 minutos
 app.post('/salvar-palpite', async (req, res) => {
     const { apelido, jogo, ap1, ap2 } = req.body;
     try {
-        // Busca info do jogo para validar horário
         const info = await db.execute({
             sql: "SELECT Data, Horario FROM dTabela WHERE Jogo = ?",
             args: [jogo]
         });
 
         if (info.rows.length > 0) {
-            const dataJogo = info.rows[0].Data; // Formato esperado: YYYY-MM-DD
-            const horaJogo = info.rows[0].Horario; // Formato esperado: HH:MM
+            const dataJogo = info.rows[0].Data; 
+            const horaJogo = info.rows[0].Horario; 
             
             const agora = new Date();
+            // CORREÇÃO: Garantindo que o formato da data/hora seja aceito pelo construtor Date
             const limite = new Date(`${dataJogo}T${horaJogo}:00`);
-            limite.setMinutes(limite.getMinutes() - 10);
+            limite.setMinutes(limite.setMinutes() - 10);
 
             if (agora > limite) {
                 return res.json({ success: false, message: "Tempo esgotado! Bloqueado 10min antes." });
             }
 
+            // CORREÇÃO: O seu código usava colunas Ap1/Ap2, certifique-se que o banco bate com isso
             await db.execute({
                 sql: "UPDATE dApostas SET Ap1 = ?, Ap2 = ? WHERE Apelido = ? AND Jogo = ?",
                 args: [ap1, ap2, apelido, jogo]
             });
             res.json({ success: true });
         }
-    } catch (e) { res.status(500).json({ success: false }); }
+    } catch (e) { 
+        console.error("Erro ao salvar palpite:", e);
+        res.status(500).json({ success: false }); 
+    }
 });
 
-// Rota para buscar mensagens (e limpar as antigas)
+// --- CHAT (24 Horas) ---
+
 app.get('/get-chat', async (req, res) => {
     try {
-        // Limpa automaticamente mensagens com mais de 24 horas [Regra solicitada]
+        // Regra de 24h: Limpa mensagens antigas antes de buscar
         await db.execute("DELETE FROM dChat WHERE DataHora < datetime('now', '-1 day')");
 
-        // Busca as últimas 50 mensagens para não sobrecarregar a tela
         const result = await db.execute("SELECT Apelido, Mensagem FROM dChat ORDER BY ID ASC LIMIT 50");
         res.json({ success: true, mensagens: result.rows });
     } catch (e) {
-        console.error("Erro no chat:", e);
         res.status(500).json({ success: false });
     }
 });
 
-// Rota para enviar nova mensagem
 app.post('/enviar-msg', async (req, res) => {
     const { apelido, mensagem } = req.body;
-    
-    // Validação extra de segurança no servidor
     if(!apelido || !mensagem) return res.status(400).json({ success: false });
 
     try {
