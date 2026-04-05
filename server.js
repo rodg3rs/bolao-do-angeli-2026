@@ -36,7 +36,7 @@ app.post('/cadastrar', async (req, res) => {
         // 2. CORREÇÃO DO LOOP: 'of' em vez de 'de'
         for (const jogo of jogos.rows) {
             await db.execute({
-                sql: "INSERT INTO dApostas (ID_Usuario, Apelido, Jogo, Data, Horario, Ap1, Ap2) VALUES (?, ?, ?, ?, ?, 0, 0)",
+                sql: "INSERT INTO dApostas (ID, Apelido, Jogo, Data, Horario, Ap1, Ap2) VALUES (?, ?, ?, ?, ?, 0, 0)",
                 args: [id, apelido, jogo.Jogo, jogo.Data, jogo.Horario]
             });
         }
