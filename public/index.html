@@ -91,6 +91,7 @@
         <div class="widget-box">
             <div class="widget-title">🏆 Ranking Geral</div>
             <div class="list-scroll">Faça login para ver</div>
+	    <div id="lista-ranking"></div>
         </div>
     </div>
 
@@ -172,6 +173,37 @@ async function inicializarChatFixo() {
         console.error("Erro ao carregar chat fixo:", e);
     }
 }
+
+<script>
+    // Função que faz a varredura visual
+    async function carregarRanking() {
+        try {
+            const res = await fetch('/api/ranking');
+            const data = await res.json();
+            
+            if(data.success && data.ranking) {
+                let html = '';
+                data.ranking.forEach((user, index) => {
+                    html += `
+                        <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #1e293b; font-size: 0.85rem;">
+                            <span><b>${index + 1}º</b> ${user.Apelido}</span>
+                            <b style="color: var(--accent);">${user.Total || 0} pts</b>
+                        </div>
+                    `;
+                });
+                document.getElementById('lista-ranking').innerHTML = html;
+            }
+        } catch(e) {
+            console.error("Erro ao conectar com o ranking", e);
+        }
+    }
+
+    // Chama a função imediatamente ao abrir o site
+    carregarRanking();
+
+    // Cria o "Loop de Varredura": Atualiza o ranking automaticamente a cada 10 segundos
+    setInterval(carregarRanking, 10000);
+</script>
 
 // Chama a inicialização
 inicializarChatFixo();

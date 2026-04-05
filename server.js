@@ -144,5 +144,60 @@ app.post('/enviar-msg', async (req, res) => {
     }
 });
 
+// --- 1. ROTA ADMIN: ATUALIZAR RESULTADO E CALCULAR PONTOS ---
+app.post('/api/admin/atualizar_resultado', async (req, res) => {
+    const { jogo, res1, res2 } = req.body;
+    const r1 = parseInt(res1);
+    const r2 = parseInt(res2);
+
+    try {
+        // 1. Salva o resultado oficial na dResult
+        await db.execute({
+            sql: "INSERT INTO dResult (Jogo, Res1, Res2) VALUES (?, ?, ?) ON CONFLICT(Jogo) DO UPDATE SET Res1=excluded.Res1, Res2=excluded.Res2",
+            args: [jogo, r1, r2]
+        });
+
+        // 2. A MÁGICA DO CÁLCULO: Atualiza dApostas e distribui os pontos de uma vez só!
+        const sqlCalculo = `
+            UPDATE dApostas 
+            SET Res1 = ?, Res2 = ?, 
+                Pontos = CASE 
+                    WHEN Ap1 = ? AND Ap2 = ? THEN 3 
+                    WHEN (Ap1 > Ap2 AND ? > ?) OR (Ap1 < Ap2 AND ? < ?) OR (Ap1 = Ap2 AND ? = ?) THEN 2 
+                    ELSE 0 
+                END
+            WHERE Jogo = ?
+        `;
+        // Os parâmetros seguem a ordem exata das interrogações acima
+        await db.execute({
+            sql: sqlCalculo,
+            args: [r1, r2, r1, r2, r1, r2, r1, r2, r1, r2, jogo]
+        });
+
+        res.json({ success: true, message: "Resultado salvo e pontos calculados com sucesso!" });
+    } catch (e) {
+        console.error("Erro ao calcular pontos:", e);
+        res.status(500).json({ success: false });
+    }
+});
+
+// --- 2. ROTA PÚBLICA DO RANKING (Pode ser acessada sem estar logado) ---
+app.get('/api/ranking', async (req, res) => {
+    try {
+        // Soma os pontos de todos os jogos para cada usuário
+        const result = await db.execute(`
+            SELECT Apelido, SUM(Pontos) as Total 
+            FROM dApostas 
+            GROUP BY Apelido 
+            ORDER BY Total DESC, Apelido ASC
+        `);
+        res.json({ success: true, ranking: result.rows });
+    } catch (e) {
+        console.error("Erro ao buscar ranking:", e);
+        res.status(500).json({ success: false });
+    }
+});
+
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
