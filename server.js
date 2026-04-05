@@ -13,33 +13,41 @@ const db = createClient({
 
 // Cadastro e Login (Mantidos conforme regras anteriores)
 app.post('/cadastrar', async (req, res) => {
-    // Pegamos o 'id' que vem do login.html (que agora é o CPF)
-    const { id, nome, apelido, senha, time } = req.body;
+    const { id, nome, apelido, senha, time } = req.body; // id é o CPF limpo enviado pelo login.html
 
     try {
-        // 1. Verifica se o CPF já está cadastrado na tabela dLogin
+        // 1. Verifica se o CPF já foi usado (ID é a chave primária)
         const usuarioExistente = await db.execute({
             sql: "SELECT ID FROM dLogin WHERE ID = ?",
             args: [id]
         });
 
         if (usuarioExistente.rows.length > 0) {
-            return res.json({ success: false, message: "Este CPF já está cadastrado no sistema." });
+            return res.json({ success: false, message: "Este CPF já possui um cadastro ativo." });
         }
 
-        // 2. Insere o novo usuário usando o CPF como ID primário
+        // 2. Insere o novo usuário na dLogin
         await db.execute({
             sql: "INSERT INTO dLogin (ID, Nome, Apelido, Senha, Time) VALUES (?, ?, ?, ?, ?)",
             args: [id, nome, apelido, senha, time]
         });
 
-        // 3. Opcional: Aqui você mantém sua lógica de gerar os palpites iniciais
-        // Exemplo: await db.execute({ sql: "INSERT INTO dApostas...", args: [id, ...] });
+        // 3. Busca todos os jogos da dTabela para gerar as apostas iniciais
+        const jogos = await db.execute("SELECT Jogo, Data, Horario FROM dTabela");
 
-        res.json({ success: true, message: "Cadastro realizado com sucesso!" });
+        // 4. Preenche a tabela dApostas com os dados da dTabela + CPF + Apelido
+        // Nota: Ajuste os nomes das colunas conforme sua estrutura exata no Turso
+        for (const jogo de jogos.rows) {
+            await db.execute({
+                sql: "INSERT INTO dApostas (ID_Usuario, Apelido, Jogo, Data, Horario, Ap1, Ap2) VALUES (?, ?, ?, ?, ?, 0, 0)",
+                args: [id, apelido, jogo.Jogo, jogo.Data, jogo.Horario]
+            });
+        }
+
+        res.json({ success: true, message: "Cadastro realizado e apostas geradas!" });
     } catch (e) {
         console.error("Erro no cadastro:", e);
-        res.status(500).json({ success: false, message: "Erro interno ao cadastrar." });
+        res.status(500).json({ success: false, message: "Erro ao processar cadastro no banco." });
     }
 });
 app.post('/login', async (req, res) => {
