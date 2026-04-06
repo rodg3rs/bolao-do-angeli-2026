@@ -13,7 +13,7 @@
             height: 100vh; 
             overflow: hidden; 
             display: grid; 
-            /* Colunas: Menu(220px), Centro(Flex), Ranking(300px), Chat(300px) */
+            /* Layout: Menu(220px), Centro(1fr), Ranking(300px), Chat(300px) */
             grid-template-columns: 220px 1fr 300px 300px; 
             grid-template-rows: 80px 1fr; 
         }
@@ -22,45 +22,69 @@
             grid-column: 1 / -1; 
             background: var(--panel); 
             display: flex; 
-            flex-direction: column;
             justify-content: center; 
             align-items: center; 
             border-bottom: 1px solid var(--border);
+            position: relative;
             z-index: 10;
         }
-        header h1 { font-size: 26px; font-weight: bold; color: white; letter-spacing: 2px; text-transform: uppercase; }
-        #user-display { font-size: 0.9rem; color: var(--accent); margin-top: 5px; font-weight: 500; }
 
-        .sidebar-l { 
-            background: var(--panel); 
-            border-right: 1px solid var(--border); 
-            padding: 20px; 
+        #user-display {
+            position: absolute;
+            right: 20px;
+            background: var(--border);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--accent);
+        }
+
+        .sidebar-l { background: var(--panel); border-right: 1px solid var(--border); padding: 20px; }
+        
+        .menu-btn { 
+            padding: 12px; margin-bottom: 10px; border-radius: 8px; cursor: pointer; 
+            color: #94a3b8; transition: 0.3s; border: 1px solid transparent;
+        }
+        .menu-btn:hover { background: var(--border); color: white; border-color: var(--accent); }
+
+        main { padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
+
+        /* Estilo para as barras laterais */
+        .sidebar-r, .sidebar-chat { 
+            background: rgba(15, 23, 42, 0.5); 
+            border-left: 1px solid var(--border); 
+            padding: 15px; 
             display: flex; 
-            flex-direction: column;
-        }
-        .menu-label { color: #64748b; font-size: 0.75rem; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
-        .menu-btn { padding: 12px 15px; margin-bottom: 5px; border-radius: 8px; cursor: pointer; color: #94a3b8; transition: 0.3s; display: flex; align-items: center; gap: 10px; border: none; background: transparent; width: 100%; text-align: left; font-size: 1rem; }
-        .menu-btn:hover, .menu-btn.active { background: var(--border); color: white; }
-        .spacer { flex-grow: 1; }
-        
-        .version-tag { font-size: 10px; color: #334155; text-align: center; margin-top: 10px; font-family: monospace; }
-
-        main { 
-            padding: 20px; 
-            background: var(--bg);
-            border-right: 1px solid var(--border);
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            overflow-y: auto;
+            flex-direction: column; 
+            gap: 15px;
         }
 
-        .widget-col { background: #162033; padding: 15px; display: flex; flex-direction: column; gap: 15px; border-left: 1px solid var(--border); }
-        .widget-box { flex: 1; display: flex; flex-direction: column; background: #0f172a; border-radius: 12px; padding: 15px; border: 1px solid var(--border); overflow: hidden; }
-        .widget-title { color: var(--accent); font-weight: bold; margin-bottom: 15px; font-size: 0.85rem; text-transform: uppercase; text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-        
-        .list-scroll { overflow-y: auto; flex-grow: 1; font-size: 0.85rem; color: #64748b; text-align: center; padding-top: 20px; }
-        .empty-state { color: #334155; font-style: italic; font-size: 1.1rem; text-align: center; margin-top: 50px; width: 100%; }
+        .widget { 
+            background: var(--panel); 
+            border: 1px solid var(--border); 
+            border-radius: 12px; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .widget-title { 
+            background: rgba(0,0,0,0.2); 
+            padding: 10px; 
+            text-align: center; 
+            font-size: 0.8rem; 
+            font-weight: bold; 
+            color: var(--accent); 
+            text-transform: uppercase;
+        }
+
+        .list-scroll { flex: 1; overflow-y: auto; padding: 5px; }
+
+        #chat-input {
+            width: 100%; padding: 12px; background: var(--bg); border: none; 
+            border-top: 1px solid var(--border); color: white; outline: none;
+        }
     </style>
 </head>
 <body>
@@ -71,117 +95,37 @@
     </header>
 
     <aside class="sidebar-l">
-        <div class="menu-label">Menu Principal</div>
-        <button class="menu-btn" id="btn-login" onclick="carregarModulo('login.html', 'btn-login')">👤 Login</button>
-        <button class="menu-btn" id="btn-palpites" onclick="abrirPalpites()">⚽ Meus Palpites</button>
-        <button class="menu-btn" onclick="limparCentro()">👥 Galera</button>
-        <button class="menu-btn" onclick="limparCentro()">📜 Regulamento</button>
-        <button class="menu-btn" onclick="limparCentro()">⚙️ Admin</button>
-        
-        <div class="spacer"></div>
-        <button class="menu-btn" style="color:#ef4444; border: 1px solid #ef444433; justify-content: center; font-weight: bold;" onclick="location.reload()">🚪 Sair</button>
-        <div class="version-tag">2026-04-03_16:00</div>
+        <div class="menu-btn" onclick="location.reload()">🏠 Início</div>
+        <div class="menu-btn" onclick="abrirAuth()">🔑 Entrar / Cadastrar</div>
+        <div class="menu-btn" onclick="alert('Regulamento disponível em breve!')">📜 Regulamento</div>
     </aside>
 
-    <main id="conteudo-central">
-        <div class="empty-state">Selecione uma opção no menu lateral...</div>
+    <main id="conteudo-principal">
+        <div style="text-align: center; margin-top: 100px;">
+            <h2 style="font-size: 2rem; margin-bottom: 10px;">Bem-vindo ao Bolão!</h2>
+            <p style="color: #94a3b8;">Acesse sua conta para começar a palpitar nos jogos de 2026.</p>
+        </div>
     </main>
 
-    <div class="widget-col">
-        <div class="widget-box">
+    <aside class="sidebar-r">
+        <div class="widget">
             <div class="widget-title">🏆 Ranking Geral</div>
-            <div class="list-scroll">Faça login para ver</div>
-	    <div id="lista-ranking"></div>
+            <div id="lista-ranking" class="list-scroll">
+                <p style="text-align:center; padding:20px; color:gray; font-size:0.8rem;">Carregando...</p>
+            </div>
         </div>
-    </div>
+    </aside>
 
-    <div class="widget-col">
-        <div class="widget-box">
-    	<div class="widget-title">💬 Zoação (24h)</div>
-    	<div id="container-chat-fixo" style="height: 100%; display: flex; flex-direction: column;">
-             <div class="list-scroll">Iniciando...</div>
-    </div>
-</div>
+    <aside class="sidebar-chat">
+        <div class="widget">
+            <div class="widget-title">💬 Zoação (24h)</div>
+            <div id="chat-box" class="list-scroll" style="font-size: 0.85rem;"></div>
+            <input type="text" id="chat-input" placeholder="Digite e aperte Enter..." onkeypress="verificarEnter(event)">
+        </div>
+    </aside>
 
-<script>
-    let usuarioLogado = null;
-
-    function limparCentro() {
-        document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('conteudo-central').innerHTML = '<div class="empty-state">Selecione uma opção no menu lateral...</div>';
-    }
-
-    async function carregarModulo(arquivo, idBotao) {
-        limparCentro();
-        if(idBotao) document.getElementById(idBotao).classList.add('active');
-        
-        try {
-            // Adicionado parâmetro timestamp para evitar cache do navegador
-            const response = await fetch(`${arquivo}?v=${new Date().getTime()}`);
-            if (!response.ok) throw new Error(`Status: ${response.status}`);
-            
-            const html = await response.text();
-            const centro = document.getElementById('conteudo-central');
-            centro.innerHTML = html;
-
-            // Recriar scripts para garantir execução
-            const scripts = centro.querySelectorAll('script');
-            scripts.forEach(oldScript => {
-                const newScript = document.createElement('script');
-                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                newScript.text = oldScript.text;
-                oldScript.parentNode.replaceChild(newScript, oldScript);
-            });
-        } catch (e) {
-            console.error("Falha ao carregar módulo:", e);
-            document.getElementById('conteudo-central').innerHTML = 
-                `<div class="empty-state" style="color: #ef4444;">Erro ao carregar módulo: ${arquivo}<br><small>${e.message}</small></div>`;
-        }
-    }
-
-    function abrirPalpites() {
-    if(!usuarioLogado) {
-        alert("Acesse sua conta primeiro!");
-        carregarModulo('login.html', 'btn-login');
-        return;
-    }
-    carregarModulo('palpites.html', 'btn-palpites');
-}
-
-// Voltando ao padrão original do seu index.html
-function definirUsuario(dados) {
-    usuarioLogado = dados; // Variável simples, como você usava
-    document.getElementById('user-display').innerText = `Logado como: ${usuarioLogado.Apelido}`;
-    limparCentro();
-}
-// Função para carregar o chat na coluna fixa assim que a página abrir
-async function inicializarChatFixo() {
-    try {
-        const res = await fetch('chat.html');
-        const html = await res.text();
-        const container = document.getElementById('container-chat-fixo');
-        container.innerHTML = html;
-
-        // Executa os scripts do chat.html
-        const scripts = container.querySelectorAll('script');
-        scripts.forEach(oldScript => {
-            const newScript = document.createElement('script');
-            newScript.text = oldScript.text;
-            document.body.appendChild(newScript);
-        });
-    } catch (e) {
-        console.error("Erro ao carregar chat fixo:", e);
-    }
-}
-</script>
-</body>
-</html>
-
-// Chama a inicialização
-inicializarChatFixo();
-
-<script>
-        // --- FUNÇÃO DO RANKING ---
+    <script>
+        // --- 1. FUNÇÃO DO RANKING ---
         async function carregarRanking() {
             try {
                 const res = await fetch('/api/ranking');
@@ -191,7 +135,7 @@ inicializarChatFixo();
                     let html = '';
                     data.ranking.forEach((user, index) => {
                         html += `
-                            <div style="display:flex; justify-content:space-between; padding:8px 10px; border-bottom:1px solid var(--border); font-size: 0.85rem;">
+                            <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid var(--border); font-size: 0.9rem;">
                                 <span><b>${index + 1}º</b> ${user.Apelido}</span>
                                 <b style="color: var(--accent);">${user.Total || 0} pts</b>
                             </div>
@@ -201,24 +145,64 @@ inicializarChatFixo();
                     if (container) container.innerHTML = html;
                 }
             } catch(e) {
-                console.error("Erro ao conectar com o ranking", e);
+                console.error("Erro ao carregar ranking:", e);
             }
         }
 
-        // --- INICIALIZAÇÃO GERAL ---
-        document.addEventListener('DOMContentLoaded', () => {
-            // 1. Carrega o ranking assim que a página abre
-            carregarRanking();
-            
-            // 2. Inicializa o Chat (se a função existir no seu arquivo)
-            if (typeof inicializarChatFixo === "function") {
-                inicializarChatFixo();
+        // --- 2. FUNÇÕES DO CHAT ---
+        async function carregarChat() {
+            try {
+                const res = await fetch('/get-chat');
+                const data = await res.json();
+                if(data.success) {
+                    const chatBox = document.getElementById('chat-box');
+                    chatBox.innerHTML = data.mensagens.map(m => 
+                        `<div style="margin-bottom:8px; padding: 0 5px;"><b>${m.Apelido}:</b> ${m.Mensagem}</div>`
+                    ).join('');
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
+            } catch(e) {
+                console.error("Erro ao carregar chat:", e);
             }
+        }
 
-            // 3. Define os loops de atualização (Varredura)
-            setInterval(carregarRanking, 10000); // Ranking a cada 10s
+        async function verificarEnter(e) {
+            if (e.key === 'Enter' && e.target.value.trim()) {
+                const msg = e.target.value;
+                e.target.value = '';
+                
+                await fetch('/enviar-msg', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ apelido: 'Visitante', mensagem: msg })
+                });
+                carregarChat();
+            }
+        }
+
+        // --- 3. NAVEGAÇÃO E LOGIN ---
+        function abrirAuth() {
+            document.getElementById('conteudo-principal').innerHTML = `
+                <iframe src="login.html" style="width:100%; height:100%; border:none; border-radius:15px;"></iframe>
+            `;
+        }
+
+        // Função para o login.html avisar o index.html que logou
+        window.definirUsuario = function(usuario) {
+            document.getElementById('user-display').innerText = usuario.apelido;
+            location.href = `dashboard.html?id=${usuario.id}&apelido=${encodeURIComponent(usuario.apelido)}`;
+        };
+
+        // --- 4. INICIALIZAÇÃO GERAL ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Cargas iniciais
+            carregarRanking();
+            carregarChat();
+            
+            // Define loops de atualização automática (Varredura)
+            setInterval(carregarRanking, 10000); // 10 segundos
+            setInterval(carregarChat, 5000);    // 5 segundos
         });
-}
-</script>
+    </script>
 </body>
 </html>
