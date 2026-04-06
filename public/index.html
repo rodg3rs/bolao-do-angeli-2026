@@ -197,6 +197,7 @@ async function inicializarChatFixo() {
                     });
                     const container = document.getElementById('lista-ranking');
                     if (container) container.innerHTML = html;
+		    container.scrollTop = 0;
                 }
             } catch(e) {
                 console.error("Erro ao conectar com o ranking", e);
