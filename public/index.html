@@ -2,207 +2,58 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Bolão do Angeli 2026</title>
+    <title>Bolão do Angeli 2026 - Login</title>
     <style>
-        :root { --bg: #0f172a; --panel: #1e293b; --accent: #ffc107; --border: #334155; --success: #10b981; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        
-        body { 
-            background: var(--bg); 
-            color: white; 
-            height: 100vh; 
-            overflow: hidden; 
-            display: grid; 
-            /* Layout: Menu(220px), Centro(1fr), Ranking(300px), Chat(300px) */
-            grid-template-columns: 220px 1fr 300px 300px; 
-            grid-template-rows: 80px 1fr; 
-        }
-        
-        header { 
-            grid-column: 1 / -1; 
-            background: var(--panel); 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            border-bottom: 1px solid var(--border);
-            position: relative;
-            z-index: 10;
-        }
-
-        #user-display {
-            position: absolute;
-            right: 20px;
-            background: var(--border);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            color: var(--accent);
-        }
-
-        .sidebar-l { background: var(--panel); border-right: 1px solid var(--border); padding: 20px; }
-        
-        .menu-btn { 
-            padding: 12px; margin-bottom: 10px; border-radius: 8px; cursor: pointer; 
-            color: #94a3b8; transition: 0.3s; border: 1px solid transparent;
-        }
-        .menu-btn:hover { background: var(--border); color: white; border-color: var(--accent); }
-
-        main { padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
-
-        /* Estilo para as barras laterais */
-        .sidebar-r, .sidebar-chat { 
-            background: rgba(15, 23, 42, 0.5); 
-            border-left: 1px solid var(--border); 
-            padding: 15px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 15px;
-        }
-
-        .widget { 
-            background: var(--panel); 
-            border: 1px solid var(--border); 
-            border-radius: 12px; 
-            display: flex; 
-            flex-direction: column; 
-            height: 100%;
-            overflow: hidden;
-        }
-
-        .widget-title { 
-            background: rgba(0,0,0,0.2); 
-            padding: 10px; 
-            text-align: center; 
-            font-size: 0.8rem; 
-            font-weight: bold; 
-            color: var(--accent); 
-            text-transform: uppercase;
-        }
-
-        .list-scroll { flex: 1; overflow-y: auto; padding: 5px; }
-
-        #chat-input {
-            width: 100%; padding: 12px; background: var(--bg); border: none; 
-            border-top: 1px solid var(--border); color: white; outline: none;
-        }
+        :root { --bg: #0f172a; --panel: #1e293b; --accent: #ffc107; --border: #334155; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .auth-card { background: var(--panel); padding: 30px; border-radius: 12px; width: 350px; border: 1px solid var(--border); }
+        .tabs { display: flex; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+        .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #94a3b8; }
+        .tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+        form { display: flex; flex-direction: column; gap: 10px; }
+        input { padding: 12px; background: var(--bg); border: 1px solid var(--border); color: white; border-radius: 6px; }
+        button { padding: 12px; background: var(--accent); border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
-
-    <header>
-        <h1>BOLÃO DO ANGELI - 2026</h1>
-        <div id="user-display">Visitante</div>
-    </header>
-
-    <aside class="sidebar-l">
-        <div class="menu-btn" onclick="location.reload()">🏠 Início</div>
-        <div class="menu-btn" onclick="abrirAuth()">🔑 Entrar / Cadastrar</div>
-        <div class="menu-btn" onclick="alert('Regulamento disponível em breve!')">📜 Regulamento</div>
-    </aside>
-
-    <main id="conteudo-principal">
-        <div style="text-align: center; margin-top: 100px;">
-            <h2 style="font-size: 2rem; margin-bottom: 10px;">Bem-vindo ao Bolão!</h2>
-            <p style="color: #94a3b8;">Acesse sua conta para começar a palpitar nos jogos de 2026.</p>
+    <div class="auth-card">
+        <div class="tabs">
+            <div id="t-in" class="tab active" onclick="setModo('in')">Entrar</div>
+            <div id="t-up" class="tab" onclick="setModo('up')">Cadastrar</div>
         </div>
-    </main>
-
-    <aside class="sidebar-r">
-        <div class="widget">
-            <div class="widget-title">🏆 Ranking Geral</div>
-            <div id="lista-ranking" class="list-scroll">
-                <p style="text-align:center; padding:20px; color:gray; font-size:0.8rem;">Carregando...</p>
+        <form onsubmit="executar(event)">
+            <input type="text" name="apelido" id="user" placeholder="Apelido" required>
+            <div id="box-up" style="display:none; flex-direction:column; gap:10px;">
+                <input type="text" name="nome" placeholder="Nome Completo">
             </div>
-        </div>
-    </aside>
-
-    <aside class="sidebar-chat">
-        <div class="widget">
-            <div class="widget-title">💬 Zoação (24h)</div>
-            <div id="chat-box" class="list-scroll" style="font-size: 0.85rem;"></div>
-            <input type="text" id="chat-input" placeholder="Digite e aperte Enter..." onkeypress="verificarEnter(event)">
-        </div>
-    </aside>
-
+            <input type="password" name="senha" placeholder="Senha" required>
+            <button type="submit" id="btn">Acessar</button>
+        </form>
+    </div>
     <script>
-        // --- 1. FUNÇÃO DO RANKING ---
-        async function carregarRanking() {
-            try {
-                const res = await fetch('/api/ranking');
-                const data = await res.json();
-                
-                if(data.success && data.ranking) {
-                    let html = '';
-                    data.ranking.forEach((user, index) => {
-                        html += `
-                            <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid var(--border); font-size: 0.9rem;">
-                                <span><b>${index + 1}º</b> ${user.Apelido}</span>
-                                <b style="color: var(--accent);">${user.Total || 0} pts</b>
-                            </div>
-                        `;
-                    });
-                    const container = document.getElementById('lista-ranking');
-                    if (container) container.innerHTML = html;
-                }
-            } catch(e) {
-                console.error("Erro ao carregar ranking:", e);
-            }
+        let modo = 'in';
+        function setModo(m) {
+            modo = m;
+            document.getElementById('t-in').classList.toggle('active', m === 'in');
+            document.getElementById('t-up').classList.toggle('active', m === 'up');
+            document.getElementById('box-up').style.display = m === 'up' ? 'flex' : 'none';
+            document.getElementById('btn').innerText = m === 'in' ? 'Acessar' : 'Cadastrar';
         }
-
-        // --- 2. FUNÇÕES DO CHAT ---
-        async function carregarChat() {
-            try {
-                const res = await fetch('/get-chat');
-                const data = await res.json();
-                if(data.success) {
-                    const chatBox = document.getElementById('chat-box');
-                    chatBox.innerHTML = data.mensagens.map(m => 
-                        `<div style="margin-bottom:8px; padding: 0 5px;"><b>${m.Apelido}:</b> ${m.Mensagem}</div>`
-                    ).join('');
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                }
-            } catch(e) {
-                console.error("Erro ao carregar chat:", e);
-            }
+        async function executar(e) {
+            e.preventDefault();
+            const dados = Object.fromEntries(new FormData(e.target));
+            const res = await fetch(modo === 'in' ? '/auth' : '/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+            if (res.ok) {
+                if (modo === 'in') {
+                    const user = await res.json();
+                    window.location.href = `dashboard.html?id=${user.id}&apelido=${user.apelido}`;
+                } else { alert("Cadastrado! Faça login."); setModo('in'); }
+            } else { alert(await res.text()); }
         }
-
-        async function verificarEnter(e) {
-            if (e.key === 'Enter' && e.target.value.trim()) {
-                const msg = e.target.value;
-                e.target.value = '';
-                
-                await fetch('/enviar-msg', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ apelido: 'Visitante', mensagem: msg })
-                });
-                carregarChat();
-            }
-        }
-
-        // --- 3. NAVEGAÇÃO E LOGIN ---
-        function abrirAuth() {
-            document.getElementById('conteudo-principal').innerHTML = `
-                <iframe src="login.html" style="width:100%; height:100%; border:none; border-radius:15px;"></iframe>
-            `;
-        }
-
-        // Função para o login.html avisar o index.html que logou
-        window.definirUsuario = function(usuario) {
-            document.getElementById('user-display').innerText = usuario.apelido;
-            location.href = `dashboard.html?id=${usuario.id}&apelido=${encodeURIComponent(usuario.apelido)}`;
-        };
-
-        // --- 4. INICIALIZAÇÃO GERAL ---
-        document.addEventListener('DOMContentLoaded', () => {
-            // Cargas iniciais
-            carregarRanking();
-            carregarChat();
-            
-            // Define loops de atualização automática (Varredura)
-            setInterval(carregarRanking, 10000); // 10 segundos
-            setInterval(carregarChat, 5000);    // 5 segundos
-        });
     </script>
 </body>
 </html>
