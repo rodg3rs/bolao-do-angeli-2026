@@ -1,57 +1,225 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <title>Bolão do Angeli 2026</title>
     <style>
-        body { font-family: sans-serif; background: #1a3a5a; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 25px; border-radius: 12px; width: 350px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #eee; }
-        .tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; color: #666; }
-        .tab.active { color: #007bff; border-bottom: 2px solid #007bff; font-weight: bold; }
-        .form-group { display: none; }
-        .form-group.active { display: block; }
-        input { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        .error { color: red; font-size: 13px; text-align: center; margin-top: 10px; }
+        :root { --bg: #0f172a; --panel: #1e293b; --accent: #ffc107; --border: #334155; --success: #10b981; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        
+        body { 
+            background: var(--bg); 
+            color: white; 
+            height: 100vh; 
+            overflow: hidden; 
+            display: grid; 
+            /* Colunas: Menu(220px), Centro(Flex), Ranking(300px), Chat(300px) */
+            grid-template-columns: 220px 1fr 300px 300px; 
+            grid-template-rows: 80px 1fr; 
+        }
+        
+        header { 
+            grid-column: 1 / -1; 
+            background: var(--panel); 
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            border-bottom: 1px solid var(--border);
+            z-index: 10;
+        }
+        header h1 { font-size: 26px; font-weight: bold; color: white; letter-spacing: 2px; text-transform: uppercase; }
+        #user-display { font-size: 0.9rem; color: var(--accent); margin-top: 5px; font-weight: 500; }
+
+        .sidebar-l { 
+            background: var(--panel); 
+            border-right: 1px solid var(--border); 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column;
+        }
+        .menu-label { color: #64748b; font-size: 0.75rem; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+        .menu-btn { padding: 12px 15px; margin-bottom: 5px; border-radius: 8px; cursor: pointer; color: #94a3b8; transition: 0.3s; display: flex; align-items: center; gap: 10px; border: none; background: transparent; width: 100%; text-align: left; font-size: 1rem; }
+        .menu-btn:hover, .menu-btn.active { background: var(--border); color: white; }
+        .spacer { flex-grow: 1; }
+        
+        .version-tag { font-size: 10px; color: #334155; text-align: center; margin-top: 10px; font-family: monospace; }
+
+        main { 
+            padding: 20px; 
+            background: var(--bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overflow-y: auto;
+        }
+
+        .widget-col { background: #162033; padding: 15px; display: flex; flex-direction: column; gap: 15px; border-left: 1px solid var(--border); }
+        .widget-box { flex: 1; display: flex; flex-direction: column; background: #0f172a; border-radius: 12px; padding: 15px; border: 1px solid var(--border); overflow: hidden; }
+        .widget-title { color: var(--accent); font-weight: bold; margin-bottom: 15px; font-size: 0.85rem; text-transform: uppercase; text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        
+        .list-scroll { overflow-y: auto; flex-grow: 1; font-size: 0.85rem; color: #64748b; text-align: center; padding-top: 20px; }
+        .empty-state { color: #334155; font-style: italic; font-size: 1.1rem; text-align: center; margin-top: 50px; width: 100%; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <div class="tabs">
-        <div class="tab active" onclick="switchTab('login')">Entrar</div>
-        <div class="tab" onclick="switchTab('cadastro')">Novo Cadastro</div>
+    <header>
+        <h1>BOLÃO DO ANGELI - 2026</h1>
+        <div id="user-display">Visitante</div>
+    </header>
+
+    <aside class="sidebar-l">
+        <div class="menu-label">Menu Principal</div>
+        <button class="menu-btn" id="btn-login" onclick="carregarModulo('login.html', 'btn-login')">👤 Login</button>
+        <button class="menu-btn" id="btn-palpites" onclick="abrirPalpites()">⚽ Meus Palpites</button>
+        <button class="menu-btn" onclick="limparCentro()">👥 Galera</button>
+        <button class="menu-btn" onclick="limparCentro()">📜 Regulamento</button>
+        <button class="menu-btn" onclick="limparCentro()">⚙️ Admin</button>
+        
+        <div class="spacer"></div>
+        <button class="menu-btn" style="color:#ef4444; border: 1px solid #ef444433; justify-content: center; font-weight: bold;" onclick="location.reload()">🚪 Sair</button>
+        <div class="version-tag">2026-04-03_16:00</div>
+    </aside>
+
+    <main id="conteudo-central">
+        <div class="empty-state">Selecione uma opção no menu lateral...</div>
+    </main>
+
+    <div class="widget-col">
+        <div class="widget-box">
+            <div class="widget-title">🏆 Ranking Geral</div>
+            <div class="list-scroll">Faça login para ver</div>
+	    <div id="lista-ranking"></div>
+        </div>
     </div>
 
-    <div id="login" class="form-group active">
-        <form action="/auth" method="POST">
-            <input type="text" name="apelido" placeholder="Seu Apelido" required>
-            <input type="password" name="senha" placeholder="Sua Senha" required>
-            <button type="submit">Entrar</button>
-        </form>
-    </div>
-
-    <div id="cadastro" class="form-group">
-        <form action="/login" method="POST">
-            <input type="text" name="voucher" placeholder="Voucher (6 caracteres)" required maxlength="6">
-            <input type="text" name="nome" placeholder="Nome Completo" required>
-            <input type="text" name="apelido" placeholder="Apelido" required>
-            <input type="password" name="senha" placeholder="Crie uma Senha (mín. 6)" required minlength="6">
-            <button type="submit" style="background: #007bff;">Cadastrar</button>
-        </form>
+    <div class="widget-col">
+        <div class="widget-box">
+    	<div class="widget-title">💬 Zoação (24h)</div>
+    	<div id="container-chat-fixo" style="height: 100%; display: flex; flex-direction: column;">
+             <div class="list-scroll">Iniciando...</div>
     </div>
 </div>
 
 <script>
-    function switchTab(tabId) {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.form-group').forEach(f => f.classList.remove('active'));
-        
-        event.currentTarget.classList.add('active');
-        document.getElementById(tabId).classList.add('active');
-    }
-</script>
+    let usuarioLogado = null;
 
+    function limparCentro() {
+        document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('conteudo-central').innerHTML = '<div class="empty-state">Selecione uma opção no menu lateral...</div>';
+    }
+
+    async function carregarModulo(arquivo, idBotao) {
+        limparCentro();
+        if(idBotao) document.getElementById(idBotao).classList.add('active');
+        
+        try {
+            // Adicionado parâmetro timestamp para evitar cache do navegador
+            const response = await fetch(`${arquivo}?v=${new Date().getTime()}`);
+            if (!response.ok) throw new Error(`Status: ${response.status}`);
+            
+            const html = await response.text();
+            const centro = document.getElementById('conteudo-central');
+            centro.innerHTML = html;
+
+            // Recriar scripts para garantir execução
+            const scripts = centro.querySelectorAll('script');
+            scripts.forEach(oldScript => {
+                const newScript = document.createElement('script');
+                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                newScript.text = oldScript.text;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        } catch (e) {
+            console.error("Falha ao carregar módulo:", e);
+            document.getElementById('conteudo-central').innerHTML = 
+                `<div class="empty-state" style="color: #ef4444;">Erro ao carregar módulo: ${arquivo}<br><small>${e.message}</small></div>`;
+        }
+    }
+
+    function abrirPalpites() {
+    if(!usuarioLogado) {
+        alert("Acesse sua conta primeiro!");
+        carregarModulo('login.html', 'btn-login');
+        return;
+    }
+    carregarModulo('palpites.html', 'btn-palpites');
+}
+
+// Voltando ao padrão original do seu index.html
+function definirUsuario(dados) {
+    usuarioLogado = dados; // Variável simples, como você usava
+    document.getElementById('user-display').innerText = `Logado como: ${usuarioLogado.Apelido}`;
+    limparCentro();
+}
+// Função para carregar o chat na coluna fixa assim que a página abrir
+async function inicializarChatFixo() {
+    try {
+        const res = await fetch('chat.html');
+        const html = await res.text();
+        const container = document.getElementById('container-chat-fixo');
+        container.innerHTML = html;
+
+        // Executa os scripts do chat.html
+        const scripts = container.querySelectorAll('script');
+        scripts.forEach(oldScript => {
+            const newScript = document.createElement('script');
+            newScript.text = oldScript.text;
+            document.body.appendChild(newScript);
+        });
+    } catch (e) {
+        console.error("Erro ao carregar chat fixo:", e);
+    }
+}
+</script>
+</body>
+</html>
+
+
+<script>
+        // --- FUNÇÃO DO RANKING ---
+        async function carregarRanking() {
+            try {
+                const res = await fetch('/api/ranking');
+                const data = await res.json();
+                
+                if(data.success && data.ranking) {
+                    let html = '';
+                    data.ranking.forEach((user, index) => {
+                        html += `
+                            <div style="display:flex; justify-content:space-between; padding:8px 10px; border-bottom:1px solid var(--border); font-size: 0.85rem;">
+                                <span><b>${index + 1}º</b> ${user.Apelido}</span>
+                                <b style="color: var(--accent);">${user.Total || 0} pts</b>
+                            </div>
+                        `;
+                    });
+                    const container = document.getElementById('lista-ranking');
+                    if (container) container.innerHTML = html;
+                }
+            } catch(e) {
+                console.error("Erro ao conectar com o ranking", e);
+            }
+        }
+
+        // --- INICIALIZAÇÃO GERAL ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Carrega o ranking assim que a página abre
+            carregarRanking();
+            
+            // 2. Inicializa o Chat (se a função existir no seu arquivo)
+            if (typeof inicializarChatFixo === "function") {
+                inicializarChatFixo();
+            }
+
+            // 3. Define os loops de atualização (Varredura)
+            setInterval(carregarRanking, 10000); // Ranking a cada 10s
+        });
+
+// Chama a inicialização
+inicializarChatFixo();
+
+</script>
 </body>
 </html>
