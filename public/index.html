@@ -90,7 +90,7 @@
     <div class="widget-col">
         <div class="widget-box">
             <div class="widget-title">🏆 Ranking Geral</div>
-            <div class="list-scroll">Faça login para ver</div>
+            <div class="list-scroll"></div>
 	    <div id="lista-ranking"></div>
         </div>
     </div>
@@ -151,7 +151,7 @@
 // Voltando ao padrão original do seu index.html
 function definirUsuario(dados) {
     usuarioLogado = dados; // Variável simples, como você usava
-    document.getElementById('user-display').innerText = `Logado como: ${usuarioLogado.Apelido}`;
+    document.getElementById('user-display').innerText = `${usuarioLogado.Apelido}`;
     limparCentro();
 }
 // Função para carregar o chat na coluna fixa assim que a página abrir
