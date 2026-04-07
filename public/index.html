@@ -102,6 +102,21 @@
     </div>
 </div>
 
+<aside class="sidebar-l">
+    <div class="menu-btn" onclick="acessarAdmin()" style="color: var(--accent); border-top: 1px solid var(--border); margin-top: 20px;">
+        ⚙️ Administrador
+    </div>
+</aside>
+
+function acessarAdmin() {
+    const senha = prompt("Digite a senha de administrador:");
+    if (senha === "SUA_SENHA_AQUI") { // Defina sua senha
+        window.location.href = 'admin.html';
+    } else {
+        alert("Senha incorreta!");
+    }
+}
+
 <script>
     let usuarioLogado = null;
 
