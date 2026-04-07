@@ -202,7 +202,7 @@ app.post('/api/ping', async (req, res) => {
     const { apelido } = req.body;
     try {
         await db.execute({
-            sql: "UPDATE dLogin SET InOut = datetime('now', 'localtime') WHERE Apelido = ?",
+            sql: "UPDATE dLogin SET InOut = datetime('now', 'localtime') WHERE LOWER(Apelido) = LOWER(?)",
             args: [apelido]
         });
         res.json({ success: true });
