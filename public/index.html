@@ -76,7 +76,7 @@
         <button class="menu-btn" id="btn-palpites" onclick="abrirPalpites()">⚽ Meus Palpites</button>
         <button class="menu-btn" onclick="limparCentro()">👥 Galera</button>
         <button class="menu-btn" onclick="limparCentro()">📜 Regulamento</button>
-        <button class="menu-btn" onclick="limparCentro()">⚙️ Admin</button>
+	<button class="menu-btn" onclick="acessarAdmin()" style="color: var(--accent); border-top: 1px solid var(--border); margin-top: 10px;">⚙️ Admin</button>
         
         <div class="spacer"></div>
         <button class="menu-btn" style="color:#ef4444; border: 1px solid #ef444433; justify-content: center; font-weight: bold;" onclick="location.reload()">🚪 Sair</button>
@@ -102,24 +102,19 @@
     </div>
 </div>
 
-<aside class="sidebar-l">
-    <div class="menu-btn" onclick="acessarAdmin()" style="color: var(--accent); border-top: 1px solid var(--border); margin-top: 20px;">
-        ⚙️ Administrador
-    </div>
-</aside>
-
-function acessarAdmin() {
-    const senha = prompt("Digite a senha de administrador:");
-    
-    // Verifique se a senha digitada é a correta
-    if (senha === "angeli2026") { 
-        window.location.href = 'admin.html'; 
-    } else { 
-        alert("Senha incorreta!"); 
-    }
-}
+<script>
 
 <script>
+
+     function acessarAdmin() {
+        const senha = prompt("Digite a senha de administrador:");
+        if (senha === "angeli2026") { 
+            window.location.href = 'admin.html'; 
+        } else if (senha !== null) { 
+            alert("Senha incorreta!"); 
+        }
+    }
+
     let usuarioLogado = null;
 
     function limparCentro() {
@@ -170,6 +165,7 @@ function definirUsuario(dados) {
     document.getElementById('user-display').innerText = `${usuarioLogado.Apelido}`;
     limparCentro();
 }
+
 // Função para carregar o chat na coluna fixa assim que a página abrir
 async function inicializarChatFixo() {
     try {
