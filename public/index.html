@@ -217,8 +217,43 @@ async function inicializarChatFixo() {
             setInterval(carregarRanking, 10000); // Ranking a cada 10s
         });
 
+// --- INICIALIZAÇÃO GERAL ---
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarRanking();
+            
+            if (typeof inicializarChatFixo === "function") {
+                inicializarChatFixo();
+            }
+
+            // VARREDURAS:
+            setInterval(carregarRanking, 10000); // Ranking (10s)
+            sinalDeVida();                       // Envia o primeiro sinal assim que logar
+            setInterval(sinalDeVida, 30000);     // Mantém o sinal a cada 30s
+        });
+
 // Chama a inicialização
 inicializarChatFixo();
+
+// Função que avisa o servidor que o usuário está ativo
+async function sinalDeVida() {
+    // Pega o nome que está exibido no topo (Visitante ou o Apelido)
+    const userDisplay = document.getElementById('user-display').innerText;
+    
+    // Só envia o ping se não for um visitante comum
+    if (userDisplay && userDisplay.toUpperCase() !== "VISITANTE") {
+        try {
+            await fetch('/api/ping', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ apelido: userDisplay })
+            });
+        } catch (e) {
+            console.error("Erro ao enviar sinal de vida:", e);
+        }
+    }
+}
+// Configura a varredura para rodar a cada 30 segundos
+setInterval(sinalDeVida, 30000);
 
 </script>
 </body>

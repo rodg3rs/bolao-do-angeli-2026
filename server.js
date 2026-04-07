@@ -198,6 +198,18 @@ app.get('/api/ranking', async (req, res) => {
     }
 });
 
+app.post('/api/ping', async (req, res) => {
+    const { apelido } = req.body;
+    try {
+        await db.execute({
+            sql: "UPDATE dLogin SET InOut = datetime('now', 'localtime') WHERE Apelido = ?",
+            args: [apelido]
+        });
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ success: false });
+    }
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
