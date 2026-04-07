@@ -211,15 +211,5 @@ app.post('/api/ping', async (req, res) => {
     }
 });
 
-// Rota para o Admin listar todos os jogos e resultados atuais
-app.get('/api/admin/jogos', async (req, res) => {
-    try {
-        const result = await db.execute("SELECT Jogo, Sel1, Sel2, Data, Horario, Res1, Res2 FROM dResult ORDER BY Jogo ASC");
-        res.json({ success: true, jogos: result.rows });
-    } catch (e) {
-        res.status(500).json({ success: false });
-    }
-});
-
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
