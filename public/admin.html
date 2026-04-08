@@ -1,49 +1,60 @@
 <div id="admin-content" style="display: none;">
     <div style="background: rgba(239, 68, 68, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ef4444; text-align: center;">
         <strong style="color: #ef4444; font-size: 0.9rem;">SESSÃO ADMINISTRATIVA ATIVA</strong><br>
-        <small style="color: #94a3b8;">Logado como <b>ADMIN</b>. Palpites bloqueados.</small>
+        <small style="color: #94a3b8;">Você está como <b>ADMIN</b>. Saia para voltar ao modo visitante.</small>
     </div>
 
     <div class="widget-box" style="width: 100%; max-width: 700px; margin: 0 auto;">
         <div class="widget-title" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 15px;">
             <span style="font-size: 1rem; color: #ef4444;">⚙️ PAINEL ADMINISTRATIVO</span>
-            <button onclick="limparCentro()" style="background: #ef4444; color: white; border: none; padding: 6px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; transition: 0.3s;">
-                Sair
+            <button onclick="sairAdmin()" style="background: #ef4444; color: white; border: none; padding: 6px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 0.8rem;">
+                Sair do Admin
             </button>
         </div>
-        <div id="admin-jogos-lista" style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px; max-height: 70vh; overflow-y: auto; padding-right: 5px;">
+        <div id="admin-jogos-lista" style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px; max-height: 70vh; overflow-y: auto;">
             <div class="empty-state">Carregando jogos...</div>
         </div>
     </div>
 </div>
 
 <script>
+    // Função para sair e resetar para Visitante sem mexer no Index
+    function sairAdmin() {
+        // 1. Reset da variável global
+        usuarioLogado = null;
+        
+        // 2. Restaura o cabeçalho original no Index
+        const display = document.getElementById('user-display');
+        if (display) {
+            display.innerText = "Visitante";
+            display.style.color = "var(--accent)";
+        }
+        
+        // 3. Limpa o centro (chama a função que já existe no index.html)
+        limparCentro();
+    }
+
     (function() {
         const senha = prompt("Digite a senha de administrador:");
         
         if (senha === "angeli2026") {
-            // 1. Define a identidade de ADMIN para o Chat e Sistema
             usuarioLogado = { Apelido: "ADMIN", ID: "000", admin: true };
             
-            // 2. Atualiza o display no topo (index.html)
             const display = document.getElementById('user-display');
             if(display) {
                 display.innerText = "MODO ADMINISTRADOR";
                 display.style.color = "#ef4444";
             }
 
-            // 3. Mostra o conteúdo e carrega os jogos
             document.getElementById('admin-content').style.display = 'block';
-            carregarJogosAdmin(); 
+            carregarJogosAdmin();
         } else {
             alert("Senha incorreta!");
-            limparCentro(); // Função que já existe no seu index.html
+            limparCentro();
         }
     })();
 
-    // Mantenha aqui as suas funções carregarJogosAdmin() e salvarResultadoEAtualizarPontos() que já conversamos
-    async function carregarJogosAdmin() { 
-        /* ... seu código original de busca ... */ 
+    async function carregarJogosAdmin() {
         try {
             const res = await fetch('/api/admin/jogos');
             const data = await res.json();
@@ -53,17 +64,18 @@
                 data.jogos.forEach(jogo => {
                     const res1 = jogo.Res1 !== null ? jogo.Res1 : '';
                     const res2 = jogo.Res2 !== null ? jogo.Res2 : '';
-                    html += `<div style="background: #162033; border: 1px solid var(--border); padding: 15px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-                                <div style="font-size: 0.75rem; color: #94a3b8; width: 80px; text-align: center;"><b>${jogo.Data}</b><br>${jogo.Horario}</div>
-                                <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                                    <span style="font-weight: bold;">${jogo.Sel1}</span>
-                                    <input type="number" id="admin-res1-${jogo.Jogo}" value="${res1}" style="width: 45px; text-align: center; background: var(--bg); color: white; border: 1px solid var(--border);">
-                                    <span>X</span>
-                                    <input type="number" id="admin-res2-${jogo.Jogo}" value="${res2}" style="width: 45px; text-align: center; background: var(--bg); color: white; border: 1px solid var(--border);">
-                                    <span style="font-weight: bold;">${jogo.Sel2}</span>
-                                </div>
-                                <button onclick="salvarResultadoEAtualizarPontos('${jogo.Jogo}')" style="background: var(--success); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer;">Salvar</button>
-                            </div>`;
+                    html += `
+                        <div style="background: #162033; border: 1px solid var(--border); padding: 15px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                            <div style="font-size: 0.75rem; color: #94a3b8; width: 80px;"><b>${jogo.Data}</b></div>
+                            <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                <span>${jogo.Sel1}</span>
+                                <input type="number" id="admin-res1-${jogo.Jogo}" value="${res1}" style="width: 40px; background: #0f172a; color: white; border: 1px solid var(--border); text-align: center;">
+                                <span>X</span>
+                                <input type="number" id="admin-res2-${jogo.Jogo}" value="${res2}" style="width: 40px; background: #0f172a; color: white; border: 1px solid var(--border); text-align: center;">
+                                <span>${jogo.Sel2}</span>
+                            </div>
+                            <button onclick="salvarResultadoEAtualizarPontos('${jogo.Jogo}')" style="background: var(--success); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Salvar</button>
+                        </div>`;
                 });
                 container.innerHTML = html;
             }
@@ -71,7 +83,6 @@
     }
 
     async function salvarResultadoEAtualizarPontos(jogoId) {
-        /* ... seu código original de salvar ... */
         const res1 = document.getElementById(`admin-res1-${jogoId}`).value;
         const res2 = document.getElementById(`admin-res2-${jogoId}`).value;
         try {
@@ -82,7 +93,7 @@
             });
             const data = await response.json();
             if (data.success) {
-                alert("Resultado salvo!");
+                alert("Resultado e pontos atualizados!");
                 if(typeof carregarRanking === 'function') carregarRanking();
             }
         } catch (e) { alert("Erro ao salvar."); }
