@@ -176,9 +176,8 @@ async function inicializarChatFixo() {
 </body>
 </html>
 
-
 <script>
-        // --- FUNÇÃO DO RANKING ---
+        // --- FUNÇÃO DO RANKING COM INDICADOR ONLINE ---
         async function carregarRanking() {
             try {
                 const res = await fetch('/api/ranking');
@@ -187,35 +186,58 @@ async function inicializarChatFixo() {
                 if(data.success && data.ranking) {
                     let html = '';
                     data.ranking.forEach((user, index) => {
+                        // Verifica o status online retornado pelo servidor
+                        const bolinhaOnline = user.Online === 1 
+                            ? '<span style="color: #10b981; margin-left: 5px; font-size: 0.7rem;" title="Online">●</span>' 
+                            : '';
+
                         html += `
                             <div style="display:flex; justify-content:space-between; padding:8px 10px; border-bottom:1px solid var(--border); font-size: 0.85rem;">
-                                <span><b>${index + 1}º</b> ${user.Apelido}</span>
+                                <span><b>${index + 1}º</b> ${user.Apelido} ${bolinhaOnline}</span>
                                 <b style="color: var(--accent);">${user.Total || 0} pts</b>
                             </div>
                         `;
                     });
                     const container = document.getElementById('lista-ranking');
                     if (container) container.innerHTML = html;
-		    container.scrollTop = 0;
+                    container.scrollTop = 0;
                 }
             } catch(e) {
                 console.error("Erro ao conectar com o ranking", e);
             }
         }
 
+        // --- FUNÇÃO DE PRESENÇA (PING) ---
+        async function enviarPing() {
+            // Envia o sinal de online se houver qualquer usuário logado (Admin ou Jogador)
+            if (!usuarioLogado || !usuarioLogado.Apelido) return;
+            
+            try {
+                await fetch('/api/ping', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ apelido: usuarioLogado.Apelido })
+                });
+            } catch (e) {
+                console.error("Erro ao atualizar presença:", e);
+            }
+        }
+
         // --- INICIALIZAÇÃO GERAL ---
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. Carrega o ranking assim que a página abre
+            // 1. Carrega o ranking inicial
             carregarRanking();
             
-            // 2. Inicializa o Chat (se a função existir no seu arquivo)
+            // 2. Inicializa o Chat fixo
             if (typeof inicializarChatFixo === "function") {
                 inicializarChatFixo();
             }
 
-            // 3. Define os loops de atualização (Varredura)
-            setInterval(carregarRanking, 10000); // Ranking a cada 10s
+            // 3. Define os loops de atualização
+            setInterval(carregarRanking, 10000); // Atualiza ranking e bolinhas a cada 10s
+            setInterval(enviarPing, 30000);      // Avisa que você está online a cada 30s
         });
+</script>
 
 // Chama a inicialização
 inicializarChatFixo();

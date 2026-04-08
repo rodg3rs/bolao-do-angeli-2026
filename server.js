@@ -11,7 +11,7 @@ const db = createClient({
   authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
-// CORREÇÃO NO CADASTRO
+// CADASTRO
 app.post('/cadastrar', async (req, res) => {
     const { id, nome, apelido, senha, time } = req.body; 
 
@@ -48,7 +48,7 @@ app.post('/cadastrar', async (req, res) => {
     }
 });
 
-// CORREÇÃO NO LOGIN
+// LOGIN
 app.post('/login', async (req, res) => {
     const { apelido, senha } = req.body;
     try {
@@ -66,7 +66,7 @@ app.post('/login', async (req, res) => {
     } catch (e) { res.status(500).json({ success: false }); }
 });
 
-// --- MEUS PALPITES ---
+// MEUS PALPITES
 
 app.get('/minhas-apostas/:apelido', async (req, res) => {
     try {
@@ -115,7 +115,7 @@ app.post('/salvar-palpite', async (req, res) => {
     }
 });
 
-// --- CHAT (24 Horas) ---
+// CHAT (24 Horas)
 
 app.get('/get-chat', async (req, res) => {
     try {
@@ -144,7 +144,7 @@ app.post('/enviar-msg', async (req, res) => {
     }
 });
 
-// --- 0. ROTA ADMIN: BUSCAR LISTA DE JOGOS E RESULTADOS ---
+// ADMIN: BUSCAR LISTA DE JOGOS E RESULTADOS
 app.get('/api/admin/jogos', async (req, res) => {
     try {
         // Traz todos os jogos da dTabela e junta com dResult para mostrar os que já têm placar
@@ -162,7 +162,7 @@ app.get('/api/admin/jogos', async (req, res) => {
     }
 });
 
-// --- 1. ROTA ADMIN: ATUALIZAR RESULTADO E CALCULAR PONTOS ---
+// ROTA ADMIN: ATUALIZAR RESULTADO E CALCULAR PONTOS
 app.post('/api/admin/atualizar_resultado', async (req, res) => {
     const { jogo, res1, res2 } = req.body;
     const r1 = parseInt(res1);
@@ -199,7 +199,7 @@ app.post('/api/admin/atualizar_resultado', async (req, res) => {
     }
 });
 
-// --- 2. ROTA PÚBLICA DO RANKING (Pode ser acessada sem estar logado) ---
+// ROTA PÚBLICA DO RANKING (Pode ser acessada sem estar logado)
 app.get('/api/ranking', async (req, res) => {
     try {
         // Soma os pontos de todos os jogos para cada usuário
@@ -216,15 +216,25 @@ app.get('/api/ranking', async (req, res) => {
     }
 });
 
-app.post('/api/ping', async (req, res) => {
-    const { apelido } = req.body;
+app.get('/api/ranking', async (req, res) => {
     try {
-        await db.execute({
-            sql: "UPDATE dLogin SET InOut = datetime('now', 'localtime') WHERE LOWER(Apelido) = LOWER(?)",
-            args: [apelido]
-        });
-        res.json({ success: true });
+        // Seleciona pontos e verifica se o InOut é menor que 5 minutos atrás
+        const result = await db.execute(`
+            SELECT 
+                l.Apelido, 
+                SUM(a.Pontos) as Total,
+                CASE 
+                    WHEN l.InOut > datetime('now', '-5 minutes', 'localtime') THEN 1 
+                    ELSE 0 
+                END as Online
+            FROM dLogin l
+            LEFT JOIN dApostas a ON l.Apelido = a.Apelido
+            GROUP BY l.Apelido
+            ORDER BY Total DESC, l.Apelido ASC
+        `);
+        res.json({ success: true, ranking: result.rows });
     } catch (e) {
+        console.error("Erro ao buscar ranking:", e);
         res.status(500).json({ success: false });
     }
 });
