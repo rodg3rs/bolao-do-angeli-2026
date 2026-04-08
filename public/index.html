@@ -151,6 +151,9 @@
 function definirUsuario(dados) {
     usuarioLogado = dados; // Variável simples, como você usava
     document.getElementById('user-display').innerText = `${usuarioLogado.Apelido}`;
+// Dispara o ping imediatamente após logar
+    enviarPing();
+
     limparCentro();
 }
 // Função para carregar o chat na coluna fixa assim que a página abrir

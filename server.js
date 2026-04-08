@@ -11,7 +11,7 @@ const db = createClient({
   authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
-// CADASTRO
+// --- CADASTRO ---
 app.post('/cadastrar', async (req, res) => {
     const { id, nome, apelido, senha, time } = req.body; 
 
@@ -30,10 +30,8 @@ app.post('/cadastrar', async (req, res) => {
             args: [id, nome, apelido, senha, time]
         });
 
-	// 1. Busca jogos completos da dTabela
         const jogos = await db.execute("SELECT Jogo, Sel1, Sel2, Data, Horario FROM dTabela");
 
-        // 2. Loop para carregar a tabela dApostas com todas as informações
         for (const jogo of jogos.rows) {
             await db.execute({
                 sql: "INSERT INTO dApostas (ID, Apelido, Jogo, Sel1, Sel2, Data, Horario, Ap1, Ap2) VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0)",
@@ -48,7 +46,7 @@ app.post('/cadastrar', async (req, res) => {
     }
 });
 
-// LOGIN
+// --- LOGIN ---
 app.post('/login', async (req, res) => {
     const { apelido, senha } = req.body;
     try {
@@ -58,7 +56,6 @@ app.post('/login', async (req, res) => {
         });
         
         if (result.rows.length > 0) {
-            // Garante que o ID (CPF) está a ser enviado para o frontend
             res.json({ success: true, user: result.rows[0] }); 
         } else {
             res.json({ success: false, message: "Credenciais incorretas." });
@@ -66,11 +63,27 @@ app.post('/login', async (req, res) => {
     } catch (e) { res.status(500).json({ success: false }); }
 });
 
-// MEUS PALPITES
+// --- PRESENÇA (PING) ---
+app.post('/api/ping', async (req, res) => {
+    const { apelido } = req.body;
+    if (!apelido) return res.status(400).json({ success: false });
 
+    try {
+        // Atualiza a coluna InOut com o horário atual do servidor para marcar presença
+        await db.execute({
+            sql: "UPDATE dLogin SET InOut = datetime('now', 'localtime') WHERE Apelido = ?",
+            args: [apelido]
+        });
+        res.json({ success: true });
+    } catch (e) {
+        console.error("Erro ao registrar ping:", e);
+        res.status(500).json({ success: false });
+    }
+});
+
+// --- PALPITES ---
 app.get('/minhas-apostas/:apelido', async (req, res) => {
     try {
-        // CORREÇÃO: Mantendo a ordenação por Data e Horário conforme solicitado
         const result = await db.execute({
             sql: "SELECT * FROM dApostas WHERE Apelido = ? ORDER BY Data, Horario",
             args: [req.params.apelido]
@@ -94,15 +107,13 @@ app.post('/salvar-palpite', async (req, res) => {
             const horaJogo = info.rows[0].Horario; 
             
             const agora = new Date();
-            // CORREÇÃO: Garantindo que o formato da data/hora seja aceito pelo construtor Date
             const limite = new Date(`${dataJogo}T${horaJogo}:00`);
-            limite.setMinutes(limite.setMinutes() - 10);
+            limite.setMinutes(limite.getMinutes() - 10);
 
             if (agora > limite) {
                 return res.json({ success: false, message: "Tempo esgotado! Bloqueado 10min antes." });
             }
 
-            // CORREÇÃO: O seu código usava colunas Ap1/Ap2, certifique-se que o banco bate com isso
             await db.execute({
                 sql: "UPDATE dApostas SET Ap1 = ?, Ap2 = ? WHERE Apelido = ? AND Jogo = ?",
                 args: [ap1, ap2, apelido, jogo]
@@ -115,13 +126,10 @@ app.post('/salvar-palpite', async (req, res) => {
     }
 });
 
-// CHAT (24 Horas)
-
+// --- CHAT (24 Horas) ---
 app.get('/get-chat', async (req, res) => {
     try {
-        // Regra de 24h: Limpa mensagens antigas antes de buscar
         await db.execute("DELETE FROM dChat WHERE DataHora < datetime('now', '-1 day')");
-
         const result = await db.execute("SELECT Apelido, Mensagem FROM dChat ORDER BY ID ASC LIMIT 50");
         res.json({ success: true, mensagens: result.rows });
     } catch (e) {
@@ -144,10 +152,9 @@ app.post('/enviar-msg', async (req, res) => {
     }
 });
 
-// ADMIN: BUSCAR LISTA DE JOGOS E RESULTADOS
+// --- ADMIN: JOGOS E RESULTADOS ---
 app.get('/api/admin/jogos', async (req, res) => {
     try {
-        // Traz todos os jogos da dTabela e junta com dResult para mostrar os que já têm placar
         const sql = `
             SELECT t.Jogo, t.Data, t.Horario, t.Sel1, t.Sel2, r.Res1, r.Res2
             FROM dTabela t
@@ -162,20 +169,17 @@ app.get('/api/admin/jogos', async (req, res) => {
     }
 });
 
-// ROTA ADMIN: ATUALIZAR RESULTADO E CALCULAR PONTOS
 app.post('/api/admin/atualizar_resultado', async (req, res) => {
     const { jogo, res1, res2 } = req.body;
     const r1 = parseInt(res1);
     const r2 = parseInt(res2);
 
     try {
-        // 1. Salva o resultado oficial na dResult
         await db.execute({
             sql: "INSERT INTO dResult (Jogo, Res1, Res2) VALUES (?, ?, ?) ON CONFLICT(Jogo) DO UPDATE SET Res1=excluded.Res1, Res2=excluded.Res2",
             args: [jogo, r1, r2]
         });
 
-        // 2. A MÁGICA DO CÁLCULO: Atualiza dApostas e distribui os pontos de uma vez só!
         const sqlCalculo = `
             UPDATE dApostas 
             SET Res1 = ?, Res2 = ?, 
@@ -186,39 +190,22 @@ app.post('/api/admin/atualizar_resultado', async (req, res) => {
                 END
             WHERE Jogo = ?
         `;
-        // Os parâmetros seguem a ordem exata das interrogações acima
         await db.execute({
             sql: sqlCalculo,
             args: [r1, r2, r1, r2, r1, r2, r1, r2, r1, r2, jogo]
         });
 
-        res.json({ success: true, message: "Resultado salvo e pontos calculados com sucesso!" });
+        res.json({ success: true, message: "Resultado salvo e pontos calculados!" });
     } catch (e) {
         console.error("Erro ao calcular pontos:", e);
         res.status(500).json({ success: false });
     }
 });
 
-// ROTA PÚBLICA DO RANKING (Pode ser acessada sem estar logado)
+// --- RANKING GERAL COM STATUS ONLINE ---
 app.get('/api/ranking', async (req, res) => {
     try {
-        // Soma os pontos de todos os jogos para cada usuário
-        const result = await db.execute(`
-            SELECT Apelido, SUM(Pontos) as Total 
-            FROM dApostas 
-            GROUP BY Apelido 
-            ORDER BY Total DESC, Apelido ASC
-        `);
-        res.json({ success: true, ranking: result.rows });
-    } catch (e) {
-        console.error("Erro ao buscar ranking:", e);
-        res.status(500).json({ success: false });
-    }
-});
-
-app.get('/api/ranking', async (req, res) => {
-    try {
-        // Seleciona pontos e verifica se o InOut é menor que 5 minutos atrás
+        // Busca pontos e verifica se o último ping (InOut) foi nos últimos 5 minutos
         const result = await db.execute(`
             SELECT 
                 l.Apelido, 
