@@ -144,6 +144,24 @@ app.post('/enviar-msg', async (req, res) => {
     }
 });
 
+// --- 0. ROTA ADMIN: BUSCAR LISTA DE JOGOS E RESULTADOS ---
+app.get('/api/admin/jogos', async (req, res) => {
+    try {
+        // Traz todos os jogos da dTabela e junta com dResult para mostrar os que já têm placar
+        const sql = `
+            SELECT t.Jogo, t.Data, t.Horario, t.Sel1, t.Sel2, r.Res1, r.Res2
+            FROM dTabela t
+            LEFT JOIN dResult r ON t.Jogo = r.Jogo
+            ORDER BY t.Data, t.Horario
+        `;
+        const result = await db.execute(sql);
+        res.json({ success: true, jogos: result.rows });
+    } catch (e) {
+        console.error("Erro ao buscar jogos admin:", e);
+        res.status(500).json({ success: false });
+    }
+});
+
 // --- 1. ROTA ADMIN: ATUALIZAR RESULTADO E CALCULAR PONTOS ---
 app.post('/api/admin/atualizar_resultado', async (req, res) => {
     const { jogo, res1, res2 } = req.body;

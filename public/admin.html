@@ -1,161 +1,104 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Painel Admin - Bolão</title>
-    <style>
-        :root { --bg: #0f172a; --panel: #1e293b; --accent: #ffc107; --border: #334155; --text-muted: #94a3b8; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        
-        body { background: var(--bg); color: white; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-
-        /* Navegação Minimalista */
-        .admin-nav { 
-            display: flex; 
-            gap: 20px; 
-            margin-bottom: 30px; 
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 10px;
-            width: 100%;
-            max-width: 700px;
-            justify-content: center;
-        }
-        .nav-link { 
-            color: var(--text-muted); 
-            text-decoration: none; 
-            font-size: 0.85rem; 
-            font-weight: bold; 
-            text-transform: uppercase; 
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .nav-link:hover, .nav-link.active { color: var(--accent); }
-        .nav-link.exit { color: #ef4444; }
-
-        .container-lista { width: 100%; max-width: 700px; display: flex; flex-direction: column; gap: 10px; }
-
-        /* Card de Jogo Estilo Palpites */
-        .card-jogo {
-            background: var(--panel);
-            border-radius: 8px;
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border: 1px solid transparent;
-            transition: 0.3s;
-        }
-        .card-jogo:hover { border-color: var(--border); background: #242f44; }
-
-        .info-confronto { flex: 1; display: flex; flex-direction: column; }
-        .times { font-size: 0.95rem; font-weight: 500; margin-bottom: 3px; }
-        .data-hora { font-size: 0.75rem; color: var(--text-muted); }
-
-        .placar-admin { display: flex; align-items: center; gap: 8px; margin: 0 20px; }
-        .input-placar {
-            width: 40px;
-            height: 35px;
-            background: #0f172a;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            color: var(--accent);
-            text-align: center;
-            font-weight: bold;
-            font-size: 1rem;
-        }
-
-        .btn-salvar-mini {
-            background: #10b981;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
-        .btn-salvar-mini:hover { filter: brightness(1.1); }
-
-        .modulo-vazio { text-align: center; color: var(--text-muted); margin-top: 50px; }
-    </style>
-</head>
-<body>
-
-    <div class="admin-nav">
-        <span class="nav-link active" onclick="carregarModulo('jogos')">Placares</span>
-        <span class="nav-link" onclick="carregarModulo('usuarios')">Usuários</span>
-        <span class="nav-link exit" onclick="window.location.href='/'">Sair</span>
+<div class="widget-box" style="width: 100%; max-width: 700px; margin: 0 auto;">
+    
+    <div class="widget-title" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 15px;">
+        <span style="font-size: 1rem; color: #ef4444;">⚙️ PAINEL ADMINISTRATIVO</span>
+        <button onclick="limparCentro()" style="background: #ef4444; color: white; border: none; padding: 6px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; transition: 0.3s;">
+            Sair
+        </button>
     </div>
 
-    <div id="content-admin" class="container-lista">
-        </div>
+    <div id="admin-jogos-lista" style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px; max-height: 70vh; overflow-y: auto; padding-right: 5px;">
+        <div class="empty-state">Carregando tabela de jogos...</div>
+    </div>
+</div>
 
-    <script>
-        function carregarModulo(tipo) {
-            const content = document.getElementById('content-admin');
-            
-            // Atualiza visual do menu
-            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
-            event.target.classList.add('active');
+<script>
+    // 1. Busca todos os jogos no banco de dados e monta a lista na tela
+    async function carregarJogosAdmin() {
+        try {
+            const res = await fetch('/api/admin/jogos');
+            const data = await res.json();
 
-            if (tipo === 'jogos') {
-                renderizarJogos();
-            } else {
-                content.innerHTML = '<div class="modulo-vazio">Módulo de Usuários em desenvolvimento...</div>';
+            if (data.success && data.jogos) {
+                const container = document.getElementById('admin-jogos-lista');
+                let html = '';
+
+                data.jogos.forEach(jogo => {
+                    // Trata caso o resultado seja null (ainda não preenchido)
+                    const res1 = jogo.Res1 !== null ? jogo.Res1 : '';
+                    const res2 = jogo.Res2 !== null ? jogo.Res2 : '';
+
+                    html += `
+                        <div style="background: #162033; border: 1px solid var(--border); padding: 15px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                            
+                            <div style="font-size: 0.75rem; color: #94a3b8; width: 80px; text-align: center; border-right: 1px solid var(--border); padding-right: 10px;">
+                                <b>${jogo.Data}</b><br>${jogo.Horario}
+                            </div>
+                            
+                            <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                <span style="font-weight: bold; width: 100px; text-align: right;">${jogo.Sel1}</span>
+                                
+                                <input type="number" id="admin-res1-${jogo.Jogo}" value="${res1}" 
+                                       style="width: 45px; height: 35px; text-align: center; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: white; font-weight: bold; font-size: 1rem;" min="0">
+                                
+                                <span style="color: #64748b; font-weight: bold;">X</span>
+                                
+                                <input type="number" id="admin-res2-${jogo.Jogo}" value="${res2}" 
+                                       style="width: 45px; height: 35px; text-align: center; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: white; font-weight: bold; font-size: 1rem;" min="0">
+                                
+                                <span style="font-weight: bold; width: 100px; text-align: left;">${jogo.Sel2}</span>
+                            </div>
+                            
+                            <div>
+                                <button onclick="salvarResultadoEAtualizarPontos('${jogo.Jogo}')" 
+                                        style="background: var(--success); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s;">
+                                    Salvar Oficial
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
             }
+        } catch (e) {
+            console.error("Erro ao carregar jogos admin", e);
+            document.getElementById('admin-jogos-lista').innerHTML = 
+                `<div class="empty-state" style="color: #ef4444;">Erro de conexão com o banco de dados.</div>`;
         }
-
-async function renderizarJogos() {
-    const content = document.getElementById('content-admin');
-    content.innerHTML = '<p style="text-align:center">Carregando jogos...</p>';
-
-    try {
-        const res = await fetch('/api/admin/jogos');
-        const data = await res.json();
-
-        if (data.success) {
-            let html = '';
-            data.jogos.forEach(jogo => {
-                html += `
-                    <div class="card-jogo">
-                        <div class="info-confronto">
-                            <span class="times">${jogo.Sel1} x ${jogo.Sel2}</span>
-                            <span class="data-hora">Jogo ${jogo.Jogo} • ${jogo.Data} - ${jogo.Horario}</span>
-                        </div>
-                        <div class="placar-admin">
-                            <input type="number" id="res1-${jogo.Jogo}" class="input-placar" value="${jogo.Res1 || 0}">
-                            <span style="color: var(--border)">x</span>
-                            <input type="number" id="res2-${jogo.Jogo}" class="input-placar" value="${jogo.Res2 || 0}">
-                        </div>
-                        <button class="btn-salvar-mini" onclick="salvarResultado(${jogo.Jogo})">Salvar</button>
-                    </div>
-                `;
-            });
-            content.innerHTML = html;
-        }
-    } catch (e) {
-        content.innerHTML = '<p>Erro ao carregar dados do servidor.</p>';
     }
-}
 
-// Ajuste na função de salvar para pegar os valores dos inputs dinâmicos
-async function salvarResultado(idJogo) {
-    const r1 = document.getElementById(`res1-${idJogo}`).value;
-    const r2 = document.getElementById(`res2-${idJogo}`).value;
+    // 2. Aciona a sua Rota Mágica de salvar o resultado e calcular todos os pontos
+    async function salvarResultadoEAtualizarPontos(jogoId) {
+        const inputR1 = document.getElementById(`admin-res1-${jogoId}`).value;
+        const inputR2 = document.getElementById(`admin-res2-${jogoId}`).value;
 
-    const res = await fetch('/api/admin/atualizar_resultado', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jogo: idJogo, res1: r1, res2: r2 })
-    });
-    
-    const data = await res.json();
-    if(data.success) alert("Resultado do Jogo " + idJogo + " atualizado!");
-}
+        if (inputR1 === '' || inputR2 === '') {
+            alert('Atenção: Preencha o placar das duas equipes antes de salvar!');
+            return;
+        }
 
-        // Inicia no módulo de jogos
-        renderizarJogos();
-    </script>
-</body>
-</html>
+        try {
+            const response = await fetch('/api/admin/atualizar_resultado', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ jogo: jogoId, res1: inputR1, res2: inputR2 })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                alert(`Sucesso! Resultado do Jogo ${jogoId} salvo e todos os pontos dos usuários foram atualizados!`);
+                // Como bônus, recarrega o ranking no menu lateral se ele estiver lá
+                if(typeof carregarRanking === 'function') carregarRanking(); 
+            } else {
+                alert('Ocorreu um erro ao salvar o resultado.');
+            }
+        } catch (e) {
+            console.error('Erro ao comunicar com o servidor:', e);
+            alert('Falha na comunicação com o Servidor!');
+        }
+    }
+
+    // Dispara a montagem da tabela assim que o módulo for aberto
+    carregarJogosAdmin();
+</script>
