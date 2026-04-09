@@ -1,33 +1,55 @@
-<input type="text" id="numero" placeholder="5511999999999">
-<textarea id="msg" placeholder="Sua mensagem..."></textarea>
-<button onclick="enviarMensagem()">Enviar</button>
+<div class="widget-box" style="width: 100%; max-width: 600px; margin: 0 auto; border: 1px solid #25d366;">
+    <div class="widget-title" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #25d36633; padding-bottom: 15px;">
+        <span style="font-size: 1rem; color: #25d366;">🟢 NOTIFICAÇÃO WHATSAPP</span>
+        <button onclick="limparCentro()" style="background: #25d366; color: white; border: none; padding: 6px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">
+            FECHAR
+        </button>
+    </div>
+
+    <div style="margin-top: 15px; background: #162033; padding: 15px; border-radius: 8px;">
+        <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px;">
+            Um novo resultado foi postado! Deseja notificar os usuários agora?
+        </p>
+        <textarea id="whatsapp-msg" style="width: 100%; height: 80px; background: #0f172a; color: white; border: 1px solid var(--border); padding: 10px; border-radius: 6px; font-size: 0.85rem;" readonly>
+Olá! O placar de um novo jogo acaba de ser atualizado no Bolão do Angeli 2026. Confira sua pontuação no ranking!
+        </textarea>
+        
+        <button onclick="dispararMensagens()" id="btn-envio-wa" style="width: 100%; margin-top: 15px; background: #25d366; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">
+            ENVIAR PARA TODOS OS USUÁRIOS
+        </button>
+        <div id="wa-status" style="margin-top: 10px; font-size: 0.8rem; text-align: center;"></div>
+    </div>
+</div>
 
 <script>
-async function enviarMensagem() {
-    const btn = event.target;
-    const dados = {
-        numero: document.getElementById('numero').value,
-        mensagem: document.getElementById('msg').value
-    };
+    async function dispararMensagens() {
+        const btn = document.getElementById('btn-envio-wa');
+        const status = document.getElementById('wa-status');
+        const msg = document.getElementById('whatsapp-msg').value;
 
-    btn.disabled = true;
-    try {
-        const response = await fetch('/api/enviar-whatsapp', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dados)
-        });
+        btn.disabled = true;
+        btn.innerText = "ENVIANDO...";
+        status.innerText = "Aguarde, processando fila de envio...";
 
-        const result = await response.json();
-        if (result.success) {
-            alert("Mensagem enviada com sucesso!");
-        } else {
-            alert("Erro ao enviar: " + result.error);
+        try {
+            // Aqui você chamará a sua API de WhatsApp (ex: Evolution API, WPPConnect, etc)
+            const response = await fetch('/api/whatsapp/enviar-massa', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mensagem: msg })
+            });
+            
+            const data = await response.json();
+            if(data.success) {
+                status.innerHTML = "<span style='color: #10b981;'>Mensagens enviadas com sucesso!</span>";
+                btn.innerText = "ENVIADO ✅";
+            } else {
+                throw new Error();
+            }
+        } catch (e) {
+            status.innerHTML = "<span style='color: #ef4444;'>Erro ao conectar com a API de WhatsApp.</span>";
+            btn.disabled = false;
+            btn.innerText = "TENTAR NOVAMENTE";
         }
-    } catch (e) {
-        alert("Erro na requisição.");
-    } finally {
-        btn.disabled = false;
     }
-}
 </script>
