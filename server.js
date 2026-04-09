@@ -259,15 +259,29 @@ const savedCreds = await carregarCreds();
         });
     });
 
-    sock.ev.on('connection.update', (update) => {
-        const { connection, lastDisconnect } = update;
-        if (connection === 'close') {
-            const deveReconectar = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
-            if (deveReconectar) conectarWhatsApp();
-        } else if (connection === 'open') {
-            console.log('✅ WhatsApp Conectado!');
-        }
-    });
+sock.ev.on('connection.update', (update) => {
+    const { connection, lastDisconnect, qr } = update;
+
+    if (qr) {
+        console.log("========================================");
+        console.log("NOVO QR CODE GERADO!");
+        
+        // Opção 1: Desenha no terminal (Pode aparecer bugado no Render)
+        qrcode.generate(qr, { small: true });
+
+        // Opção 2: Link direto para visualizar (Caso o desenho falhe)
+        console.log("Se não conseguir ver o desenho, copie o código abaixo:");
+        console.log(`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qr)}`);
+        console.log("========================================");
+    }
+
+    if (connection === 'close') {
+        const deveReconectar = lastDisconnect?.error?.output?.statusCode !== 28; // 28 = Logged Out
+        if (deveReconectar) conectarWhatsApp();
+    } else if (connection === 'open') {
+        console.log('✅ Conectado com sucesso!');
+    }
+});
 }
 
 conectarWhatsApp();
