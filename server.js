@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const { createClient } = require('@libsql/client');
 const app = express();
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
 
 app.use(express.json());
 app.use(express.static('public'));
@@ -225,6 +226,68 @@ app.get('/api/ranking', async (req, res) => {
         res.status(500).json({ success: false });
     }
 });
+
+let sock; // Variável global para manter a conexão ativa
+
+async function conectarWhatsApp() {
+    // 1. Tenta carregar credenciais do Turso
+    const carregarCreds = async () => {
+        try {
+            const res = await db.execute("SELECT value FROM dWhatsapp WHERE id = 'session'");
+            return res.rows.length > 0 ? JSON.parse(res.rows[0].value) : null;
+        } catch (e) { return null; }
+    };
+const savedCreds = await carregarCreds();
+    const { state, saveCreds } = await useMultiFileAuthState('auth_info');
+
+    // Se tivermos algo no banco, sobrepomos o estado inicial
+    if (savedCreds) {
+        state.creds = savedCreds;
+    }
+
+    sock = makeWASocket({
+        auth: state,
+        printQRInTerminal: true // O QR Code aparecerá nos logs do Render
+    });
+
+    // 2. Salva no Turso sempre que houver mudança (essencial para o Render)
+    sock.ev.on('creds.update', async () => {
+        await saveCreds();
+        await db.execute({
+            sql: "INSERT OR REPLACE INTO dWhatsapp (id, value) VALUES ('session', ?)",
+            args: [JSON.stringify(state.creds)]
+        });
+    });
+
+    sock.ev.on('connection.update', (update) => {
+        const { connection, lastDisconnect } = update;
+        if (connection === 'close') {
+            const deveReconectar = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
+            if (deveReconectar) conectarWhatsApp();
+        } else if (connection === 'open') {
+            console.log('✅ WhatsApp Conectado!');
+        }
+    });
+}
+
+conectarWhatsApp();
+
+// --- ROTA PARA O WHATSAPP.HTML CHAMAR ---
+app.post('/api/enviar-whatsapp', async (req, res) => {
+    const { numero, mensagem } = req.body;
+
+    if (!sock) return res.status(500).json({ error: "WhatsApp não conectado" });
+
+    try {
+        // Formata o número (ex: 5511999999999)
+        const jid = `${numero.replace(/\D/g, '')}@s.whatsapp.net`;
+        await sock.sendMessage(jid, { text: mensagem });
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));

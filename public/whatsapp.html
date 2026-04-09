@@ -1,0 +1,33 @@
+<input type="text" id="numero" placeholder="5511999999999">
+<textarea id="msg" placeholder="Sua mensagem..."></textarea>
+<button onclick="enviarMensagem()">Enviar</button>
+
+<script>
+async function enviarMensagem() {
+    const btn = event.target;
+    const dados = {
+        numero: document.getElementById('numero').value,
+        mensagem: document.getElementById('msg').value
+    };
+
+    btn.disabled = true;
+    try {
+        const response = await fetch('/api/enviar-whatsapp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dados)
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            alert("Mensagem enviada com sucesso!");
+        } else {
+            alert("Erro ao enviar: " + result.error);
+        }
+    } catch (e) {
+        alert("Erro na requisição.");
+    } finally {
+        btn.disabled = false;
+    }
+}
+</script>
