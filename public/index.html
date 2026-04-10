@@ -1,249 +1,245 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Bolão do Angeli 2026</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bolão do Angeli - Copa 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --bg: #0f172a; --panel: #1e293b; --accent: #ffc107; --border: #334155; --success: #10b981; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        
-        body { 
-            background: var(--bg); 
-            color: white; 
-            height: 100vh; 
-            overflow: hidden; 
-            display: grid; 
-            /* Colunas: Menu(220px), Centro(Flex), Ranking(300px), Chat(300px) */
-            grid-template-columns: 220px 1fr 300px 300px; 
-            grid-template-rows: 80px 1fr; 
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent: #ffc107;
+            --border: #334155;
         }
-        
-        header { 
-            grid-column: 1 / -1; 
-            background: var(--panel); 
-            display: flex; 
-            flex-direction: column;
-            justify-content: center; 
-            align-items: center; 
-            border-bottom: 1px solid var(--border);
-            z-index: 10;
-        }
-        header h1 { font-size: 26px; font-weight: bold; color: white; letter-spacing: 2px; text-transform: uppercase; }
-        #user-display { font-size: 0.85rem; color: var(--accent); margin-top: 5px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;}
 
-        .sidebar-l { 
-            background: var(--panel); 
-            border-right: 1px solid var(--border); 
-            padding: 20px; 
-            display: flex; 
-            flex-direction: column;
-        }
-        .menu-label { color: #64748b; font-size: 0.75rem; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
-        .menu-btn { padding: 12px 15px; margin-bottom: 5px; border-radius: 8px; cursor: pointer; color: #94a3b8; transition: 0.3s; display: flex; align-items: center; gap: 10px; border: none; background: transparent; width: 100%; text-align: left; font-size: 1rem; }
-        .menu-btn:hover, .menu-btn.active { background: var(--border); color: white; }
-        .spacer { flex-grow: 1; }
-        
-        .version-tag { font-size: 10px; color: #334155; text-align: center; margin-top: 10px; font-family: monospace; }
-
-        main { 
-            padding: 20px; 
-            background: var(--bg);
-            border-right: 1px solid var(--border);
+        body {
+            background-color: var(--bg);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            overflow-y: auto;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        .widget-col { background: #162033; padding: 15px; display: flex; flex-direction: column; gap: 15px; border-left: 1px solid var(--border); }
-        .widget-box { flex: 1; display: flex; flex-direction: column; background: #0f172a; border-radius: 12px; padding: 15px; border: 1px solid var(--border); overflow: hidden; }
-        .widget-title { color: var(--accent); font-weight: bold; margin-bottom: 15px; font-size: 0.85rem; text-transform: uppercase; text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .card-panel {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+        }
+
+        .menu-item {
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            border-radius: 8px;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            color: var(--text-primary);
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .menu-item.active { border-left: 3px solid var(--accent); }
+
+        .list-scroll { overflow-y: auto; flex-grow: 1; scrollbar-width: thin; }
         
-        .list-scroll { overflow-y: auto; flex-grow: 1; font-size: 0.85rem; color: white; text-align: center; padding-top: 20px; }
-        .empty-state { color: #334155; font-style: italic; font-size: 1.1rem; text-align: center; margin-top: 50px; width: 100%; }
+        .empty-state { color: #475569; font-style: italic; text-align: center; margin-top: 40px; }
     </style>
 </head>
-<body>
+<body class="antialiased">
 
-    <header>
-        <h1>BOLÃO DO ANGELI - 2026</h1>
-        <div id="user-display">Visitante</div>
-    </header>
-
-    <aside class="sidebar-l">
-        <div class="menu-label">Menu Principal</div>
-        <button class="menu-btn" id="btn-login" onclick="carregarModulo('login.html', 'btn-login')">👤 Login</button>
-        <button class="menu-btn" id="btn-palpites" onclick="abrirPalpites()">⚽ Meus Palpites</button>
-        <button class="menu-btn" onclick="limparCentro()">👥 Galera</button>
-        <button class="menu-btn" onclick="limparCentro()">📜 Regulamento</button>
-	<button class="menu-btn" id="btn-admin" onclick="carregarModulo('admin.html', 'btn-admin')">⚙️ Admin</button>
-        
-        <div class="spacer"></div>
-        <button class="menu-btn" style="color:#ef4444; border: 1px solid #ef444433; justify-content: center; font-weight: bold;" onclick="location.reload()">🚪 Sair</button>
-        <div class="version-tag">2026-04-03_16:00</div>
-    </aside>
-
-    <main id="conteudo-central">
-        <div class="empty-state">Selecione uma opção no menu lateral...</div>
-    </main>
-
-    <div class="widget-col">
-        <div class="widget-box">
-            <div class="widget-title">🏆 Ranking Geral</div>
-            <div id="lista-ranking" class="list-scroll"></div> 
+<header class="w-full pt-4 px-4 bg-[var(--bg)]">
+    <div class="max-w-[1600px] mx-auto flex flex-col items-center">
+        <h1 class="text-[22px] font-bold tracking-normal text-center uppercase m-0 leading-tight">
+            BOLÃO DO ANGELI - 2026
+        </h1>
+        <div id="user-display" class="text-[var(--accent)] text-sm font-medium mt-1 tracking-normal uppercase">
+            	Visitante
         </div>
     </div>
+</header>
 
-    <div class="widget-col">
-        <div class="widget-box">
-    	<div class="widget-title">💬 Zoação (24h)</div>
-    	<div id="container-chat-fixo" style="height: 100%; display: flex; flex-direction: column;">
-             <div class="list-scroll">Iniciando...</div>
-    </div>
-</div>
-
-<script>
-    let usuarioLogado = null;
-
-    function limparCentro() {
-        document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('conteudo-central').innerHTML = '<div class="empty-state">Selecione uma opção no menu lateral...</div>';
-    }
-
-    async function carregarModulo(arquivo, idBotao) {
-        limparCentro();
-        if(idBotao) document.getElementById(idBotao).classList.add('active');
-        
-        try {
-            // Adicionado parâmetro timestamp para evitar cache do navegador
-            const response = await fetch(`${arquivo}?v=${new Date().getTime()}`);
-            if (!response.ok) throw new Error(`Status: ${response.status}`);
+    <nav class="w-full py-1 px-4 border-b border-[var(--border)] mb-0 mt-0">
+        <div class="max-w-[1600px] mx-auto flex items-center justify-center gap-2 overflow-x-auto pb-2">
+            <button onclick="carregarModulo('login.html', this)" class="menu-item active !w-auto">
+                <i class="fas fa-user-circle"></i> Login
+            </button>
+            <button onclick="abrirPalpites(this)" class="menu-item !w-auto">
+                <i class="fas fa-futbol"></i> Meus Palpites
+            </button>
+            <button onclick="limparCentro(this)" class="menu-item !w-auto">
+                <i class="fas fa-users"></i> Galera
+            </button>
+            <button onclick="limparCentro(this)" class="menu-item !w-auto">
+                <i class="fas fa-file-alt"></i> Regulamento
+            </button>
+            <button onclick="carregarModulo('admin.html', this)" class="menu-item !w-auto">
+                <i class="fas fa-cogs"></i> Admin
+            </button>
             
-            const html = await response.text();
-            const centro = document.getElementById('conteudo-central');
-            centro.innerHTML = html;
+            <button onclick="location.reload()" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-red-950/40 text-red-300 hover:bg-red-900/60 ml-4">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </button>
+        </div>
+    </nav>
 
-            // Recriar scripts para garantir execução
-            const scripts = centro.querySelectorAll('script');
-            scripts.forEach(oldScript => {
-                const newScript = document.createElement('script');
-                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                newScript.text = oldScript.text;
-                oldScript.parentNode.replaceChild(newScript, oldScript);
-            });
-        } catch (e) {
-            console.error("Falha ao carregar módulo:", e);
-            document.getElementById('conteudo-central').innerHTML = 
-                `<div class="empty-state" style="color: #ef4444;">Erro ao carregar módulo: ${arquivo}<br><small>${e.message}</small></div>`;
+<main class="flex-grow w-full max-w-[1600px] mx-auto pt-1 px-4 md:px-6 pb-6 grid grid-cols-1 xl:grid-cols-[250px_1fr_250px] gap-0">
+        
+        <aside class="xl:col-span-1 order-2 xl:order-1">
+            <section class="card-panel p-5 h-full flex flex-col min-h-[500px]">
+		<div class="flex items-center gap-3 mb-4 border-b border-[var(--border)] pb-3">
+    			<i class="fas fa-trophy text-[var(--accent)] text-sm"></i>
+    			<h2 class="text-sm font-bold tracking-tight uppercase text-[var(--accent)]">Ranking Geral</h2>
+		</div>
+                <div id="lista-ranking" class="list-scroll space-y-1">
+                    </div>
+            </section>
+        </aside>
+
+	<div id="conteudo-central" class="xl:col-span-1 order-1 xl:order-2 card-panel p-0 flex flex-col items-center justify-center min-h-[400px] rounded-none border-r-0 overflow-hidden">
+    		<img src="/img/Copa2026.png" class="w-full h-full object-cover rounded-none">
+	</div>
+
+        <aside class="xl:col-span-1 order-3">
+            <section class="card-panel p-5 h-full flex flex-col min-h-[500px]">
+		<div class="flex items-center gap-3 mb-4 border-b border-[var(--border)] pb-3">
+ 		   <i class="fas fa-comments text-[var(--accent)] text-sm"></i>
+ 		   <h2 class="text-sm font-bold tracking-tight uppercase text-[var(--accent)]">Zoação (24h)</h2>
+		</div>
+                <div id="container-chat-fixo" class="flex-grow flex flex-col overflow-hidden">
+                    <div class="text-center text-sm text-[var(--text-secondary)] py-10">Carregando chat...</div>
+                </div>
+            </section>
+        </aside>
+    </main>
+
+    <footer class="w-full py-4 px-8 border-t border-[var(--border)] bg-[var(--bg)] mt-auto">
+        <div class="max-w-[1600px] mx-auto flex justify-between items-center text-[var(--text-secondary)] text-sm">
+            <p>&copy; 2026 Bolão do Angeli by Rodg3rs</p>
+            <p class="font-monospace opacity-30 text-[10px]"> v.2026-04-09_22:00</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- VARIÁVEIS DE ESTADO (Vindo do index original) ---
+        let usuarioLogado = null;
+
+        // --- NAVEGAÇÃO E MÓDULOS ---
+        function limparCentro(el) {
+            atualizarMenuAtivo(el);
+            document.getElementById('conteudo-central').innerHTML = `
+                <div class="empty-state">
+                    <img src="C:\\Users\\Rogério\\Downloads\\Copa 2026 - Taça e Bola -in Black.png" class="max-w-[300px] opacity-20 mb-4 mx-auto">
+                    Selecione uma opção no menu...
+                </div>`;
         }
-    }
 
-    function abrirPalpites() {
-    if(!usuarioLogado) {
-        alert("Acesse sua conta primeiro!");
-        carregarModulo('login.html', 'btn-login');
-        return;
-    }
-    carregarModulo('palpites.html', 'btn-palpites');
-}
+        async function carregarModulo(arquivo, el) {
+            atualizarMenuAtivo(el);
+            try {
+                const response = await fetch(`${arquivo}?v=${new Date().getTime()}`);
+                if (!response.ok) throw new Error(`Status: ${response.status}`);
+                const html = await response.text();
+                const centro = document.getElementById('conteudo-central');
+                centro.innerHTML = html;
 
-// Voltando ao padrão original do seu index.html
-function definirUsuario(dados) {
-    usuarioLogado = dados; // Variável simples, como você usava
-    document.getElementById('user-display').innerText = `${usuarioLogado.Apelido}`;
-// Dispara o ping imediatamente após logar
-    enviarPing();
+                // Re-executar scripts do módulo carregado
+                centro.querySelectorAll('script').forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    newScript.text = oldScript.text;
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+            } catch (e) {
+                console.error("Erro ao carregar módulo:", e);
+                document.getElementById('conteudo-central').innerHTML = `<div class="empty-state text-red-500">Erro: ${e.message}</div>`;
+            }
+        }
 
-    limparCentro();
-}
-// Função para carregar o chat na coluna fixa assim que a página abrir
-async function inicializarChatFixo() {
-    try {
-        const res = await fetch('chat.html');
-        const html = await res.text();
-        const container = document.getElementById('container-chat-fixo');
-        container.innerHTML = html;
+        function abrirPalpites(el) {
+            if(!usuarioLogado) {
+                alert("Acesse sua conta primeiro!");
+                carregarModulo('login.html', document.querySelector('[onclick*="login.html"]'));
+                return;
+            }
+            carregarModulo('palpites.html', el);
+        }
 
-        // Executa os scripts do chat.html
-        const scripts = container.querySelectorAll('script');
-        scripts.forEach(oldScript => {
-            const newScript = document.createElement('script');
-            newScript.text = oldScript.text;
-            document.body.appendChild(newScript);
-        });
-    } catch (e) {
-        console.error("Erro ao carregar chat fixo:", e);
-    }
-}
-</script>
-</body>
-</html>
+        function atualizarMenuAtivo(el) {
+            document.querySelectorAll('.menu-item').forEach(b => b.classList.remove('active'));
+            if(el) el.classList.add('active');
+        }
 
-<script>
-        // --- FUNÇÃO DO RANKING COM INDICADOR ONLINE ---
+        function definirUsuario(dados) {
+            usuarioLogado = dados;
+            document.getElementById('user-display').innerText = usuarioLogado.Apelido;
+            enviarPing();
+            limparCentro();
+        }
+
+        // --- RANKING E PRESENÇA (Lógica original Turso/SQLite) ---
         async function carregarRanking() {
             try {
                 const res = await fetch('/api/ranking');
                 const data = await res.json();
-                
                 if(data.success && data.ranking) {
                     let html = '';
                     data.ranking.forEach((user, index) => {
-                        // Verifica o status online retornado pelo servidor
-                        const bolinhaOnline = user.Online === 1 
-                            ? '<span style="color: #10b981; margin-left: 5px; font-size: 0.7rem;" title="Online">●</span>' 
-                            : '';
-
+                        const onlineIcon = user.Online === 1 ? '<span class="text-green-500 ml-1 text-[10px]">●</span>' : '';
                         html += `
-                            <div style="display:flex; justify-content:space-between; padding:8px 10px; border-bottom:1px solid var(--border); font-size: 0.85rem;">
-                                <span><b>${index + 1}º</b> ${user.Apelido} ${bolinhaOnline}</span>
-                                <b style="color: var(--accent);">${user.Total || 0} pts</b>
-                            </div>
-                        `;
+                            <div class="flex justify-between items-center p-3 border-b border-[#33415566] hover:bg-white/5 transition-colors">
+                                <span class="text-sm"><b>${index + 1}º</b> ${user.Apelido} ${onlineIcon}</span>
+                                <b class="text-accent">${user.Total || 0} pts</b>
+                            </div>`;
                     });
-                    const container = document.getElementById('lista-ranking');
-                    if (container) container.innerHTML = html;
-                    container.scrollTop = 0;
+                    document.getElementById('lista-ranking').innerHTML = html;
                 }
-            } catch(e) {
-                console.error("Erro ao conectar com o ranking", e);
-            }
+            } catch(e) { console.error("Erro ranking:", e); }
         }
 
-        // --- FUNÇÃO DE PRESENÇA (PING) ---
         async function enviarPing() {
-            // Envia o sinal de online se houver qualquer usuário logado (Admin ou Jogador)
-            if (!usuarioLogado || !usuarioLogado.Apelido) return;
-            
+            if (!usuarioLogado?.Apelido) return;
             try {
                 await fetch('/api/ping', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ apelido: usuarioLogado.Apelido })
                 });
-            } catch (e) {
-                console.error("Erro ao atualizar presença:", e);
-            }
+            } catch (e) { console.error("Erro ping:", e); }
         }
 
-        // --- INICIALIZAÇÃO GERAL ---
+        async function inicializarChatFixo() {
+            try {
+                const res = await fetch('chat.html');
+                const html = await res.text();
+                const container = document.getElementById('container-chat-fixo');
+                container.innerHTML = html;
+                container.querySelectorAll('script').forEach(s => {
+                    const ns = document.createElement('script');
+                    ns.text = s.text;
+                    document.body.appendChild(ns);
+                });
+            } catch (e) { console.error("Erro chat:", e); }
+        }
+
+        // --- INICIALIZAÇÃO ---
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. Carrega o ranking inicial
             carregarRanking();
-            
-            // 2. Inicializa o Chat fixo
-            if (typeof inicializarChatFixo === "function") {
-                inicializarChatFixo();
-            }
-
-            // 3. Define os loops de atualização
-            setInterval(carregarRanking, 10000); // Atualiza ranking e bolinhas a cada 10s
-            setInterval(enviarPing, 30000);      // Avisa que você está online a cada 30s
+            inicializarChatFixo();
+            setInterval(carregarRanking, 10000);
+            setInterval(enviarPing, 30000);
         });
-
-// Chama a inicialização
-// inicializarChatFixo()
-
-</script>
+    </script>
 </body>
 </html>
