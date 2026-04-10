@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Até logo!</title>
+    <link rel="stylesheet" href="css/estilo-saida.css">
+</head>
+<body onload="escolherFundoAleatorio()">
+    <div id="tela-saida" class="background-full">
+        <div class="mensagem">
+            <h1>Obrigado por participar!</h1>
+            <p>Seus palpites foram salvos. Voltamos em breve!</p>
+            <a href="login.html" class="btn-voltar">Entrar Novamente</a>
+        </div>
+    </div>
+
+    <script>
+        function escolherFundoAleatorio() {
+            const total = 4; // número de fotos que você tem
+            const num = Math.floor(Math.random() * total) + 1;
+            document.getElementById('tela-saida').style.backgroundImage = `url('assets/img/futebol${num}.jpg')`;
+        }
+    </script>
+</body>
+</html>

@@ -88,9 +88,9 @@
                 <i class="fas fa-cogs"></i> Admin
             </button>
             
-            <button onclick="location.reload()" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-red-950/40 text-red-300 hover:bg-red-900/60 ml-4">
-                <i class="fas fa-sign-out-alt"></i> Sair
-            </button>
+	    <button onclick="sairSistema()" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-red-950/40 text-red-300 hover:bg-red-900/60 ml-4">
+    		<i class="fas fa-sign-out-alt"></i> Sair
+	    </button>
         </div>
     </nav>
 
@@ -184,6 +184,20 @@
             enviarPing();
             limparCentro();
         }
+
+	function sairSistema() {
+    	// 1. Limpa o estado do usuário na memória do script
+    	usuarioLogado = null;
+
+    	// 2. Limpa dados de login que possam estar no navegador (localStorage/Session)
+    	// Isso garante que, ao voltar, ele não entre automaticamente
+    	localStorage.removeItem('userLogado'); 
+    	sessionStorage.clear();
+
+    	// 3. Redireciona para a sua nova página modular
+    	// O navegador sairá do index.html e carregará o Sair.html com as fotos
+    	window.location.href = 'Sair.html';
+}
 
         // --- RANKING E PRESENÇA (Lógica original Turso/SQLite) ---
         async function carregarRanking() {
