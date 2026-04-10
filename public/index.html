@@ -195,10 +195,12 @@
                     data.ranking.forEach((user, index) => {
                         const onlineIcon = user.Online === 1 ? '<span class="text-green-500 ml-1 text-[10px]">●</span>' : '';
                         html += `
-                            <div class="flex justify-between items-center p-3 border-b border-[#33415566] hover:bg-white/5 transition-colors">
-                                <span class="text-sm"><b>${index + 1}º</b> ${user.Apelido} ${onlineIcon}</span>
-                                <b class="text-accent">${user.Total || 0} pts</b>
-                            </div>`;
+			<div class="flex justify-between items-center py-1 px-2 hover:bg-white/5 transition-colors border-none">
+                        	<span class="text-xs text-[var(--text-primary)]">
+                        		<b class="opacity-50">${index + 1}º</b> ${user.Apelido} ${onlineIcon}
+                        	</span>
+                        	<b class="text-[var(--accent)] text-xs">${user.Total || 0} pts</b>
+                    </div>`;
                     });
                     document.getElementById('lista-ranking').innerHTML = html;
                 }
