@@ -1,9 +1,4 @@
 <div id="admin-content" style="display: none;">
-    <div style="background: rgba(239, 68, 68, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ef4444; text-align: center;">
-        <strong style="color: #ef4444; font-size: 0.9rem;">SESSÃO ADMINISTRATIVA ATIVA</strong><br>
-        <small style="color: #94a3b8;">Você está como <b>ADMIN</b>. Saia para voltar ao modo visitante.</small>
-    </div>
-
     <div class="widget-box" style="width: 100%; max-width: 700px; margin: 0 auto;">
         <div class="widget-title" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 15px;">
             <span style="font-size: 1rem; color: #ef4444;">⚙️ PAINEL ADMINISTRATIVO</span>
@@ -65,17 +60,24 @@
                     const res1 = jogo.Res1 !== null ? jogo.Res1 : '';
                     const res2 = jogo.Res2 !== null ? jogo.Res2 : '';
                     html += `
-                        <div style="background: #162033; border: 1px solid var(--border); padding: 15px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                            <div style="font-size: 0.75rem; color: #94a3b8; width: 80px;"><b>${jogo.Data}</b></div>
-                            <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                                <span>${jogo.Sel1}</span>
-                                <input type="number" id="admin-res1-${jogo.Jogo}" value="${res1}" style="width: 40px; background: #0f172a; color: white; border: 1px solid var(--border); text-align: center;">
-                                <span>X</span>
-                                <input type="number" id="admin-res2-${jogo.Jogo}" value="${res2}" style="width: 40px; background: #0f172a; color: white; border: 1px solid var(--border); text-align: center;">
-                                <span>${jogo.Sel2}</span>
-                            </div>
-                            <button onclick="salvarResultadoEAtualizarPontos('${jogo.Jogo}')" style="background: var(--success); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Salvar</button>
-                        </div>`;
+			<div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 5px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+            			<div style="font-size: 0.75rem; color: #94a3b8; width: 70px;">${jogo.Data}</div>
+            
+            			<div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; gap: 8px; color: white; font-size: 0.9rem;">
+                			<span style="width: 100px; text-align: right;">${jogo.Sel1}</span>
+                			<input type="number" id="admin-res1-${jogo.Jogo}" value="${res1}" 
+                       				style="width: 35px; background: #0f172a; color: #ffc107; border: 1px solid #334155; text-align: center; font-weight: bold; border-radius: 4px;">
+                			<span style="color: #64748b;">x</span>
+                			<input type="number" id="admin-res2-${jogo.Jogo}" value="${res2}" 
+                       				style="width: 35px; background: #0f172a; color: #ffc107; border: 1px solid #334155; text-align: center; font-weight: bold; border-radius: 4px;">
+                			<span style="width: 100px; text-align: left;">${jogo.Sel2}</span>
+            			</div>
+            
+            			<button onclick="salvarResultadoEAtualizarPontos('${jogo.Jogo}')" 
+                    			style="color: #10b981; background: none; border: none; cursor: pointer; font-size: 0.8rem; font-weight: bold; padding-left: 10px;">
+                		Salvar
+            			</button>
+        		</div>`;
                 });
                 container.innerHTML = html;
             }
