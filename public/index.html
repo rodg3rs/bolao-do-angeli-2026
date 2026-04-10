@@ -136,14 +136,11 @@
         let usuarioLogado = null;
 
         // --- NAVEGAÇÃO E MÓDULOS ---
-        function limparCentro(el) {
-            atualizarMenuAtivo(el);
-            document.getElementById('conteudo-central').innerHTML = `
-                <div class="empty-state">
-                    <img src="C:\\Users\\Rogério\\Downloads\\Copa 2026 - Taça e Bola -in Black.png" class="max-w-[300px] opacity-20 mb-4 mx-auto">
-                    Selecione uma opção no menu...
-                </div>`;
-        }
+	function limparCentro(el) {
+    		atualizarMenuAtivo(el);
+    	// Apenas limpa o conteúdo. O background definido no CSS/Style continuará lá.
+    		document.getElementById('conteudo-central').innerHTML = ''; 
+	}
 
         async function carregarModulo(arquivo, el) {
             atualizarMenuAtivo(el);
