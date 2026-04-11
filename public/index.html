@@ -88,9 +88,9 @@
                 <i class="fas fa-cogs"></i> Admin
             </button>
             
-            <button onclick="location.reload()" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-red-950/40 text-red-300 hover:bg-red-900/60 ml-4">
-                <i class="fas fa-sign-out-alt"></i> Sair
-            </button>
+            <button onclick="sairSistema()" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-red-950/40 text-red-300 hover:bg-red-900/60 ml-4">
+		<i class="fas fa-sign-out-alt"></i> Sair
+	    </button>
         </div>
     </nav>
 
@@ -231,6 +231,14 @@
                 });
             } catch (e) { console.error("Erro chat:", e); }
         }
+
+function sairSistema() {
+    usuarioLogado = null;
+    localStorage.removeItem('userLogado'); 
+    sessionStorage.clear();
+    // Redireciona para a página de despedida
+    window.location.href = 'sair.html';
+}
 
         // --- INICIALIZAÇÃO ---
         document.addEventListener('DOMContentLoaded', () => {
