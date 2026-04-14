@@ -1,0 +1,129 @@
+<div id="painel-galera" class="painel-central-container">
+    <div class="header-modulo">
+        <h2>Visualização da Galera</h2>
+        <div class="filtros-galera">
+            <input type="text" id="filtroApelido" placeholder="Filtrar por Apelido..." onkeyup="filtrarGalera()">
+            <button class="btn-fechar" onclick="fecharModuloGalera()">✖ Sair</button>
+        </div>
+    </div>
+
+    <div class="tabela-scroll">
+        <table id="tabelaPalpites">
+            <thead>
+                <tr>
+                    <th>Usuário</th>
+                    <th>Jogo</th>
+                    <th>Palpite</th>
+                    <th>Pontos</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="corpoTabelaGalera">
+                </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .painel-central-container {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 20px;
+        border-radius: 15px;
+        color: white;
+        height: 100%;
+    }
+
+    .header-modulo {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+        padding-bottom: 10px;
+    }
+
+    .filtros-galera input {
+        padding: 8px;
+        border-radius: 5px;
+        border: none;
+        margin-right: 10px;
+    }
+
+    .btn-fechar {
+        background-color: #ff4b2b;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .tabela-scroll {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: center;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* Bloqueio de navegação externa enquanto o módulo está aberto */
+    .modal-active-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 999;
+        background: transparent;
+    }
+</style>
+
+<script>
+    // Função para filtrar a tabela pelo apelido
+    function filtrarGalera() {
+        let input = document.getElementById("filtroApelido");
+        let filter = input.value.toUpperCase();
+        let table = document.getElementById("tabelaPalpites");
+        let tr = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < tr.length; i++) {
+            let td = tr[i].getElementsByTagName("td")[0]; // Coluna do Apelido
+            if (td) {
+                let txtValue = td.textContent || td.innerText;
+                tr[i].style.display = txtValue.toUpperCase().indexOf(filter) > -1 ? "" : "none";
+            }
+        }
+    }
+
+    // Função para fechar e liberar o menu
+    function fecharModuloGalera() {
+        const painel = document.getElementById('painel-principal-conteudo');
+        painel.innerHTML = ''; // Limpa o painel central
+        
+        // Remove a trava de navegação (se você usar uma classe no body ou overlay)
+        document.body.classList.remove('travado');
+        
+        // Lógica para reativar os botões do menu principal
+        document.querySelectorAll('.menu-item').forEach(btn => btn.disabled = false);
+    }
+
+    // Exemplo de como carregar os dados respeitando a regra de horário/status
+    async function carregarDadosGalera() {
+        // Aqui você faria o fetch para o seu backend (SQLite/Turso)
+        // A query SQL deve ser algo como: 
+        // SELECT * FROM dApostas JOIN dJogos ON dApostas.idJogo = dJogos.id 
+        // WHERE dJogos.status = 'finalizado' OR dJogos.data_hora <= CURRENT_TIMESTAMP
+        
+        console.log("Carregando palpites permitidos...");
+    }
+</script>
