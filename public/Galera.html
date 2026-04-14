@@ -1,129 +1,117 @@
-<div id="painel-galera" class="painel-central-container">
-    <div class="header-modulo">
-        <h2>Visualização da Galera</h2>
-        <div class="filtros-galera">
-            <input type="text" id="filtroApelido" placeholder="Filtrar por Apelido..." onkeyup="filtrarGalera()">
-            <button class="btn-fechar" onclick="fecharModuloGalera()">✖ Sair</button>
+<div id="painel-galera" class="painel-central-container w-full h-full flex flex-col p-6 overflow-hidden">
+    <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-4">
+        <h2 class="text-[var(--accent)] font-bold uppercase tracking-wider">
+            <i class="fas fa-users mr-2"></i> Palpites da Galera
+        </h2>
+        <div class="flex gap-3">
+            <input type="text" id="filtroApelido" 
+                   class="bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2 outline-none focus:border-[var(--accent)]" 
+                   placeholder="Buscar apelido..." onkeyup="filtrarGalera()">
+            
+            <button onclick="fecharModuloGalera()" 
+                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">
+                <i class="fas fa-times mr-1"></i> Sair
+            </button>
         </div>
     </div>
 
-    <div class="tabela-scroll">
-        <table id="tabelaPalpites">
-            <thead>
-                <tr>
-                    <th>Usuário</th>
-                    <th>Jogo</th>
-                    <th>Palpite</th>
-                    <th>Pontos</th>
-                    <th>Status</th>
+    <div class="flex-grow overflow-y-auto pr-2 custom-scroll">
+        <table class="w-full text-left border-collapse">
+            <thead class="sticky top-0 bg-slate-900 shadow-md">
+                <tr class="text-[var(--text-secondary)] text-xs uppercase border-b border-slate-700">
+                    <th class="py-3 px-2">Usuário</th>
+                    <th class="py-3 px-2 text-center">Jogo</th>
+                    <th class="py-3 px-2 text-center">Palpite</th>
+                    <th class="py-3 px-2 text-center">Placar Real</th>
+                    <th class="py-3 px-2 text-center">Pts</th>
                 </tr>
             </thead>
-            <tbody id="corpoTabelaGalera">
+            <tbody id="corpoTabelaGalera" class="text-sm">
                 </tbody>
         </table>
+        <div id="loading-galera" class="text-center py-10 text-slate-500 italic">
+            Carregando palpites permitidos...
+        </div>
     </div>
 </div>
 
-<style>
-    .painel-central-container {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        padding: 20px;
-        border-radius: 15px;
-        color: white;
-        height: 100%;
-    }
-
-    .header-modulo {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        border-bottom: 1px solid rgba(255,255,255,0.2);
-        padding-bottom: 10px;
-    }
-
-    .filtros-galera input {
-        padding: 8px;
-        border-radius: 5px;
-        border: none;
-        margin-right: 10px;
-    }
-
-    .btn-fechar {
-        background-color: #ff4b2b;
-        color: white;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: bold;
-    }
-
-    .tabela-scroll {
-        max-height: 400px;
-        overflow-y: auto;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    th, td {
-        padding: 12px;
-        text-align: center;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-
-    /* Bloqueio de navegação externa enquanto o módulo está aberto */
-    .modal-active-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 999;
-        background: transparent;
-    }
-</style>
-
 <script>
-    // Função para filtrar a tabela pelo apelido
-    function filtrarGalera() {
-        let input = document.getElementById("filtroApelido");
-        let filter = input.value.toUpperCase();
-        let table = document.getElementById("tabelaPalpites");
-        let tr = table.getElementsByTagName("tr");
+    // 1. Bloqueia navegação externa enquanto estiver na Galera
+    document.querySelectorAll('.menu-item').forEach(btn => {
+        if (!btn.innerText.includes('Galera')) btn.style.pointerEvents = 'none';
+    });
 
-        for (let i = 1; i < tr.length; i++) {
-            let td = tr[i].getElementsByTagName("td")[0]; // Coluna do Apelido
-            if (td) {
-                let txtValue = td.textContent || td.innerText;
-                tr[i].style.display = txtValue.toUpperCase().indexOf(filter) > -1 ? "" : "none";
+    async function carregarDadosGalera() {
+        try {
+            // Chamada para sua API que lê a tabela dApostas
+            const response = await fetch('/api/palpites-galera'); 
+            const data = await response.json();
+            
+            if (!data.success) throw new Error(data.message);
+
+            const tbody = document.getElementById('corpoTabelaGalera');
+            const loading = document.getElementById('loading-galera');
+            tbody.innerHTML = '';
+            
+            const agora = new Date();
+
+            data.palpites.forEach(p => {
+                // Converte Data (AAAA-MM-DD) e Horario (HH:MM) para objeto Date para comparação
+                const dataJogo = new Date(`${p.Data}T${p.Horario}`);
+                
+                // CONDIÇÃO: Só mostra se o jogo já começou ou terminou
+                if (dataJogo <= agora || p.Res1 !== null) {
+                    const row = `
+                        <tr class="border-b border-slate-800 hover:bg-white/5 transition-colors">
+                            <td class="py-3 px-2 font-medium text-[var(--accent)]">${p.Apelido}</td>
+                            <td class="py-3 px-2 text-center text-xs text-slate-400">${p.Jogo}</td>
+                            <td class="py-3 px-2 text-center font-bold">
+                                ${p.Sel1} ${p.Ap1} x ${p.Ap2} ${p.Sel2}
+                            </td>
+                            <td class="py-3 px-2 text-center text-slate-400">
+                                ${p.Res1 !== null ? p.Res1 + ' x ' + p.Res2 : 'Em andamento'}
+                            </td>
+                            <td class="py-3 px-2 text-center">
+                                <span class="bg-blue-900/40 text-blue-300 px-2 py-1 rounded text-xs">${p.Pontos}</span>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                }
+            });
+
+            loading.classList.add('hidden');
+            if (tbody.innerHTML === '') {
+                loading.innerText = 'Nenhum jogo disponível para consulta ainda.';
+                loading.classList.remove('hidden');
             }
+
+        } catch (err) {
+            console.error("Erro ao carregar:", err);
+            document.getElementById('loading-galera').innerText = "Erro ao carregar dados.";
         }
     }
 
-    // Função para fechar e liberar o menu
-    function fecharModuloGalera() {
-        const painel = document.getElementById('painel-principal-conteudo');
-        painel.innerHTML = ''; // Limpa o painel central
-        
-        // Remove a trava de navegação (se você usar uma classe no body ou overlay)
-        document.body.classList.remove('travado');
-        
-        // Lógica para reativar os botões do menu principal
-        document.querySelectorAll('.menu-item').forEach(btn => btn.disabled = false);
+    function filtrarGalera() {
+        const termo = document.getElementById("filtroApelido").value.toUpperCase();
+        const linhas = document.querySelectorAll("#corpoTabelaGalera tr");
+
+        linhas.forEach(linha => {
+            const apelido = linha.cells[0].textContent.toUpperCase();
+            linha.style.display = apelido.includes(termo) ? "" : "none";
+        });
     }
 
-    // Exemplo de como carregar os dados respeitando a regra de horário/status
-    async function carregarDadosGalera() {
-        // Aqui você faria o fetch para o seu backend (SQLite/Turso)
-        // A query SQL deve ser algo como: 
-        // SELECT * FROM dApostas JOIN dJogos ON dApostas.idJogo = dJogos.id 
-        // WHERE dJogos.status = 'finalizado' OR dJogos.data_hora <= CURRENT_TIMESTAMP
+    function fecharModuloGalera() {
+        // Libera navegação
+        document.querySelectorAll('.menu-item').forEach(btn => btn.style.pointerEvents = 'auto');
         
-        console.log("Carregando palpites permitidos...");
+        // Limpa centro e volta background
+        const centro = document.getElementById('conteudo-central');
+        centro.innerHTML = '';
+        centro.style.backgroundImage = "url('/img/copa2026.png')";
     }
+
+    // Inicializa a carga
+    carregarDadosGalera();
 </script>
