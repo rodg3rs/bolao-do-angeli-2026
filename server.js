@@ -226,5 +226,38 @@ app.get('/api/ranking', async (req, res) => {
     }
 });
 
+// Rota para buscar os palpites da galera
+app.get('/api/palpites-galera', async (req, res) => {
+    try {
+        // Query para buscar todos os palpites. 
+        // A lógica de "esconder" palpites futuros é feita no front-end (Galera.html),
+        // mas você também pode filtrar aqui no SQL para maior segurança.
+        const query = "SELECT * FROM dApostas ORDER BY Data DESC, Horario DESC";
+        
+        const result = await client.execute(query); // Ajuste conforme seu driver do Turso/SQLite
+
+        // Transformando os resultados para o formato que o front-end espera
+        const palpites = result.rows.map(row => ({
+            Apelido: row.Apelido,
+            Jogo: row.Jogo,
+            Sel1: row.Sel1,
+            Ap1: row.Ap1,
+            Sel2: row.Sel2,
+            Ap2: row.Ap2,
+            Res1: row.Res1,
+            Res2: row.Res2,
+            Pontos: row.Pontos,
+            Data: row.Data,
+            Horario: row.Horario
+        }));
+
+        res.json({ success: true, palpites: palpites });
+
+    } catch (error) {
+        console.error("Erro ao buscar palpites da galera:", error);
+        res.status(500).json({ success: false, message: "Erro interno no servidor" });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
