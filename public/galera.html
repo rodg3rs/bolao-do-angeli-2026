@@ -4,6 +4,11 @@
             <i class="fas fa-users mr-2"></i> Palpites da Galera
         </h2>
         <div class="flex gap-3">
+	<select id="filtroJogo" 
+        	class="bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2 outline-none focus:border-[var(--accent)]" 
+        	onchange="filtrarGalera()">
+    		<option value="">Todos os Jogos</option>
+ 	   </select>
             <input type="text" id="filtroApelido" 
                    class="bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2 outline-none focus:border-[var(--accent)]" 
                    placeholder="Buscar apelido..." onkeyup="filtrarGalera()">
@@ -46,8 +51,15 @@
             // Chamada para sua API que lê a tabela dApostas
             const response = await fetch('/api/palpites-galera'); 
             const data = await response.json();
-            
+            const selectJogo = document.getElementById('filtroJogo');
+	    const jogosUnicos = [...new Set(data.palpites.map(p => p.Jogo))].sort();
+
             if (!data.success) throw new Error(data.message);
+
+	    selectJogo.innerHTML = '<option value="">Todos os Jogos</option>';
+		jogosUnicos.forEach(jogo => {
+ 		   selectJogo.innerHTML += `<option value="${jogo}">${jogo}</option>`;
+	    });
 
             const tbody = document.getElementById('corpoTabelaGalera');
             const loading = document.getElementById('loading-galera');
@@ -92,15 +104,22 @@
         }
     }
 
-    function filtrarGalera() {
-        const termo = document.getElementById("filtroApelido").value.toUpperCase();
-        const linhas = document.querySelectorAll("#corpoTabelaGalera tr");
+function filtrarGalera() {
+    const termoApelido = document.getElementById("filtroApelido").value.toUpperCase();
+    const termoJogo = document.getElementById("filtroJogo").value;
+    const linhas = document.querySelectorAll("#corpoTabelaGalera tr");
 
-        linhas.forEach(linha => {
-            const apelido = linha.cells[0].textContent.toUpperCase();
-            linha.style.display = apelido.includes(termo) ? "" : "none";
-        });
-    }
+    linhas.forEach(linha => {
+        const apelidoTxt = linha.cells[0].textContent.toUpperCase();
+        const jogoTxt = linha.cells[1].textContent; // Coluna do Jogo
+
+        const bateApelido = apelidoTxt.includes(termoApelido);
+        const bateJogo = termoJogo === "" || jogoTxt === termoJogo;
+
+        // A linha só aparece se atender aos dois filtros simultaneamente
+        linha.style.display = (bateApelido && bateJogo) ? "" : "none";
+    });
+}
 
     function fecharModuloGalera() {
         // Libera navegação
