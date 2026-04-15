@@ -34,7 +34,7 @@ app.post('/cadastrar', async (req, res) => {
 
         for (const jogo of jogos.rows) {
             await db.execute({
-                sql: "INSERT INTO dApostas (ID, Apelido, Jogo, Sel1, Sel2, Data, Horario, Ap1, Ap2) VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0)",
+                sql: "INSERT INTO dApostas (ID, Apelido, Jogo, Sel1, Sel2, Data, Horario, Ap1, Ap2) VALUES (?, ?, ?, ?, ?, ?, ?, NULL, NULL)",
                 args: [id, apelido, jogo.Jogo, jogo.Sel1, jogo.Sel2, jogo.Data, jogo.Horario]
             });
         }
@@ -184,6 +184,7 @@ app.post('/api/admin/atualizar_resultado', async (req, res) => {
             UPDATE dApostas 
             SET Res1 = ?, Res2 = ?, 
                 Pontos = CASE 
+		    WHEN Ap1 IS NULL OR Ap2 IS NULL THEN 0
                     WHEN Ap1 = ? AND Ap2 = ? THEN 3 
                     WHEN (Ap1 > Ap2 AND ? > ?) OR (Ap1 < Ap2 AND ? < ?) OR (Ap1 = Ap2 AND ? = ?) THEN 2 
                     ELSE 0 
@@ -209,7 +210,7 @@ app.get('/api/ranking', async (req, res) => {
         const result = await db.execute(`
             SELECT 
                 l.Apelido, 
-                SUM(a.Pontos) as Total,
+                SUM(IFNULL(a.Pontos, 0)) as Total,
                 CASE 
                     WHEN l.InOut > datetime('now', '-5 minutes', 'localtime') THEN 1 
                     ELSE 0 
