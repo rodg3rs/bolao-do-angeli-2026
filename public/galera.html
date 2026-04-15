@@ -26,7 +26,7 @@
                 <tr class="text-[var(--text-secondary)] text-xs uppercase border-b border-slate-700">
                     <th class="py-3 px-2">Usuário</th>
                     <th class="py-3 px-2 text-center">Jogo</th>
-                    <th class="py-3 px-2 text-center w-1/3">Palpite</th>
+                    <th class="py-3 px-2 text-center">Palpite</th>
                     <th class="py-3 px-2 text-center">Placar</th>
                     <th class="py-3 px-2 text-center">Pts</th>
                 </tr>
@@ -73,23 +73,21 @@
                 
                 // CONDIÇÃO: Só mostra se o jogo já começou ou terminou
                 if (dataJogo <= agora || p.Res1 !== null) {
-const row = `
-    <tr class="border-b border-slate-800 hover:bg-white/5 transition-colors">
-        <td class="py-3 px-2 font-medium text-yellow-400">${p.Apelido}</td>
-        <td class="py-3 px-2 text-center text-xs text-white font-mono">${p.Jogo}</td>
-        <td class="py-3 px-2 text-center">
-            ${palpiteTexto}
-        </td>
-        <td class="py-3 px-2 text-center text-white font-semibold">
-            ${p.Res1 !== null ? p.Res1 + ' x ' + p.Res2 : '<span class="text-slate-500 italic text-xs">Em andamento</span>'}
-        </td>
-        <td class="py-3 px-2 text-center">
-            <span class="bg-yellow-900/20 text-yellow-400 border border-yellow-700/50 px-2 py-1 rounded text-xs font-bold">
-                ${p.Pontos}
-            </span>
-        </td>
-    </tr>
-`;
+                    const row = `
+                        <tr class="border-b border-slate-800 hover:bg-white/5 transition-colors">
+                            <td class="py-3 px-2 font-medium text-[var(--accent)]">${p.Apelido}</td>
+                            <td class="py-3 px-2 text-center text-xs text-white">${p.Jogo}</td>
+                            <td class="py-3 px-2 text-center font-bold">
+                                ${p.Sel1} ${p.Ap1} x ${p.Ap2} ${p.Sel2}
+                            </td>
+                            <td class="py-3 px-2 text-center text-white">
+                                ${p.Res1 !== null ? p.Res1 + ' x ' + p.Res2 : 'Em andamento'}
+                            </td>
+                            <td class="py-3 px-2 text-center">
+                                <span class="bg-yellow-900/20 text-yellow-400 border border-yellow-700/50 px-2 py-1 rounded text-xs font-bold">${p.Pontos}</span>
+                            </td>
+                        </tr>
+                    `;
                     tbody.innerHTML += row;
                 }
             });
