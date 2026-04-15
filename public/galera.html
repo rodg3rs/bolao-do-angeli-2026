@@ -67,31 +67,41 @@
             
             const agora = new Date();
 
-            data.palpites.forEach(p => {
-                // Converte Data (AAAA-MM-DD) e Horario (HH:MM) para objeto Date para comparação
-                const dataJogo = new Date(`${p.Data}T${p.Horario}`);
-                
-                // CONDIÇÃO: Só mostra se o jogo já começou ou terminou
-                if (dataJogo <= agora || p.Res1 !== null) {
-                    const row = `
-                        <tr class="border-b border-slate-800 hover:bg-white/5 transition-colors">
-                            <td class="py-3 px-2 font-medium text-[var(--accent)]">${p.Apelido}</td>
-                            <td class="py-3 px-2 text-center text-xs text-white">${p.Jogo}</td>
-                            <td class="py-3 px-2 text-center font-bold">
-                                ${p.Sel1} ${p.Ap1} x ${p.Ap2} ${p.Sel2}
-                            </td>
-                            <td class="py-3 px-2 text-center text-white">
-                                ${p.Res1 !== null ? p.Res1 + ' x ' + p.Res2 : 'Em andamento'}
-                            </td>
-                            <td class="py-3 px-2 text-center">
-                                <span class="bg-yellow-900/20 text-yellow-400 border border-yellow-700/50 px-2 py-1 rounded text-xs font-bold">${p.Pontos}</span>
-                            </td>
-                        </tr>
-                    `;
-                    tbody.innerHTML += row;
-                }
-            });
+data.palpites.forEach(p => {
+    const dataJogo = new Date(`${p.Data}T${p.Horario}`);
+    
+    if (dataJogo <= agora || p.Res1 !== null) {
+        // Formata o palpite para garantir o X centralizado
+        const palpiteFormatado = `
+            <div class="flex items-center justify-center w-full gap-2">
+                <span class="flex-1 text-right uppercase text-[10px] sm:text-xs text-white truncate">${p.Sel1}</span>
+                <span class="w-6 text-center text-yellow-400 font-bold">${p.Ap1}</span>
+                <span class="text-slate-500 text-[10px]">x</span>
+                <span class="w-6 text-center text-yellow-400 font-bold">${p.Ap2}</span>
+                <span class="flex-1 text-left uppercase text-[10px] sm:text-xs text-white truncate">${p.Sel2}</span>
+            </div>
+        `;
 
+        const row = `
+            <tr class="border-b border-slate-800 hover:bg-white/5 transition-colors">
+                <td class="py-3 px-2 font-medium text-yellow-400">${p.Apelido}</td>
+                <td class="py-3 px-2 text-center text-xs text-white opacity-60">${p.Jogo}</td>
+                <td class="py-3 px-2">
+                    ${palpiteFormatado}
+                </td>
+                <td class="py-3 px-2 text-center text-white font-semibold">
+                    ${p.Res1 !== null ? p.Res1 + ' x ' + p.Res2 : '<span class="text-slate-500 italic text-[10px]">Andamento</span>'}
+                </td>
+                <td class="py-3 px-2 text-center">
+                    <span class="bg-yellow-900/20 text-yellow-400 border border-yellow-700/50 px-2 py-1 rounded text-xs font-bold">
+                        ${p.Pontos}
+                    </span>
+                </td>
+            </tr>
+        `;
+        tbody.innerHTML += row;
+    }
+});
             loading.classList.add('hidden');
             if (tbody.innerHTML === '') {
                 loading.innerText = 'Nenhum jogo disponível para consulta ainda.';
