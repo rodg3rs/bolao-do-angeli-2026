@@ -226,17 +226,14 @@ app.get('/api/ranking', async (req, res) => {
     }
 });
 
-// Rota para buscar os palpites da galera
+/// Rota corrigida para buscar os palpites da galera
 app.get('/api/palpites-galera', async (req, res) => {
     try {
-        // Query para buscar todos os palpites. 
-        // A lógica de "esconder" palpites futuros é feita no front-end (Galera.html),
-        // mas você também pode filtrar aqui no SQL para maior segurança.
         const query = "SELECT * FROM dApostas ORDER BY Data DESC, Horario DESC";
         
-        const result = await client.execute(query); // Ajuste conforme seu driver do Turso/SQLite
+        // ALTERADO DE 'client' PARA 'db'
+        const result = await db.execute(query); 
 
-        // Transformando os resultados para o formato que o front-end espera
         const palpites = result.rows.map(row => ({
             Apelido: row.Apelido,
             Jogo: row.Jogo,
