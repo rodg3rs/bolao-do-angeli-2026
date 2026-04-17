@@ -38,12 +38,11 @@
         </div>
 
         <section id="sec-cravados" class="block animate-fade-in">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <div class="p-6 rounded-2xl border border-gray-100">
                 <h2 class="text-gray-700 font-bold mb-4 flex items-center">
                     Ranking de Precisão <span class="ml-2 text-xs font-normal text-gray-400">(Apenas quem acertou o placar exato)</span>
                 </h2>
-                <div class="relative h-[400px]">
-                    <canvas id="chartCravados"></canvas>
+	  	    <div style="position: relative; height: 350px; width: 100%;">                    <canvas id="chartCravados"></canvas>
                 </div>
             </div>
         </section>
@@ -169,7 +168,7 @@
         }
 
         // Iniciar carregamento
-        window.onload = fetchData;
+        fetchData();
     </script>
 </body>
 </html>
