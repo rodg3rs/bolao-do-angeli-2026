@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statis - Bolão 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .tab-active { border-bottom: 3px solid #4f46e5; color: #4f46e5; }
+        canvas { max-height: 400px; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans">
+
+    <nav class="bg-indigo-700 text-white shadow-lg p-4 mb-6">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-chart-bar text-2xl"></i>
+                <span class="text-xl font-bold tracking-tight">STATIS</span>
+            </div>
+            <a href="index.html" class="bg-indigo-800 hover:bg-indigo-900 px-4 py-2 rounded-lg text-sm transition">
+                <i class="fas fa-arrow-left mr-2"></i>Voltar
+            </a>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto px-4">
+        
+        <div class="flex gap-8 mb-6 border-b border-gray-200 justify-center md:justify-start">
+            <button onclick="switchTab('cravados')" id="btn-cravados" class="tab-active py-2 px-4 font-bold transition">
+                <i class="fas fa-bullseye mr-2"></i>Cravados
+            </button>
+            <button onclick="switchTab('torcida')" id="btn-torcida" class="py-2 px-4 font-bold text-gray-500 hover:text-indigo-600 transition">
+                <i class="fas fa-flag mr-2"></i>Torcida
+            </button>
+        </div>
+
+        <section id="sec-cravados" class="block animate-fade-in">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h2 class="text-gray-700 font-bold mb-4 flex items-center">
+                    Ranking de Precisão <span class="ml-2 text-xs font-normal text-gray-400">(Apenas quem acertou o placar exato)</span>
+                </h2>
+                <div class="relative h-[400px]">
+                    <canvas id="chartCravados"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-torcida" class="hidden animate-fade-in">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h2 class="text-gray-700 font-bold mb-4">Pontuação Total Acumulada por Equipe</h2>
+                <div class="relative h-[400px]">
+                    <canvas id="chartTorcida"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-4 bg-indigo-50 rounded-xl flex items-center gap-4">
+                <div class="bg-indigo-500 text-white p-3 rounded-full">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <p class="text-sm text-indigo-900">
+                    Os dados são atualizados automaticamente assim que um administrador encerra o status de um jogo na tabela <strong>jogos</strong>.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Configurações Globais dos Gráficos
+        let chartCravadosInstance = null;
+        let chartTorcidaInstance = null;
+
+        // Função para alternar entre as abas visualmente
+        function switchTab(tab) {
+            const secCravados = document.getElementById('sec-cravados');
+            const secTorcida = document.getElementById('sec-torcida');
+            const btnCravados = document.getElementById('btn-cravados');
+            const btnTorcida = document.getElementById('btn-torcida');
+
+            if (tab === 'cravados') {
+                secCravados.classList.remove('hidden');
+                secTorcida.classList.add('hidden');
+                btnCravados.classList.add('tab-active');
+                btnTorcida.classList.remove('tab-active');
+                btnTorcida.classList.add('text-gray-500');
+            } else {
+                secTorcida.classList.remove('hidden');
+                secCravados.classList.add('hidden');
+                btnTorcida.classList.add('tab-active');
+                btnCravados.classList.remove('tab-active');
+                btnCravados.classList.add('text-gray-500');
+            }
+        }
+
+        // Função Principal de Busca de Dados (API)
+        async function fetchData() {
+            try {
+                // Rota que você deve criar no seu server.js
+                const response = await fetch('/api/estatisticas');
+                const data = await response.json();
+
+                renderCravados(data.cravados);
+                renderTorcida(data.torcida);
+            } catch (error) {
+                console.error("Erro ao carregar estatísticas:", error);
+                // Caso queira testar sem o servidor rodando, você pode injetar dados falsos aqui
+            }
+        }
+
+        function renderCravados(lista) {
+            const ctx = document.getElementById('chartCravados').getContext('2d');
+            
+            // Filtro: Apenas quem tem acertos > 0
+            const filtrados = lista.filter(u => u.acertos > 0);
+
+            if (chartCravadosInstance) chartCravadosInstance.destroy();
+
+            chartCravadosInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: filtrados.map(u => u.apelido),
+                    datasets: [{
+                        label: 'Vezes que cravou o placar',
+                        data: filtrados.map(u => u.acertos),
+                        backgroundColor: 'rgba(79, 70, 229, 0.7)',
+                        borderColor: '#4f46e5',
+                        borderWidth: 2,
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+        }
+
+        function renderTorcida(lista) {
+            const ctx = document.getElementById('chartTorcida').getContext('2d');
+
+            if (chartTorcidaInstance) chartTorcidaInstance.destroy();
+
+            chartTorcidaInstance = new Chart(ctx, {
+                type: 'bar', // Pode mudar para 'pie' se preferir pizza
+                data: {
+                    labels: lista.map(t => t.time_nome),
+                    datasets: [{
+                        label: 'Pontos Acumulados',
+                        data: lista.map(t => t.pontos),
+                        backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                        borderColor: '#10b981',
+                        borderWidth: 2,
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', // Gráfico horizontal para melhor leitura dos nomes dos times
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        // Iniciar carregamento
+        window.onload = fetchData;
+    </script>
+</body>
+</html>

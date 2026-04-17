@@ -257,5 +257,47 @@ app.get('/api/palpites-galera', async (req, res) => {
     }
 });
 
+// Rota para obter dados das estatísticas
+app.get('/api/estatisticas', async (req, res) => {
+    try {
+        // 1. Consulta para CRAVADOS (Aposta exata = Jogo real)
+        // Consideramos 5 pontos para quem crava o placar exato
+        const queryCravados = `
+            SELECT u.apelido, COUNT(*) as acertos
+            FROM dApostas a
+            JOIN usuarios u ON a.usuario_id = u.id
+            JOIN jogos j ON a.jogo_id = j.id
+            WHERE j.status = 'finalizado' 
+              AND a.gols_m = j.gols_mandante 
+              AND a.gols_v = j.gols_visitante
+            GROUP BY u.apelido
+            HAVING acertos > 0
+            ORDER BY acertos DESC
+        `;
+
+        // 2. Consulta para TORCIDA (Pontos acumulados por time)
+        // Aqui somamos os pontos que os usuários ganharam apostando em cada time
+        const queryTorcida = `
+            SELECT time_nome, SUM(pontos_ganhos) as pontos FROM (
+                SELECT j.mandante as time_nome, a.pontos as pontos_ganhos 
+                FROM dApostas a JOIN jogos j ON a.jogo_id = j.id
+                UNION ALL
+                SELECT j.visitante, a.pontos FROM dApostas a JOIN jogos j ON a.jogo_id = j.id
+            ) GROUP BY time_nome ORDER BY pontos DESC
+        `;
+
+        const rCravados = await db.execute(queryCravados);
+        const rTorcida = await db.execute(queryTorcida);
+
+        res.json({
+            cravados: rCravados.rows,
+            torcida: rTorcida.rows
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Erro ao buscar estatísticas" });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
