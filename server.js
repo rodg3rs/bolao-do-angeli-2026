@@ -257,45 +257,44 @@ app.get('/api/palpites-galera', async (req, res) => {
     }
 });
 
-// Rota para obter dados das estatísticas
+// Rota para obter dados das estatísticas atualizada conforme as tabelas reais
 app.get('/api/estatisticas', async (req, res) => {
     try {
-        // 1. Consulta para CRAVADOS (Aposta exata = Jogo real)
-        // Consideramos 5 pontos para quem crava o placar exato
+        // 1. Consulta para CRAVADOS (Aposta exata = Resultado real)
+        // Compara Ap1 com Res1 e Ap2 com Res2 diretamente na tabela dApostas
         const queryCravados = `
-            SELECT u.apelido, COUNT(*) as acertos
-            FROM dApostas a
-            JOIN usuarios u ON a.usuario_id = u.id
-            JOIN jogos j ON a.jogo_id = j.id
-            WHERE j.status = 'finalizado' 
-              AND a.gols_m = j.gols_mandante 
-              AND a.gols_v = j.gols_visitante
-            GROUP BY u.apelido
+            SELECT Apelido, COUNT(*) as acertos
+            FROM dApostas
+            WHERE Res1 IS NOT NULL 
+              AND Ap1 = Res1 
+              AND Ap2 = Res2
+            GROUP BY Apelido
             HAVING acertos > 0
             ORDER BY acertos DESC
         `;
 
-        // 2. Consulta para TORCIDA (Pontos acumulados por time)
-        // Aqui somamos os pontos que os usuários ganharam apostando em cada time
+        // 2. Consulta para TORCIDA (Pontos acumulados pelo TIME do usuário)
+        // Busca o 'Time' na dLogin e soma os 'Pontos' da dApostas usando o 'Apelido' como chave
         const queryTorcida = `
-            SELECT time_nome, SUM(pontos_ganhos) as pontos FROM (
-                SELECT j.mandante as time_nome, a.pontos as pontos_ganhos 
-                FROM dApostas a JOIN jogos j ON a.jogo_id = j.id
-                UNION ALL
-                SELECT j.visitante, a.pontos FROM dApostas a JOIN jogos j ON a.jogo_id = j.id
-            ) GROUP BY time_nome ORDER BY pontos DESC
+            SELECT l.Time, SUM(a.Pontos) as pontos
+            FROM dApostas a
+            JOIN dLogin l ON a.Apelido = l.Apelido
+            GROUP BY l.Time
+            ORDER BY pontos DESC
         `;
 
         const rCravados = await db.execute(queryCravados);
         const rTorcida = await db.execute(queryTorcida);
 
+        // Retorna os dados formatados para o Chart.js
         res.json({
             cravados: rCravados.rows,
             torcida: rTorcida.rows
         });
+        
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Erro ao buscar estatísticas" });
+        console.error("Erro ao processar estatísticas:", error);
+        res.status(500).json({ error: "Erro interno ao buscar estatísticas" });
     }
 });
 

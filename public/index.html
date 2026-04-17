@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bolão do Angeli - Copa 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -154,6 +155,15 @@
                 if (!response.ok) throw new Error(`Status: ${response.status}`);
                 const html = await response.text();
                 const centro = document.getElementById('conteudo-central');
+
+	// AJUSTE AQUI: Remove a imagem de fundo para os gráficos ficarem legíveis
+        if (arquivo === 'estatistica.html') {
+            centro.style.backgroundImage = 'none';
+            centro.style.backgroundColor = 'var(--card-bg)';
+        } else {
+            centro.style.backgroundImage = "url('/img/copa2026.png')";
+        }
+
                 centro.innerHTML = html;
 
                 // Re-executar scripts do módulo carregado
