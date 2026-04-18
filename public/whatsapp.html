@@ -10,7 +10,7 @@
         <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px;">
             Um novo resultado foi postado! Deseja notificar os usuários agora?
         </p>
-        <textarea id="whatsapp-msg" style="width: 100%; height: 80px; background: #0f172a; color: white; border: 1px solid var(--border); padding: 10px; border-radius: 6px; font-size: 0.85rem;" readonly>
+        <textarea id="whatsapp-msg" style="width: 100%; height: 80px; background: #0f172a; color: white; border: 1px solid #25d36633; padding: 10px; border-radius: 6px; font-size: 0.85rem;">
 Olá! O placar de um novo jogo acaba de ser atualizado no Bolão do Angeli 2026. Confira sua pontuação no ranking!
         </textarea>
         
@@ -27,27 +27,34 @@ Olá! O placar de um novo jogo acaba de ser atualizado no Bolão do Angeli 2026.
         const status = document.getElementById('wa-status');
         const msg = document.getElementById('whatsapp-msg').value;
 
+        // Confirmação para evitar disparos acidentais
+        if (!confirm("Deseja enviar esta mensagem para todos os participantes?")) return;
+
         btn.disabled = true;
         btn.innerText = "ENVIANDO...";
-        status.innerText = "Aguarde, processando fila de envio...";
+        status.style.color = "#94a3b8";
+        status.innerText = "Conectando ao servidor e processando fila...";
 
         try {
-            // Aqui você chamará a sua API de WhatsApp (ex: Evolution API, WPPConnect, etc)
-            const response = await fetch('/api/whatsapp/enviar-massa', {
+            // Ajustado para a rota padrão de envio que costumamos usar no server.js
+            const response = await fetch('/enviar-notificacao', { 
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ mensagem: msg })
             });
             
             const data = await response.json();
-            if(data.success) {
+            
+            if(response.ok && data.success) {
                 status.innerHTML = "<span style='color: #10b981;'>Mensagens enviadas com sucesso!</span>";
                 btn.innerText = "ENVIADO ✅";
             } else {
-                throw new Error();
+                // Caso o erro venha do servidor (ex: WhatsApp desconectado)
+                throw new Error(data.error || "Erro desconhecido");
             }
         } catch (e) {
-            status.innerHTML = "<span style='color: #ef4444;'>Erro ao conectar com a API de WhatsApp.</span>";
+            console.error("Erro no disparo:", e);
+            status.innerHTML = `<span style='color: #ef4444;'>Erro: ${e.message || "Servidor offline ou WhatsApp desconectado."}</span>`;
             btn.disabled = false;
             btn.innerText = "TENTAR NOVAMENTE";
         }
