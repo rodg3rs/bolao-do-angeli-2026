@@ -15,31 +15,41 @@
 <body class="bg-gray-50 min-h-screen font-sans">
 
 
-<main class="max-w-5xl mx-auto p-6 bg-transparent"> <div class="flex items-center gap-4 mb-6 border-b border-gray-600">
-        <button onclick="switchTab('cravados')" id="btn-cravados" class="tab-active py-2 px-4 font-bold transition">
-            <i class="fas fa-bullseye mr-2"></i>Cravados
-        </button>
-        <button onclick="switchTab('torcida')" id="btn-torcida" class="py-2 px-4 font-bold text-gray-400 hover:text-indigo-400 transition">
-            <i class="fas fa-flag mr-2"></i>Torcida
-        </button>
+    <main class="max-w-5xl mx-auto px-4">
+        
+        <div class="flex gap-8 mb-6 border-b border-gray-200 justify-center md:justify-start">
+            <button onclick="switchTab('cravados')" id="btn-cravados" class="tab-active py-2 px-4 font-bold transition">
+                <i class="fas fa-bullseye mr-2"></i>Cravados
+            </button>
+            <button onclick="switchTab('torcida')" id="btn-torcida" class="py-2 px-4 font-bold text-gray-500 hover:text-indigo-600 transition">
+                <i class="fas fa-flag mr-2"></i>Torcida
+            </button>
+	    <a href="index.html" class="ml-auto py-2 px-4 font-bold text-red-500 hover:text-red-700 transition flex items-center">
+            	<i class="fas fa-undo-alt mr-2"></i>Voltar
+            </a>
 
-        <a href="index.html" class="ml-auto py-2 px-4 font-bold text-red-500 hover:text-red-700 transition flex items-center">
-            <i class="fas fa-undo-alt mr-2"></i>Voltar
-        </a>
-    </div>
-
-    <section id="sec-cravados" class="block animate-fade-in">
-        <div class="p-4 rounded-xl border border-gray-700 bg-black/20 backdrop-blur-sm"> 
-            <canvas id="chartCravados"></canvas>
         </div>
-    </section>
 
-    <section id="sec-torcida" class="hidden animate-fade-in">
-        <div class="p-4 rounded-xl border border-gray-700 bg-black/20 backdrop-blur-sm">
-            <canvas id="chartTorcida"></canvas>
-        </div>
-    </section>
-</main>
+        <section id="sec-cravados" class="block animate-fade-in">
+            <div class="p-6 rounded-2xl border border-gray-100">
+                <h2 class="text-gray-700 font-bold mb-4 flex items-center">
+                    Ranking de Precisão <span class="ml-2 text-xs font-normal text-gray-400">(Apenas quem acertou o placar exato)</span>
+                </h2>
+	  	    <div style="position: relative; height: 350px; width: 100%;">                    <canvas id="chartCravados"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-torcida" class="hidden animate-fade-in">
+            <div class="p-6 rounded-2xl border border-gray-100">
+                <h2 class="text-gray-700 font-bold mb-4">Pontuação Total Acumulada por Equipe</h2>
+                <div class="relative h-[400px]">
+                    <canvas id="chartTorcida"></canvas>
+                </div>
+            </div>
+        </section>
+
+    </main>
 
     <script>
         // Configurações Globais dos Gráficos
@@ -74,50 +84,46 @@
                 // Rota que você deve criar no seu server.js
                 const response = await fetch('/api/estatisticas');
                 const data = await response.json();
-		setTimeout(() => {
-                     renderCravados(data.cravados);
-                     renderTorcida(data.torcida);
-		}, 100);
+setTimeout(() => {
+                renderCravados(data.cravados);
+                renderTorcida(data.torcida);
+}, 100);
             } catch (error) {
                 console.error("Erro ao carregar estatísticas:", error);
                 // Caso queira testar sem o servidor rodando, você pode injetar dados falsos aqui
             }
         }
-function renderCravados(lista) {
-    const ctx = document.getElementById('chartCravados').getContext('2d');
-    
-    if (window.chartCravadosInstance) window.chartCravadosInstance.destroy();
 
-    window.chartCravadosInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: lista.map(u => u.Apelido),
-            datasets: [{
-                label: 'Cravadas',
-                data: lista.map(u => u.acertos),
-                backgroundColor: 'rgba(255, 193, 7, 0.8)', // Cor de destaque (amarelo/accent)
-                borderRadius: 5
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: { 
-                    ticks: { color: '#f1f5f9' }, // Cor do texto no eixo Y (branco)
-                    grid: { color: 'rgba(255, 255, 255, 0.1)' } // Linhas de grade suaves
+        function renderCravados(lista) {
+            const ctx = document.getElementById('chartCravados').getContext('2d');
+            
+            // Filtro: Apenas quem tem acertos > 0
+            const filtrados = lista.filter(u => u.acertos > 0);
+
+            if (chartCravadosInstance) chartCravadosInstance.destroy();
+
+            chartCravadosInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: filtrados.map(u => u.Apelido),
+                    datasets: [{
+                        label: 'Vezes que cravou o placar',
+                        data: filtrados.map(u => u.acertos),
+                        backgroundColor: 'rgba(79, 70, 229, 0.7)',
+                        borderColor: '#4f46e5',
+                        borderWidth: 2,
+                        borderRadius: 5
+                    }]
                 },
-                x: { 
-                    ticks: { color: '#f1f5f9' }, // Cor do texto no eixo X (branco)
-                    grid: { display: false }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    }
                 }
-            },
-            plugins: {
-                legend: { labels: { color: '#f1f5f9' } }
-            }
+            });
         }
-    });
-}
 
         function renderTorcida(lista) {
             const ctx = document.getElementById('chartTorcida').getContext('2d');
