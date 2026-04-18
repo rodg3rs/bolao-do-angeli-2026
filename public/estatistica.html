@@ -14,6 +14,18 @@
 </head>
 <body class="bg-gray-50 min-h-screen font-sans">
 
+    <nav class="bg-indigo-700 text-white shadow-lg p-4 mb-6">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-chart-bar text-2xl"></i>
+                <span class="text-xl font-bold tracking-tight">STATIS</span>
+            </div>
+            <a href="index.html" class="bg-indigo-800 hover:bg-indigo-900 px-4 py-2 rounded-lg text-sm transition">
+                <i class="fas fa-arrow-left mr-2"></i>Voltar
+            </a>
+        </div>
+    </nav>
+
     <main class="max-w-5xl mx-auto px-4">
         
         <div class="flex gap-8 mb-6 border-b border-gray-200 justify-center md:justify-start">
@@ -23,9 +35,6 @@
             <button onclick="switchTab('torcida')" id="btn-torcida" class="py-2 px-4 font-bold text-gray-500 hover:text-indigo-600 transition">
                 <i class="fas fa-flag mr-2"></i>Torcida
             </button>
-	    <button onclick="limparCentro(this)" class="menu-item !w-auto">
-		<i class="fas fa-undo-alt"></i> Voltar
-	    </button>
         </div>
 
         <section id="sec-cravados" class="block animate-fade-in">
@@ -47,6 +56,16 @@
             </div>
         </section>
 
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-4 bg-indigo-50 rounded-xl flex items-center gap-4">
+                <div class="bg-indigo-500 text-white p-3 rounded-full">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <p class="text-sm text-indigo-900">
+                    Os dados são atualizados automaticamente assim que um administrador encerra o status de um jogo na tabela <strong>jogos</strong>.
+                </p>
+            </div>
+        </div>
     </main>
 
     <script>
@@ -147,13 +166,6 @@
                 }
             });
         }
-	function limparCentro(el) {
-    	     atualizarMenuAtivo(el);
-    	     const centro = document.getElementById('conteudo-central');
-    	     centro.innerHTML = ''; // Limpa o módulo (estatísticas, login, etc)
-    	     centro.style.backgroundImage = "url('/img/copa2026.png')"; // Restaura o fundo da Copa
-    	     centro.style.backgroundColor = 'transparent';
-	}
 
         // Iniciar carregamento
         fetchData();
