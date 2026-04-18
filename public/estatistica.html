@@ -53,8 +53,8 @@
 
     <script>
         // Configurações Globais dos Gráficos
-        let chartCravadosInstance = null;
-        let chartTorcidaInstance = null;
+	window.chartCravadosInstance = window.chartCravadosInstance || null;
+	window.chartTorcidaInstance = window.chartTorcidaInstance || null;
 
         // Função para alternar entre as abas visualmente
         function switchTab(tab) {
@@ -84,9 +84,10 @@
                 // Rota que você deve criar no seu server.js
                 const response = await fetch('/api/estatisticas');
                 const data = await response.json();
-
+setTimeout(() => {
                 renderCravados(data.cravados);
                 renderTorcida(data.torcida);
+}, 100);
             } catch (error) {
                 console.error("Erro ao carregar estatísticas:", error);
                 // Caso queira testar sem o servidor rodando, você pode injetar dados falsos aqui
