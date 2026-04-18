@@ -269,7 +269,7 @@ app.get('/api/estatisticas', async (req, res) => {
             WHERE Res1 IS NOT NULL 
             GROUP BY Apelido
             HAVING (cravados + acertos_comuns) > 0
-            ORDER BY acertos DESC, acertos_comuns DESC
+            ORDER BY cravados DESC, acertos_comuns DESC
         `;
 
         // 2. Consulta para TORCIDA (Pontos acumulados pelo TIME do usuário)
