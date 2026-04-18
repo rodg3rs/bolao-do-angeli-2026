@@ -260,10 +260,9 @@ app.get('/api/palpites-galera', async (req, res) => {
 // Rota para obter dados das estatísticas atualizada conforme as tabelas reais
 app.get('/api/estatisticas', async (req, res) => {
     try {
-        // 1. Consulta para CRAVADOS (Aposta exata = Resultado real)
-        // Compara Ap1 com Res1 e Ap2 com Res2 diretamente na tabela dApostas
+	// 1. CRAVADOS e ACERTOS SIMPLES
         const queryCravados = `
-            SELECT Apelido, COUNT(*) as acertos
+            SELECT Apelido, 
 		SUM(CASE WHEN Ap1 = Res1 AND Ap2 = Res2 THEN 1 ELSE 0 END) as cravados,
         	SUM(CASE WHEN Pontos > 0 AND (Ap1 != Res1 OR Ap2 != Res2) THEN 1 ELSE 0 END) as acertos_comuns            
 	    FROM dApostas
