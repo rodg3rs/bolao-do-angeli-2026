@@ -96,34 +96,54 @@ setTimeout(() => {
 
         function renderCravados(lista) {
             const ctx = document.getElementById('chartCravados').getContext('2d');
-            
-            // Filtro: Apenas quem tem acertos > 0
-            const filtrados = lista.filter(u => u.acertos > 0);
+            if (window.chartCravadosInstance) window.chartCravadosInstance.destroy();
 
-            if (chartCravadosInstance) chartCravadosInstance.destroy();
-
-            chartCravadosInstance = new Chart(ctx, {
+            window.chartCravadosInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: filtrados.map(u => u.Apelido),
-                    datasets: [{
-                        label: 'Vezes que cravou o placar',
-                        data: filtrados.map(u => u.acertos),
-                        backgroundColor: 'rgba(79, 70, 229, 0.7)',
-                        borderColor: '#4f46e5',
-                        borderWidth: 2,
-                        borderRadius: 5
-                    }]
+		    labels: lista.map(u => u.Apelido),
+            	    datasets: [
+                	{
+                    	    label: 'Placar Exato (Cravado)',
+                    	    data: lista.map(u => u.cravados),
+                    	    backgroundColor: 'rgba(255, 193, 7, 0.8)', // Amarelo/Ouro
+                    	    borderRadius: 5
+                	},
+                	{
+                    	    label: 'Acerto Simples (Vencedor/Empate)',
+                    	    data: lista.map(u => u.acertos_comuns),
+                    	    backgroundColor: 'rgba(79, 70, 229, 0.6)', // Roxo/Indigo
+                    	    borderRadius: 5
+                	}
+            	]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { 
+                    stacked: true, // Empilha as barras para mostrar o total de acertos
+                    beginAtZero: true, 
+                    ticks: { color: '#f1f5f9', stepSize: 1 } 
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
-                    }
+                x: { 
+                    stacked: true, // Empilha as barras
+                    ticks: { color: '#f1f5f9' } 
                 }
-            });
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: { color: '#f1f5f9' }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
+                }
+            }
         }
+    });
+}
 
         function renderTorcida(lista) {
             const ctx = document.getElementById('chartTorcida').getContext('2d');

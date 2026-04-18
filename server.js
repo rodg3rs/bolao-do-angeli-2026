@@ -264,13 +264,13 @@ app.get('/api/estatisticas', async (req, res) => {
         // Compara Ap1 com Res1 e Ap2 com Res2 diretamente na tabela dApostas
         const queryCravados = `
             SELECT Apelido, COUNT(*) as acertos
-            FROM dApostas
+		SUM(CASE WHEN Ap1 = Res1 AND Ap2 = Res2 THEN 1 ELSE 0 END) as cravados,
+        	SUM(CASE WHEN Pontos > 0 AND (Ap1 != Res1 OR Ap2 != Res2) THEN 1 ELSE 0 END) as acertos_comuns            
+	    FROM dApostas
             WHERE Res1 IS NOT NULL 
-              AND Ap1 = Res1 
-              AND Ap2 = Res2
             GROUP BY Apelido
-            HAVING acertos > 0
-            ORDER BY acertos DESC
+            HAVING (cravados + acertos_comuns) > 0
+            ORDER BY acertos DESC, acertos_comuns DESC
         `;
 
         // 2. Consulta para TORCIDA (Pontos acumulados pelo TIME do usuário)
