@@ -48,7 +48,7 @@
         </section>
 
         <section id="sec-torcida" class="hidden animate-fade-in">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <div class="p-6 rounded-2xl border border-gray-100">
                 <h2 class="text-gray-700 font-bold mb-4">Pontuação Total Acumulada por Equipe</h2>
                 <div class="relative h-[400px]">
                     <canvas id="chartTorcida"></canvas>
@@ -121,7 +121,7 @@
             chartCravadosInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: filtrados.map(u => u.apelido),
+                    labels: filtrados.map(u => u.Apelido),
                     datasets: [{
                         label: 'Vezes que cravou o placar',
                         data: filtrados.map(u => u.acertos),
@@ -149,7 +149,7 @@
             chartTorcidaInstance = new Chart(ctx, {
                 type: 'bar', // Pode mudar para 'pie' se preferir pizza
                 data: {
-                    labels: lista.map(t => t.time_nome),
+                    labels: lista.map(t => t.Time),
                     datasets: [{
                         label: 'Pontos Acumulados',
                         data: lista.map(t => t.pontos),
