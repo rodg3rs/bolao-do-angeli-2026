@@ -33,7 +33,7 @@
         <section id="sec-cravados" class="block animate-fade-in">
             <div class="p-6 rounded-2xl border border-gray-100">
                 <h2 class="text-gray-700 font-bold mb-4 flex items-center">
-                    Ranking de Precisão <span class="ml-2 text-xs font-normal text-gray-400">(Apenas quem acertou o placar exato)</span>
+                    Ranking de Precisão <span class="ml-2 text-xs font-normal text-gray-400"></span>
                 </h2>
 	  	    <div style="position: relative; height: 350px; width: 100%;">                    <canvas id="chartCravados"></canvas>
                 </div>
@@ -42,7 +42,7 @@
 
         <section id="sec-torcida" class="hidden animate-fade-in">
             <div class="p-6 rounded-2xl border border-gray-100">
-                <h2 class="text-gray-700 font-bold mb-4">Pontuação Total Acumulada por Equipe</h2>
+                <h2 class="text-gray-700 font-bold mb-4">Pontuação Total Acumulada por Time</h2>
                 <div class="relative h-[400px]">
                     <canvas id="chartTorcida"></canvas>
                 </div>
@@ -84,10 +84,10 @@
                 // Rota que você deve criar no seu server.js
                 const response = await fetch('/api/estatisticas');
                 const data = await response.json();
-setTimeout(() => {
-                renderCravados(data.cravados);
-                renderTorcida(data.torcida);
-}, 100);
+		setTimeout(() => {
+                    renderCravados(data.cravados);
+                    renderTorcida(data.torcida);
+		}, 100);
             } catch (error) {
                 console.error("Erro ao carregar estatísticas:", error);
                 // Caso queira testar sem o servidor rodando, você pode injetar dados falsos aqui
@@ -124,17 +124,17 @@ setTimeout(() => {
                 y: { 
                     stacked: true, // Empilha as barras para mostrar o total de acertos
                     beginAtZero: true, 
-                    ticks: { color: '#f1f5f9', stepSize: 1 } 
+                    ticks: { color: '#FFD700', stepSize: 1 } 
                 },
                 x: { 
                     stacked: true, // Empilha as barras
-                    ticks: { color: '#f1f5f9' } 
+                    ticks: { color: '#FFD700' } 
                 }
             },
             plugins: {
                 legend: {
                     display: true,
-                    labels: { color: '#f1f5f9' }
+                    labels: { color: '#FFD700' }
                 },
                 tooltip: {
                     mode: 'index',
@@ -145,31 +145,40 @@ setTimeout(() => {
     });
 }
 
-        function renderTorcida(lista) {
-            const ctx = document.getElementById('chartTorcida').getContext('2d');
+function renderTorcida(lista) {
+    const ctx = document.getElementById('chartTorcida').getContext('2d');
 
-            if (chartTorcidaInstance) chartTorcidaInstance.destroy();
+    if (chartTorcidaInstance) chartTorcidaInstance.destroy();
 
-            chartTorcidaInstance = new Chart(ctx, {
-                type: 'bar', // Pode mudar para 'pie' se preferir pizza
-                data: {
-                    labels: lista.map(t => t.Time),
-                    datasets: [{
-                        label: 'Pontos Acumulados',
-                        data: lista.map(t => t.pontos),
-                        backgroundColor: 'rgba(16, 185, 129, 0.7)',
-                        borderColor: '#10b981',
-                        borderWidth: 2,
-                        borderRadius: 5
-                    }]
-                },
-                options: {
-                    indexAxis: 'y', // Gráfico horizontal para melhor leitura dos nomes dos times
-                    responsive: true,
-                    maintainAspectRatio: false
+    chartTorcidaInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: lista.map(t => t.Time),
+            datasets: [{
+                label: 'Pontos Acumulados',
+                data: lista.map(t => t.pontos),
+                backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                borderColor: '#10b981',
+                borderWidth: 2,
+                borderRadius: 5
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false, // Adicionada a vírgula aqui
+            plugins: {
+                legend: {
+                    display: false 
                 }
-            });
+            }, // Adicionada a vírgula aqui
+            scales: {
+                x: { ticks: { color: '#FFD700' } },
+                y: { ticks: { color: '#FFD700' } }
+            }
         }
+    });
+}
 
         // Iniciar carregamento
         fetchData();
