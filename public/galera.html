@@ -9,9 +9,12 @@
         	onchange="filtrarGalera()">
     		<option value="">Todos os Jogos</option>
  	   </select>
-            <input type="text" id="filtroApelido" 
-                   class="bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2 outline-none focus:border-[var(--accent)]" 
-                   placeholder="Buscar apelido..." onkeyup="filtrarGalera()">
+
+<select id="filtroApelido" 
+        class="bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2 outline-none focus:border-[var(--accent)]" 
+        onchange="filtrarGalera()">
+    <option value="">Escolha o Cara...</option>
+</select>
             
             <button onclick="fecharModuloGalera()" 
                     class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">
