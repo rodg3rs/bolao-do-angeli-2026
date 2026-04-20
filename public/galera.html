@@ -56,10 +56,17 @@
 
             if (!data.success) throw new Error(data.message);
 
-	    selectJogo.innerHTML = '<option value="">Todos os Jogos</option>';
-		jogosUnicos.forEach(jogo => {
- 		   selectJogo.innerHTML += `<option value="${jogo}">${jogo}</option>`;
-	    });
+selectJogo.innerHTML = '<option value="">Escolha um jogo...</option>'; // Texto inicial alterado
+
+jogosUnicos.forEach(jogo => {
+    // Busca o primeiro palpite que corresponde ao código do jogo para pegar os nomes das seleções
+    const p = data.palpites.find(item => item.Jogo === jogo);
+    const textoExibicao = `${jogo} - ${p.Sel1} x ${p.Sel2}`;
+    
+    selectJogo.innerHTML += `<option value="${jogo}">${textoExibicao}</option>`;
+});
+
+	    document.getElementById('loading-galera').innerText = 'Selecione um jogo para ver os palpites.';
 
             const tbody = document.getElementById('corpoTabelaGalera');
             const loading = document.getElementById('loading-galera');
@@ -118,13 +125,26 @@ function filtrarGalera() {
     const termoApelido = document.getElementById("filtroApelido").value.toUpperCase();
     const termoJogo = document.getElementById("filtroJogo").value;
     const linhas = document.querySelectorAll("#corpoTabelaGalera tr");
+    const loading = document.getElementById('loading-galera');
+
+// 2. Se nenhum jogo foi escolhido, esconde tudo e avisa o usuário
+    if (termoJogo === "") {
+        linhas.forEach(l => l.style.display = "none");
+        loading.innerText = 'Selecione um jogo para ver os palpites.';
+        loading.classList.remove('hidden');
+        return; 
+    }
+
+    // 3. Se escolheu um jogo, esconde o aviso e processa o filtro abaixo
+    loading.classList.add('hidden');
+
 
     linhas.forEach(linha => {
         const apelidoTxt = linha.cells[0].textContent.toUpperCase();
         const jogoTxt = linha.cells[1].textContent; // Coluna do Jogo
 
         const bateApelido = apelidoTxt.includes(termoApelido);
-        const bateJogo = termoJogo === "" || jogoTxt === termoJogo;
+const bateJogo = jogoTxt === termoJogo;
 
         // A linha só aparece se atender aos dois filtros simultaneamente
         linha.style.display = (bateApelido && bateJogo) ? "" : "none";
