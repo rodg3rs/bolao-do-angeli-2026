@@ -62,11 +62,20 @@
 selectJogo.innerHTML = '<option value="">Escolha um jogo...</option>'; // Texto inicial alterado
 
 jogosUnicos.forEach(jogo => {
-    // Busca o primeiro palpite que corresponde ao código do jogo para pegar os nomes das seleções
     const p = data.palpites.find(item => item.Jogo === jogo);
     const textoExibicao = `${jogo} - ${p.Sel1} x ${p.Sel2}`;
-    
     selectJogo.innerHTML += `<option value="${jogo}">${textoExibicao}</option>`;
+});
+
+// --- INÍCIO DA INSERÇÃO ---
+// Seleciona o elemento do apostador e extrai nomes únicos da lista de palpites
+const selectApelido = document.getElementById('filtroApelido');
+const apelidosUnicos = [...new Set(data.palpites.map(p => p.Apelido))].sort();
+
+selectApelido.innerHTML = '<option value="">Escolha o Cara...</option>';
+apelidosUnicos.forEach(apelido => {
+    // Adiciona cada apelido como uma opção no menu suspenso
+    selectApelido.innerHTML += `<option value="${apelido.toUpperCase()}">${apelido}</option>`;
 });
 
 	    document.getElementById('loading-galera').innerText = 'Selecione um jogo para ver os palpites.';
