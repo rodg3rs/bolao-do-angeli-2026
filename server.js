@@ -185,7 +185,7 @@ app.post('/api/admin/atualizar_resultado', async (req, res) => {
             SET Res1 = ?, Res2 = ?, 
                 Pontos = CASE 
 		    WHEN Ap1 IS NULL OR Ap2 IS NULL THEN 0
-                    WHEN Ap1 = ? AND Ap2 = ? THEN 3 
+                    WHEN Ap1 = ? AND Ap2 = ? THEN 4 
                     WHEN (Ap1 > Ap2 AND ? > ?) OR (Ap1 < Ap2 AND ? < ?) OR (Ap1 = Ap2 AND ? = ?) THEN 2 
                     ELSE 0 
                 END
