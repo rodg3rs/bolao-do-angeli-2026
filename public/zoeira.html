@@ -4,139 +4,115 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ranking da Zoeira</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent: #ffc107;
+            --border: #334155;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-        h1 {
-            color: #1a73e8;
-            margin-bottom: 30px;
-            text-transform: uppercase;
-            text-align: center;
-        }
-        .ranking-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 500px;
-            overflow: hidden;
-        }
-        .ranking-item {
-            display: flex;
-            align-items: center;
-            padding: 15px 20px;
-            border-bottom: 1px solid #eee;
-            transition: background 0.2s;
-        }
-        .ranking-item:hover {
-            background: #f9f9f9;
-        }
-        .ranking-item:last-child {
-            border-bottom: none;
-        }
-        .colocacao {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #555;
-            width: 40px;
-            text-align: center;
-        }
-        .avatar-container {
-            width: 60px;
-            height: 60px;
-            margin: 0 15px;
+            background-color: var(--bg);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
             justify-content: center;
-            align-items: center;
+            padding: 20px;
         }
-        .avatar {
-            width: 60px;
-            height: 60px;
+
+        .card-panel {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .avatar-img {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid #1a73e8;
-            background-color: #e0e0e0;
+            border: 2px solid var(--accent);
+            background-color: var(--bg);
         }
-        .info {
-            flex-grow: 1;
-        }
-        .apelido {
-            font-size: 1.2em;
-            font-weight: bold;
-            margin: 0;
-            color: #222;
-        }
-        .pontos {
-            color: #666;
-            margin: 5px 0 0 0;
-            font-size: 0.95em;
-            font-weight: bold;
+
+        /* Scrollbar estilizada como no seu sistema */
+        .list-scroll {
+            max-height: 80vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
         }
     </style>
 </head>
-<body>
+<body class="antialiased">
 
-    <h1>🏆 Segue o Líder e o Fiasco 🏆</h1>
+    <section class="card-panel p-5 flex flex-col">
+        <div class="flex items-center gap-3 mb-4 border-b border-[var(--border)] pb-3">
+            <i class="fas fa-trophy text-[var(--accent)] text-sm"></i>
+            <h2 class="text-sm font-bold tracking-tight uppercase text-[var(--accent)]">
+                Segue o Líder e o Fiasco
+            </h2>
+        </div>
 
-    <div class="ranking-container" id="lista-ranking">
-        <p style="text-align: center; padding: 20px;">Carregando os mitos e os bagres...</p>
-    </div>
+        <div id="lista-ranking-zoeira" class="list-scroll space-y-1">
+            <div class="text-center text-sm text-[var(--text-secondary)] py-10">
+                Carregando os mitos e os bagres...
+            </div>
+        </div>
+    </section>
 
     <script>
-        // Caminho relativo: funciona tanto no localhost quanto no Render
-        const API_URL = '/api/zoeira';
-
-        async function carregarRanking() {
+        // Mesma lógica do seu index.html, mas apontando para a rota com Avatar
+        async function carregarRankingZoeira() {
             try {
-                const response = await fetch(API_URL);
-                if (!response.ok) throw new Error('Erro ao buscar dados do servidor');
+                // Rota que criamos no server.js para trazer Apelido, Total e dAvatar
+                const res = await fetch('/api/zoeira');
+                const data = await res.json();
                 
-                const dados = await response.json();
-                renderizarRanking(dados);
-            } catch (error) {
-                console.error("Erro:", error);
-                document.getElementById('lista-ranking').innerHTML = `<p style="text-align: center; color: red;">Erro ao carregar o ranking da zoeira.</p>`;
+                // Note que o retorno de /api/zoeira é o array direto rows[]
+                if(data && Array.isArray(data)) {
+                    let html = '';
+                    data.forEach((user, index) => {
+                        
+                        // Lógica da Imagem: Pasta /avt/ conforme sua estrutura
+                        // Se dAvatar for nulo, não exibe a div da imagem
+                        const avatarTag = user.dAvatar 
+                            ? `<img src="/avt/${user.dAvatar}" class="avatar-img" alt="">`
+                            : `<div class="w-[40px]"></div>`; // Espaçador caso não tenha foto
+
+                        html += `
+                        <div class="flex justify-between items-center py-2 px-2 hover:bg-white/5 transition-colors border-b border-white/5 last:border-none">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs font-bold opacity-40 w-6 text-center">${index + 1}º</span>
+                                ${avatarTag}
+                                <span class="text-sm font-medium text-[var(--text-primary)]">
+                                    ${user.Apelido}
+                                </span>
+                            </div>
+                            <b class="text-[var(--accent)] text-sm">${user.TotalPontos || 0} pts</b>
+                        </div>`;
+                    });
+                    
+                    document.getElementById('lista-ranking-zoeira').innerHTML = html;
+                }
+            } catch(e) { 
+                console.error("Erro ranking zoeira:", e);
+                document.getElementById('lista-ranking-zoeira').innerHTML = 
+                    `<div class="text-center text-red-500 text-xs py-4">Erro ao carregar dados</div>`;
             }
         }
 
-        function renderizarRanking(dados) {
-            const container = document.getElementById('lista-ranking');
-            container.innerHTML = ''; 
-
-            dados.forEach((jogador, index) => {
-                const colocacao = index + 1;
-                
-                // Lógica do Avatar: Puxa da pasta /avt/ (que está dentro de public)
-                let avatarHTML = '';
-                if (jogador.dAvatar) {
-                    // Exemplo: se no banco estiver "mario.png", a URL vira "/avt/mario.png"
-                    avatarHTML = `<img src="/avt/${jogador.dAvatar}" alt="Avatar de ${jogador.Apelido}" class="avatar">`;
-                }
-
-                const itemHTML = `
-                    <div class="ranking-item">
-                        <div class="colocacao">${colocacao}º</div>
-                        <div class="avatar-container">
-                            ${avatarHTML}
-                        </div>
-                        <div class="info">
-                            <p class="apelido">${jogador.Apelido}</p>
-                            <p class="pontos">${jogador.TotalPontos} pontos</p>
-                        </div>
-                    </div>
-                `;
-                container.innerHTML += itemHTML;
-            });
-        }
-
-        carregarRanking();
+        // Inicializa e deixa em loop como no seu index
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarRankingZoeira();
+            setInterval(carregarRankingZoeira, 15000); // Atualiza a cada 15s
+        });
     </script>
 </body>
 </html>
