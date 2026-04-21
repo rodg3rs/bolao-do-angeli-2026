@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de E-mail - Bolão 2026</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            width: 350px;
+            text-align: center;
+        }
+        h2 { color: #4CAF50; margin-bottom: 20px; }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #333;
+            background: #2d2d2d;
+            color: white;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .btn-enviar { background-color: #4CAF50; color: white; }
+        .btn-enviar:hover { background-color: #45a049; }
+        .btn-sair { background-color: #f44336; color: white; margin-top: 10px; }
+        .btn-sair:hover { background-color: #da190b; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📧 Teste de Envio</h2>
+    
+    <form action="/enviar-teste" method="POST">
+        <input type="email" name="destinatario" placeholder="E-mail do destinatário" required>
+        <textarea name="mensagem" rows="4" placeholder="Sua mensagem de teste..." required></textarea>
+        
+        <button type="submit" class="btn-enviar">ENVIAR E-MAIL</button>
+    </form>
+
+    <button class="btn-sair" onclick="sair()">SAIR</button>
+</div>
+
+<script>
+    function sair() {
+        // Redireciona para a página principal ou tenta fechar a janela
+        window.location.href = '/'; 
+    }
+</script>
+
+</body>
+</html>

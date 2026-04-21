@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const { createClient } = require('@libsql/client');
 const app = express();
+const nodemailer = require('nodemailer');
 
 app.use(express.json());
 app.use(express.static('public'));
@@ -315,6 +316,35 @@ app.get('/api/zoeira', async (req, res) => {
     } catch (error) {
         console.error("Erro ao buscar ranking da zoeira:", error);
         res.status(500).json({ error: "Erro interno no servidor" });
+    }
+});
+
+// Rota para processar o envio do e-mail
+app.post('/enviar-teste', async (req, res) => {
+    const { destinatario, mensagem } = req.body;
+
+    // Configuração do Transportador (usando as variáveis do seu .env)
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
+        }
+    });
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: destinatario,
+        subject: 'Teste de Envio - Sistema de Apostas',
+        text: mensagem
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        res.send('<h1>E-mail enviado com sucesso!</h1><p>Você pode fechar esta aba agora.</p>');
+    } catch (error) {
+        console.error('Erro ao enviar:', error);
+        res.status(500).send('Erro ao enviar e-mail: ' + error.message);
     }
 });
 
