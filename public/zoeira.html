@@ -11,43 +11,13 @@
             --bg: #0f172a;
             --card-bg: #1e293b;
             --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
             --accent: #ffc107;
             --border: #334155;
         }
-
-        body {
-            background-color: var(--bg);
-            color: var(--text-primary);
-            font-family: 'Segoe UI', sans-serif;
-            display: flex;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .card-panel {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 0.75rem;
-            width: 100%;
-            max-width: 500px;
-        }
-
-        .avatar-img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--accent);
-            background-color: var(--bg);
-        }
-
-        /* Scrollbar estilizada como no seu sistema */
-        .list-scroll {
-            max-height: 80vh;
-            overflow-y: auto;
-            scrollbar-width: thin;
-        }
+        body { background-color: var(--bg); color: var(--text-primary); font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; padding: 20px; }
+        .card-panel { background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 0.75rem; width: 100%; max-width: 500px; }
+        .avatar-img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); background-color: var(--bg); }
+        .list-scroll { max-height: 85vh; overflow-y: auto; scrollbar-width: thin; }
     </style>
 </head>
 <body class="antialiased">
@@ -55,64 +25,42 @@
     <section class="card-panel p-5 flex flex-col">
         <div class="flex items-center gap-3 mb-4 border-b border-[var(--border)] pb-3">
             <i class="fas fa-trophy text-[var(--accent)] text-sm"></i>
-            <h2 class="text-sm font-bold tracking-tight uppercase text-[var(--accent)]">
-                Segue o Líder e o Fiasco
-            </h2>
+            <h2 class="text-sm font-bold tracking-tight uppercase text-[var(--accent)]">Segue o Líder e o Fiasco</h2>
         </div>
 
         <div id="lista-ranking-zoeira" class="list-scroll space-y-1">
-            <div class="text-center text-sm text-[var(--text-secondary)] py-10">
-                Carregando os mitos e os bagres...
-            </div>
+            <div class="text-center text-sm opacity-50 py-10">Carregando dados...</div>
         </div>
     </section>
 
     <script>
-        // Mesma lógica do seu index.html, mas apontando para a rota com Avatar
         async function carregarRankingZoeira() {
             try {
-                // Rota que criamos no server.js para trazer Apelido, Total e dAvatar
                 const res = await fetch('/api/zoeira');
                 const data = await res.json();
                 
-                // Note que o retorno de /api/zoeira é o array direto rows[]
                 if(data && Array.isArray(data)) {
                     let html = '';
                     data.forEach((user, index) => {
+                        // Busca o arquivo na pasta /avt/ conforme sua estrutura de pastas
+                        const imgPath = user.arquivo_imagem ? `/avt/${user.arquivo_imagem}` : '/img/default-avatar.png';
                         
-                        // Lógica da Imagem: Pasta /avt/ conforme sua estrutura
-                        // Se dAvatar for nulo, não exibe a div da imagem
-                        const avatarTag = user.dAvatar 
-                            ? `<img src="/avt/${user.dAvatar}" class="avatar-img" alt="">`
-                            : `<div class="w-[40px]"></div>`; // Espaçador caso não tenha foto
-
                         html += `
                         <div class="flex justify-between items-center py-2 px-2 hover:bg-white/5 transition-colors border-b border-white/5 last:border-none">
-                            <div class="flex items-center gap-3">
-                                <span class="text-xs font-bold opacity-40 w-6 text-center">${index + 1}º</span>
-                                ${avatarTag}
-                                <span class="text-sm font-medium text-[var(--text-primary)]">
-                                    ${user.Apelido}
-                                </span>
+                            <div class="flex items-center gap-4">
+                                <span class="text-xs font-bold opacity-30 w-6">${index + 1}º</span>
+                                <img src="${imgPath}" class="avatar-img" onerror="this.style.display='none'">
+                                <span class="text-sm font-medium">${user.Apelido}</span>
                             </div>
                             <b class="text-[var(--accent)] text-sm">${user.TotalPontos || 0} pts</b>
                         </div>`;
                     });
-                    
                     document.getElementById('lista-ranking-zoeira').innerHTML = html;
                 }
-            } catch(e) { 
-                console.error("Erro ranking zoeira:", e);
-                document.getElementById('lista-ranking-zoeira').innerHTML = 
-                    `<div class="text-center text-red-500 text-xs py-4">Erro ao carregar dados</div>`;
-            }
+            } catch(e) { console.error("Erro:", e); }
         }
 
-        // Inicializa e deixa em loop como no seu index
-        document.addEventListener('DOMContentLoaded', () => {
-            carregarRankingZoeira();
-            setInterval(carregarRankingZoeira, 15000); // Atualiza a cada 15s
-        });
+        document.addEventListener('DOMContentLoaded', carregarRankingZoeira);
     </script>
 </body>
 </html>
