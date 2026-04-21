@@ -102,17 +102,8 @@
 
 <main class="flex-grow w-full max-w-[1600px] mx-auto pt-1 px-4 md:px-6 pb-6 grid grid-cols-1 xl:grid-cols-[250px_1fr_250px] gap-0">
         
-        <aside class="xl:col-span-1 order-2 xl:order-1">
-            <section class="card-panel p-5 h-full flex flex-col min-h-[500px]">
-		<div class="flex items-center gap-3 mb-4 border-b border-[var(--border)] pb-3">
-    			<i class="fas fa-trophy text-[var(--accent)] text-sm"></i>
-    			<h2 class="text-sm font-bold tracking-tight uppercase text-[var(--accent)]">Ranking Geral</h2>
-		</div>
-                <div id="lista-ranking" class="list-scroll space-y-1">
-                    </div>
-            </section>
-        </aside>
-
+	<aside id="modulo-ranking-container" class="xl:col-span-1 order-2 xl:order-1">
+    	    </aside>
 	<div id="conteudo-central" class="xl:col-span-1 order-1 xl:order-2 card-panel p-0 flex flex-col items-center justify-center min-h-[400px] rounded-none border-r-0 overflow-hidden relative bg-center bg-cover bg-no-repeat" 
      		style="background-image: url('/img/copa2026.png');">
     	</div>
@@ -200,28 +191,6 @@
             limparCentro();
         }
 
-        // --- RANKING E PRESENÇA (Lógica original Turso/SQLite) ---
-        async function carregarRanking() {
-            try {
-                const res = await fetch('/api/ranking');
-                const data = await res.json();
-                if(data.success && data.ranking) {
-                    let html = '';
-                    data.ranking.forEach((user, index) => {
-                        const onlineIcon = user.Online === 1 ? '<span class="text-green-500 ml-1 text-[10px]">●</span>' : '';
-                        html += `
-			<div class="flex justify-between items-center py-1 px-2 hover:bg-white/5 transition-colors border-none">
-                        	<span class="text-sm text-[var(--text-primary)]">
-                        		<b class="opacity-50">${index + 1}º</b> ${user.Apelido} ${onlineIcon}
-                        	</span>
-                        	<b class="text-[var(--accent)] text-xs">${user.Total || 0} pts</b>
-                    </div>`;
-                    });
-                    document.getElementById('lista-ranking').innerHTML = html;
-                }
-            } catch(e) { console.error("Erro ranking:", e); }
-        }
-
         async function enviarPing() {
             if (!usuarioLogado?.Apelido) return;
             try {
@@ -255,12 +224,26 @@ function sairSistema() {
     window.location.href = 'sair.html';
 }
 
-        // --- INICIALIZAÇÃO ---
-        document.addEventListener('DOMContentLoaded', () => {
-            carregarRanking();
-            inicializarChatFixo();
-            setInterval(carregarRanking, 10000);
-            setInterval(enviarPing, 30000);
+async function inicializarRankingFixo() {
+    try {
+        const res = await fetch('ranking.html');
+        const html = await res.text();
+        const container = document.getElementById('modulo-ranking-container');
+        container.innerHTML = html;
+        
+        // Executa o script interno do ranking.html
+        container.querySelectorAll('script').forEach(s => {
+            const ns = document.createElement('script');
+            ns.text = s.text;
+            document.body.appendChild(ns);
+        });
+    } catch (e) { console.error("Erro ao carregar módulo ranking:", e); }
+}
+
+	document.addEventListener('DOMContentLoaded', () => {
+    	    inicializarRankingFixo(); // Novo carregador modular
+	    inicializarChatFixo();
+	    setInterval(enviarPing, 30000);
         });
     </script>
 </body>
