@@ -297,5 +297,25 @@ app.get('/api/estatisticas', async (req, res) => {
     }
 });
 
+// --- RANKING DA ZOEIRA (Com Avatar) ---
+app.get('/api/zoeira', async (req, res) => {
+    try {
+        const result = await db.execute(`
+            SELECT 
+                l.Apelido, 
+                l.dAvatar,
+                SUM(IFNULL(a.Pontos, 0)) as TotalPontos
+            FROM dLogin l
+            LEFT JOIN dApostas a ON l.Apelido = a.Apelido
+            GROUP BY l.Apelido
+            ORDER BY TotalPontos DESC, l.Apelido ASC
+        `);
+        res.json(result.rows);
+    } catch (error) {
+        console.error("Erro ao buscar ranking da zoeira:", error);
+        res.status(500).json({ error: "Erro interno no servidor" });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
