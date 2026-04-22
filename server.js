@@ -173,32 +173,64 @@ app.get('/api/admin/jogos', async (req, res) => {
 
 app.post('/api/admin/atualizar_resultado', async (req, res) => {
     const { jogo, res1, res2 } = req.body;
-    const r1 = parseInt(res1);
-    const r2 = parseInt(res2);
+    const r1 = parseInt(res1); // Gols Real Time A
+    const r2 = parseInt(res2); // Gols Real Time B
 
     try {
+        // 1. Atualiza ou insere o resultado oficial
         await db.execute({
             sql: "INSERT INTO dResult (Jogo, Res1, Res2) VALUES (?, ?, ?) ON CONFLICT(Jogo) DO UPDATE SET Res1=excluded.Res1, Res2=excluded.Res2",
             args: [jogo, r1, r2]
         });
 
+        // 2. Calcula os pontos de todas as apostas para este jogo
         const sqlCalculo = `
             UPDATE dApostas 
             SET Res1 = ?, Res2 = ?, 
                 Pontos = CASE 
-		    WHEN Ap1 IS NULL OR Ap2 IS NULL THEN 0
-                    WHEN Ap1 = ? AND Ap2 = ? THEN 4 
-                    WHEN (Ap1 > Ap2 AND ? > ?) OR (Ap1 < Ap2 AND ? < ?) OR (Ap1 = Ap2 AND ? = ?) THEN 2 
+                    -- Se não houve palpite, 0 pontos
+                    WHEN Ap1 IS NULL OR Ap2 IS NULL THEN 0
+
+                    -- 1. Placar Exato (25 pts)
+                    WHEN Ap1 = ? AND Ap2 = ? THEN 25
+
+                    -- 2. Vencedor + Gols do Vencedor (18 pts)
+                    -- (Se ganhou e acertou os gols do time A OU se ganhou e acertou os gols do time B)
+                    WHEN (Ap1 > Ap2 AND ? > ? AND Ap1 = ?) OR (Ap2 > Ap1 AND ? > ? AND Ap2 = ?) THEN 18
+
+                    -- 3. Vencedor + Diferença de Gols (15 pts)
+                    -- (Se acertou quem ganhou e a subtração de gols é igual)
+                    WHEN ((Ap1 > Ap2 AND ? > ?) OR (Ap2 > Ap1 AND ? > ?)) AND (Ap1 - Ap2 = ? - ?) THEN 15
+
+                    -- 4. Vencedor + Gols do Perdedor (12 pts)
+                    -- (Se ganhou e acertou os gols de quem perdeu)
+                    WHEN (Ap1 > Ap2 AND ? > ? AND Ap2 = ?) OR (Ap2 > Ap1 AND ? > ? AND Ap1 = ?) THEN 12
+
+                    -- 5. Apenas o Vencedor / Empate (10 pts)
+                    WHEN (Ap1 > Ap2 AND ? > ?) OR (Ap1 < Ap2 AND ? < ?) OR (Ap1 = Ap2 AND ? = ?) THEN 10
+
+                    -- 6. Nenhum acerto
                     ELSE 0 
                 END
             WHERE Jogo = ?
         `;
+
         await db.execute({
             sql: sqlCalculo,
-            args: [r1, r2, r1, r2, r1, r2, r1, r2, r1, r2, jogo]
+            args: [
+                r1, r2,        // SET Res1, Res2
+                r1, r2,        // Placar Exato
+                r1, r2, r1,    // Vencedor + Gols Venc (Caso A)
+                r2, r1, r2,    // Vencedor + Gols Venc (Caso B)
+                r1, r2, r2, r1, r1, r2, // Vencedor + Dif Gols (Diferença é sempre A-B no SQLite)
+                r1, r2, r2,    // Vencedor + Gols Perd (Caso A ganhou)
+                r2, r1, r1,    // Vencedor + Gols Perd (Caso B ganhou)
+                r1, r2, r1, r2, r1, r2, // Apenas Vencedor/Empate
+                jogo           // WHERE Jogo
+            ]
         });
 
-        res.json({ success: true, message: "Resultado salvo e pontos calculados!" });
+        res.json({ success: true, message: "Resultado atualizado e pontos recalculados com a nova lógica!" });
     } catch (e) {
         console.error("Erro ao calcular pontos:", e);
         res.status(500).json({ success: false });
