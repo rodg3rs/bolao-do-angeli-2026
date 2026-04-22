@@ -375,25 +375,33 @@ app.post('/enviar-ranking', async (req, res) => {
                 </tr>`;
         });
 
-        const corpoHtml = `
-            <div style="background-color: #121212; color: #ffffff; padding: 30px; font-family: 'Segoe UI', Arial, sans-serif; max-width: 450px; margin: auto; border: 2px solid #4CAF50; border-radius: 12px;">
-                <div style="text-align: center; margin-bottom: 25px;">
-                    <h1 style="color: #4CAF50; margin: 0; text-transform: uppercase; letter-spacing: 2px;">🏆 Ranking Geral</h1>
-                    <p style="font-size: 14px; color: #888;">Bolão do Angeli 2026</p>
+	const corpoHtml = `
+            <div style="background-color: #000000; color: #ffffff; padding: 30px; font-family: Arial, sans-serif;">
+                <div style="max-width: 500px; margin: auto; background-color: #121212; border: 2px solid #4CAF50; border-radius: 12px; padding: 20px;">
+                    <div style="text-align: center; margin-bottom: 25px;">
+                        <h1 style="color: #4CAF50; margin: 0;">🏆 RANKING GERAL</h1>
+                        <p style="font-size: 14px; color: #888;">Bolão do Angeli 2026</p>
+                    </div>
+                    
+                    <table style="width: 100%; border-collapse: collapse; color: #ffffff;">
+                        <thead>
+                            <tr style="background-color: #1a1a1a;">
+                                <th style="padding: 12px; border-bottom: 2px solid #4CAF50; color: #4CAF50;">Pos</th>
+                                <th style="padding: 12px; border-bottom: 2px solid #4CAF50; text-align: left; color: #4CAF50;">Nome</th>
+                                <th style="padding: 12px; border-bottom: 2px solid #4CAF50; color: #4CAF50;">Pts</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${linhasTabela}
+                        </tbody>
+                    </table>
+                    
+                    <div style="text-align: center; margin-top: 30px; font-size: 11px; color: #555;">
+                        <p>E-mail automático enviado pelo sistema de apostas.</p>
+                    </div>
                 </div>
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr style="background-color: #1a1a1a;">
-                            <th style="padding: 12px; border-bottom: 2px solid #4CAF50; text-align: center; color: #4CAF50;">Pos</th>
-                            <th style="padding: 12px; border-bottom: 2px solid #4CAF50; text-align: left; color: #4CAF50;">Participante</th>
-                            <th style="padding: 12px; border-bottom: 2px solid #4CAF50; text-align: center; color: #4CAF50;">Pts</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${linhasTabela}
-                    </tbody>
-                </table>
-            </div>`;
+            </div>
+        `;
 
         const transporter = nodemailer.createTransport({
             service: 'gmail',
