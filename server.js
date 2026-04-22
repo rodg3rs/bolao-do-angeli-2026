@@ -349,11 +349,17 @@ app.post('/enviar-teste', async (req, res) => {
     }
 });
 
+// --- ROTA PARA DISPARAR O RANKING POR E-MAIL ---
 app.post('/enviar-ranking', async (req, res) => {
+    // O middleware express.urlencoded permite capturar o 'destinatario' do formulário
     const { destinatario } = req.body;
 
+    if (!destinatario) {
+        return res.status(400).send('E-mail do destinatário é obrigatório.');
+    }
+
     try {
-        // Busca os dados simplificados do ranking
+        // 1. Busca os dados consolidados das tabelas dLogin e dApostas
         const result = await db.execute(`
             SELECT 
                 l.Apelido, 
@@ -364,16 +370,18 @@ app.post('/enviar-ranking', async (req, res) => {
             ORDER BY TotalPontos DESC, l.Apelido ASC
         `);
 
+        // 2. Montagem das linhas da tabela HTML
         let linhasTabela = '';
         result.rows.forEach((user, index) => {
             linhasTabela += `
                 <tr>
                     <td style="padding: 12px; border-bottom: 1px solid #333; text-align: center; color: #888;">${index + 1}º</td>
-                    <td style="padding: 12px; border-bottom: 1px solid #333; font-weight: bold; color: #fff;">${user.Apelido}</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #333; font-weight: bold; color: #ffffff;">${user.Apelido}</td>
                     <td style="padding: 12px; border-bottom: 1px solid #333; text-align: center; color: #4CAF50; font-weight: bold;">${user.TotalPontos}</td>
                 </tr>`;
         });
 
+        // 3. Estrutura do corpo do e-mail (Design Black & Green)
         const corpoHtml = `
             <div style="background-color: #121212; color: #ffffff; padding: 30px; font-family: 'Segoe UI', Arial, sans-serif; max-width: 450px; margin: auto; border: 2px solid #4CAF50; border-radius: 12px;">
                 <div style="text-align: center; margin-bottom: 25px;">
@@ -395,11 +403,12 @@ app.post('/enviar-ranking', async (req, res) => {
                 </table>
                 
                 <div style="text-align: center; margin-top: 30px; font-size: 11px; color: #444; border-top: 1px solid #222; padding-top: 15px;">
-                    <p>Este é um informativo automático. Boa sorte nos próximos jogos!</p>
+                    <p>Informativo automático do sistema. Boa sorte!</p>
                 </div>
             </div>
         `;
 
+        // 4. Configuração do Nodemailer com as credenciais do .env
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: { 
@@ -408,6 +417,7 @@ app.post('/enviar-ranking', async (req, res) => {
             }
         });
 
+        // 5. Envio efetivo do e-mail
         await transporter.sendMail({
             from: `"Bolão 2026" <${process.env.EMAIL_USER}>`,
             to: destinatario,
