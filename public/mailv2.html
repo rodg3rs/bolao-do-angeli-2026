@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Disparar Ranking - Teste</title>
+    <style>
+        body { background: #121212; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { background: #1e1e1e; padding: 25px; border-radius: 10px; text-align: center; width: 300px; border: 1px solid #4CAF50; }
+        input { width: 100%; padding: 10px; margin: 15px 0; background: #333; border: 1px solid #444; color: white; border-radius: 5px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
+        .enviar { background: #4CAF50; color: white; }
+        .sair { background: #f44336; color: white; text-decoration: none; display: block; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2 style="color: #4CAF50;">Ranking por E-mail</h2>
+        <form action="/enviar-ranking" method="POST">
+            <input type="email" name="destinatario" placeholder="Para quem enviar?" required>
+            <button type="submit" class="btn enviar">DISPARAR RANKING</button>
+        </form>
+        <a href="/" class="btn sair">SAIR</a>
+    </div>
+</body>
+</html>
