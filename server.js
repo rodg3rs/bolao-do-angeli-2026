@@ -351,39 +351,77 @@ app.post('/enviar-teste', async (req, res) => {
 
 app.post('/enviar-ranking', async (req, res) => {
     const { destinatario } = req.body;
-    
-    // URL do seu site no Render (ajuste para a sua URL real)
-    const baseURL = "https://bolao-do-angeli-2026.onrender.com";
 
     try {
+        // Busca os dados simplificados do ranking
         const result = await db.execute(`
             SELECT 
                 l.Apelido, 
-                av.Imagem as arquivo_imagem,
                 SUM(IFNULL(a.Pontos, 0)) as TotalPontos
             FROM dLogin l
             LEFT JOIN dApostas a ON l.Apelido = a.Apelido
-            LEFT JOIN dAvatar av ON l.Avatar = av.Avatar
             GROUP BY l.Apelido
             ORDER BY TotalPontos DESC, l.Apelido ASC
         `);
 
         let linhasTabela = '';
         result.rows.forEach((user, index) => {
-            // Monta o caminho completo da imagem
-            // Supondo que suas imagens fiquem na pasta /public/images/ ou similar
-            const urlImagem = `${baseURL}/images/${user.arquivo_imagem}`; 
-
             linhasTabela += `
                 <tr>
                     <td style="padding: 12px; border-bottom: 1px solid #333; text-align: center; color: #888;">${index + 1}º</td>
-                    <td style="padding: 12px; border-bottom: 1px solid #333; text-align: center;">
-                        <img src="${urlImagem}" alt="avatar" width="35" height="35" style="border-radius: 50%; object-fit: cover; border: 1px solid #4CAF50;">
-                    </td>
-                    <td style="padding: 12px; border-bottom: 1px solid #333; font-weight: bold;">${user.Apelido}</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #333; font-weight: bold; color: #fff;">${user.Apelido}</td>
                     <td style="padding: 12px; border-bottom: 1px solid #333; text-align: center; color: #4CAF50; font-weight: bold;">${user.TotalPontos}</td>
                 </tr>`;
         });
+
+        const corpoHtml = `
+            <div style="background-color: #121212; color: #ffffff; padding: 30px; font-family: 'Segoe UI', Arial, sans-serif; max-width: 450px; margin: auto; border: 2px solid #4CAF50; border-radius: 12px;">
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <h1 style="color: #4CAF50; margin: 0; text-transform: uppercase; letter-spacing: 2px;">🏆 Ranking Geral</h1>
+                    <p style="font-size: 14px; color: #888;">Bolão do Angeli 2026</p>
+                </div>
+                
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #1a1a1a;">
+                            <th style="padding: 12px; border-bottom: 2px solid #4CAF50; text-align: center; color: #4CAF50;">Pos</th>
+                            <th style="padding: 12px; border-bottom: 2px solid #4CAF50; text-align: left; color: #4CAF50;">Participante</th>
+                            <th style="padding: 12px; border-bottom: 2px solid #4CAF50; text-align: center; color: #4CAF50;">Pts</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${linhasTabela}
+                    </tbody>
+                </table>
+                
+                <div style="text-align: center; margin-top: 30px; font-size: 11px; color: #444; border-top: 1px solid #222; padding-top: 15px;">
+                    <p>Este é um informativo automático. Boa sorte nos próximos jogos!</p>
+                </div>
+            </div>
+        `;
+
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: { 
+                user: process.env.EMAIL_USER, 
+                pass: process.env.EMAIL_PASS 
+            }
+        });
+
+        await transporter.sendMail({
+            from: `"Bolão 2026" <${process.env.EMAIL_USER}>`,
+            to: destinatario,
+            subject: '📊 Classificação Atualizada - Bolão 2026',
+            html: corpoHtml
+        });
+
+        res.send('<h1>Ranking enviado com sucesso!</h1><a href="/mailv2.html">Voltar</a>');
+
+    } catch (error) {
+        console.error("Erro no envio do ranking:", error);
+        res.status(500).send('Erro ao processar e-mail: ' + error.message);
+    }
+});
 
         const corpoHtml = `
             <div style="background-color: #000; color: #fff; padding: 20px; font-family: 'Segoe UI', Arial, sans-serif; max-width: 500px; margin: auto; border: 1px solid #4CAF50; border-radius: 15px;">
