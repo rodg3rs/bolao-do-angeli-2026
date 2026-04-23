@@ -294,17 +294,21 @@ app.get('/api/palpites-galera', async (req, res) => {
 // Rota para obter dados das estatísticas atualizada conforme as tabelas reais
 app.get('/api/estatisticas', async (req, res) => {
     try {
-	// 1. CRAVADOS e ACERTOS SIMPLES
-        const queryCravados = `
-            SELECT Apelido, 
-		SUM(CASE WHEN Ap1 = Res1 AND Ap2 = Res2 THEN 1 ELSE 0 END) as cravados,
-        	SUM(CASE WHEN Pontos > 0 AND (Ap1 != Res1 OR Ap2 != Res2) THEN 1 ELSE 0 END) as acertos_comuns            
-	    FROM dApostas
-            WHERE Res1 IS NOT NULL 
-            GROUP BY Apelido
-            HAVING (cravados + acertos_comuns) > 0
-            ORDER BY cravados DESC, acertos_comuns DESC
-        `;
+const queryCravados = `
+    SELECT 
+        Apelido,
+        SUM(CASE WHEN Pontos = 25 THEN 1 ELSE 0 END) as acertos_25,
+        SUM(CASE WHEN Pontos = 18 THEN 1 ELSE 0 END) as acertos_18,
+        SUM(CASE WHEN Pontos = 15 THEN 1 ELSE 0 END) as acertos_15,
+        SUM(CASE WHEN Pontos = 12 THEN 1 ELSE 0 END) as acertos_12,
+        SUM(CASE WHEN Pontos = 10 THEN 1 ELSE 0 END) as acertos_10,
+        SUM(Pontos) as pontos_totais
+    FROM dApostas
+    WHERE Res1 IS NOT NULL
+    GROUP BY Apelido
+    HAVING pontos_totais > 0
+    ORDER BY pontos_totais DESC, acertos_25 DESC
+`;
 
         // 2. Consulta para TORCIDA (Pontos acumulados pelo TIME do usuário)
         // Busca o 'Time' na dLogin e soma os 'Pontos' da dApostas usando o 'Apelido' como chave

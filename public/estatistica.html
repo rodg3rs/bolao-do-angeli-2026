@@ -6,41 +6,46 @@
     <title>Statis - Bolão 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .tab-active { border-bottom: 3px solid #4f46e5; color: #4f46e5; }
-        canvas { max-height: 400px; }
+        body { background-color: #0f172a; color: white; }
+        .tab-active { border-bottom: 3px solid #FFD700; color: #FFD700; }
+        /* Estilização da barra de rolagem customizada */
+        .chart-container::-webkit-scrollbar { width: 8px; }
+        .chart-container::-webkit-scrollbar-track { background: #1e293b; }
+        .chart-container::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen font-sans">
+<body class="min-h-screen font-sans">
 
-
-    <main class="max-w-5xl mx-auto px-4">
+    <main class="max-w-5xl mx-auto px-4 py-6">
         
-        <div class="flex gap-8 mb-6 border-b border-gray-200 justify-center md:justify-start">
+        <div class="flex gap-8 mb-6 border-b border-gray-700 justify-center md:justify-start">
             <button onclick="switchTab('cravados')" id="btn-cravados" class="tab-active py-2 px-4 font-bold transition">
                 <i class="fas fa-bullseye mr-2"></i>Cravados
             </button>
-            <button onclick="switchTab('torcida')" id="btn-torcida" class="py-2 px-4 font-bold text-gray-500 hover:text-indigo-600 transition">
+            <button onclick="switchTab('torcida')" id="btn-torcida" class="py-2 px-4 font-bold text-gray-500 hover:text-yellow-500 transition">
                 <i class="fas fa-flag mr-2"></i>Torcida
             </button>
-	    <a href="index.html" class="ml-auto py-2 px-4 font-bold text-red-500 hover:text-red-700 transition flex items-center">
-            	<i class="fas fa-undo-alt mr-2"></i>Voltar
+            <a href="index.html" class="ml-auto py-2 px-4 font-bold text-red-500 hover:text-red-400 transition flex items-center">
+                <i class="fas fa-undo-alt mr-2"></i>Voltar
             </a>
-
         </div>
 
         <section id="sec-cravados" class="block animate-fade-in">
-            <div class="p-6 rounded-2xl border border-gray-100">
-		<h2 class="font-bold mb-4" style="color: white;">Ranking de Precisão</h2>
-	  	    <div style="position: relative; height: 350px; width: 100%;">                    <canvas id="chartCravados"></canvas>
+            <div class="p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
+                <h2 class="font-bold mb-4 text-yellow-500 text-xl">Ranking de Precisão</h2>
+                <div class="chart-container" style="position: relative; height: 500px; overflow-y: auto;">
+                    <div id="chart-wrapper" style="height: 1000px;"> <canvas id="chartCravados"></canvas>
+                    </div>
                 </div>
             </div>
         </section>
 
         <section id="sec-torcida" class="hidden animate-fade-in">
-            <div class="p-6 rounded-2xl border border-gray-100">
-                <h2 class="font-bold mb-4" style="color: white;">Pontuação Total Acumulada por Time</h2>
+            <div class="p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
+                <h2 class="font-bold mb-4 text-yellow-500 text-xl">Pontuação Total Acumulada por Time</h2>
                 <div class="relative h-[400px]">
                     <canvas id="chartTorcida"></canvas>
                 </div>
@@ -50,11 +55,10 @@
     </main>
 
     <script>
-        // Configurações Globais dos Gráficos
-	window.chartCravadosInstance = window.chartCravadosInstance || null;
-	window.chartTorcidaInstance = window.chartTorcidaInstance || null;
+        Chart.register(ChartDataLabels);
+        window.chartCravadosInstance = null;
+        window.chartTorcidaInstance = null;
 
-        // Função para alternar entre as abas visualmente
         function switchTab(tab) {
             const secCravados = document.getElementById('sec-cravados');
             const secTorcida = document.getElementById('sec-torcida');
@@ -76,19 +80,20 @@
             }
         }
 
-        // Função Principal de Busca de Dados (API)
         async function fetchData() {
             try {
-                // Rota que você deve criar no seu server.js
                 const response = await fetch('/api/estatisticas');
                 const data = await response.json();
-		setTimeout(() => {
-                    renderCravados(data.cravados);
-                    renderTorcida(data.torcida);
-		}, 100);
+                
+                // Ajusta a altura do wrapper baseado no número de usuários (50px por usuário)
+                const wrapper = document.getElementById('chart-wrapper');
+                const novaAltura = Math.max(500, data.cravados.length * 50);
+                wrapper.style.height = novaAltura + 'px';
+
+                renderCravados(data.cravados);
+                renderTorcida(data.torcida);
             } catch (error) {
                 console.error("Erro ao carregar estatísticas:", error);
-                // Caso queira testar sem o servidor rodando, você pode injetar dados falsos aqui
             }
         }
 
@@ -99,86 +104,65 @@
             window.chartCravadosInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
-		    labels: lista.map(u => u.Apelido),
-            	    datasets: [
-                	{
-                    	    label: 'Placar Exato (Cravado)',
-                    	    data: lista.map(u => u.cravados),
-                    	    backgroundColor: 'rgba(255, 193, 7, 0.8)', // Amarelo/Ouro
-                    	    borderRadius: 5
-                	},
-                	{
-                    	    label: 'Acerto Simples (Vencedor/Empate)',
-                    	    data: lista.map(u => u.acertos_comuns),
-                    	    backgroundColor: 'rgba(79, 70, 229, 0.6)', // Roxo/Indigo
-                    	    borderRadius: 5
-                	}
-            	]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: { 
-                    stacked: true, // Empilha as barras para mostrar o total de acertos
-                    beginAtZero: true, 
-                    ticks: { color: '#FFD700', stepSize: 1 } 
+                    labels: lista.map(u => u.Apelido),
+                    datasets: [
+                        { label: '25 pts', data: lista.map(u => u.acertos_25), backgroundColor: 'rgba(255, 215, 0, 1)' },
+                        { label: '18 pts', data: lista.map(u => u.acertos_18), backgroundColor: 'rgba(218, 165, 32, 0.9)' },
+                        { label: '15 pts', data: lista.map(u => u.acertos_15), backgroundColor: 'rgba(255, 255, 0, 0.7)' },
+                        { label: '12 pts', data: lista.map(u => u.acertos_12), backgroundColor: 'rgba(184, 134, 11, 0.6)' },
+                        { label: '10 pts', data: lista.map(u => u.acertos_10), backgroundColor: 'rgba(139, 69, 19, 0.5)' }
+                    ]
                 },
-                x: { 
-                    stacked: true, // Empilha as barras
-                    ticks: { color: '#FFD700' } 
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { stacked: true, grid: { color: '#334155' }, ticks: { color: '#FFD700' } },
+                        y: { stacked: true, grid: { display: false }, ticks: { color: '#FFD700', font: { weight: 'bold' } } }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#FFD700' } },
+                        datalabels: {
+                            color: '#000',
+                            font: { weight: 'bold' },
+                            formatter: (value) => value > 0 ? value : '' // Só mostra número se > 0
+                        }
+                    }
                 }
-            },
-            plugins: {
-                legend: {
-                    display: true,
-                    labels: { color: '#FFD700' }
+            });
+        }
+
+        function renderTorcida(lista) {
+            const ctx = document.getElementById('chartTorcida').getContext('2d');
+            if (window.chartTorcidaInstance) window.chartTorcidaInstance.destroy();
+
+            window.chartTorcidaInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: lista.map(t => t.Time),
+                    datasets: [{
+                        label: 'Pontos Acumulados',
+                        data: lista.map(t => t.pontos),
+                        backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                        borderColor: '#10b981',
+                        borderWidth: 2,
+                        borderRadius: 5
+                    }]
                 },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: '#334155' }, ticks: { color: '#FFD700' } },
+                        y: { grid: { display: false }, ticks: { color: '#FFD700' } }
+                    }
                 }
-            }
+            });
         }
-    });
-}
 
-function renderTorcida(lista) {
-    const ctx = document.getElementById('chartTorcida').getContext('2d');
-
-    if (chartTorcidaInstance) chartTorcidaInstance.destroy();
-
-    chartTorcidaInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: lista.map(t => t.Time),
-            datasets: [{
-                label: 'Pontos Acumulados',
-                data: lista.map(t => t.pontos),
-                backgroundColor: 'rgba(16, 185, 129, 0.7)',
-                borderColor: '#10b981',
-                borderWidth: 2,
-                borderRadius: 5
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            responsive: true,
-            maintainAspectRatio: false, // Adicionada a vírgula aqui
-            plugins: {
-                legend: {
-                    display: false 
-                }
-            }, // Adicionada a vírgula aqui
-            scales: {
-                x: { ticks: { color: '#FFD700' } },
-                y: { ticks: { color: '#FFD700' } }
-            }
-        }
-    });
-}
-
-        // Iniciar carregamento
         fetchData();
     </script>
 </body>
