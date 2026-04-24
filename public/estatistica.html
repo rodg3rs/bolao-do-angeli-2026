@@ -11,7 +11,6 @@
     <style>
         body { background-color: #0f172a; color: white; }
         .tab-active { border-bottom: 3px solid #FFD700; color: #FFD700; }
-        /* Estilização da barra de rolagem customizada */
         .chart-container::-webkit-scrollbar { width: 8px; }
         .chart-container::-webkit-scrollbar-track { background: #1e293b; }
         .chart-container::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 10px; }
@@ -20,7 +19,6 @@
 <body class="min-h-screen font-sans">
 
     <main class="max-w-5xl mx-auto px-4 py-6">
-        
         <div class="flex gap-8 mb-6 border-b border-gray-700 justify-center md:justify-start">
             <button onclick="switchTab('cravados')" id="btn-cravados" class="tab-active py-2 px-4 font-bold transition">
                 <i class="fas fa-bullseye mr-2"></i>Cravados
@@ -33,51 +31,37 @@
             </a>
         </div>
 
-        <section id="sec-cravados" class="block animate-fade-in">
+        <section id="sec-cravados" class="block">
             <div class="p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
                 <h2 class="font-bold mb-4 text-yellow-500 text-xl">Ranking de Precisão</h2>
-                <div class="chart-container" style="position: relative; height: 500px; overflow-y: auto;">
-                    <div id="chart-wrapper" style="height: 1000px;"> <canvas id="chartCravados"></canvas>
+                <div class="chart-container" style="position: relative; height: 500px; overflow-y: auto; overflow-x: hidden;">
+                    <div id="chart-wrapper" style="min-height: 100%;">
+                        <canvas id="chartCravados"></canvas>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="sec-torcida" class="hidden animate-fade-in">
+        <section id="sec-torcida" class="hidden">
             <div class="p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
-                <h2 class="font-bold mb-4 text-yellow-500 text-xl">Pontuação Total Acumulada por Time</h2>
+                <h2 class="font-bold mb-4 text-yellow-500 text-xl">Pontuação Total por Time</h2>
                 <div class="relative h-[400px]">
                     <canvas id="chartTorcida"></canvas>
                 </div>
             </div>
         </section>
-
     </main>
 
     <script>
         Chart.register(ChartDataLabels);
-        window.chartCravadosInstance = null;
-        window.chartTorcidaInstance = null;
+        let chartCravadosInstance = null;
+        let chartTorcidaInstance = null;
 
         function switchTab(tab) {
-            const secCravados = document.getElementById('sec-cravados');
-            const secTorcida = document.getElementById('sec-torcida');
-            const btnCravados = document.getElementById('btn-cravados');
-            const btnTorcida = document.getElementById('btn-torcida');
-
-            if (tab === 'cravados') {
-                secCravados.classList.remove('hidden');
-                secTorcida.classList.add('hidden');
-                btnCravados.classList.add('tab-active');
-                btnTorcida.classList.remove('tab-active');
-                btnTorcida.classList.add('text-gray-500');
-            } else {
-                secTorcida.classList.remove('hidden');
-                secCravados.classList.add('hidden');
-                btnTorcida.classList.add('tab-active');
-                btnCravados.classList.remove('tab-active');
-                btnCravados.classList.add('text-gray-500');
-            }
+            document.getElementById('sec-cravados').classList.toggle('hidden', tab !== 'cravados');
+            document.getElementById('sec-torcida').classList.toggle('hidden', tab !== 'torcida');
+            document.getElementById('btn-cravados').className = tab === 'cravados' ? 'tab-active py-2 px-4 font-bold transition' : 'py-2 px-4 font-bold text-gray-500 hover:text-yellow-500 transition';
+            document.getElementById('btn-torcida').className = tab === 'torcida' ? 'tab-active py-2 px-4 font-bold transition' : 'py-2 px-4 font-bold text-gray-500 hover:text-yellow-500 transition';
         }
 
         async function fetchData() {
@@ -85,10 +69,9 @@
                 const response = await fetch('/api/estatisticas');
                 const data = await response.json();
                 
-                // Ajusta a altura do wrapper baseado no número de usuários (50px por usuário)
-                const wrapper = document.getElementById('chart-wrapper');
-                const novaAltura = Math.max(500, data.cravados.length * 50);
-                wrapper.style.height = novaAltura + 'px';
+                // Redimensiona o gráfico baseado na quantidade de usuários (40px por pessoa)
+                const alturaDinamica = Math.max(450, data.cravados.length * 40);
+                document.getElementById('chart-wrapper').style.height = alturaDinamica + 'px';
 
                 renderCravados(data.cravados);
                 renderTorcida(data.torcida);
@@ -99,18 +82,18 @@
 
         function renderCravados(lista) {
             const ctx = document.getElementById('chartCravados').getContext('2d');
-            if (window.chartCravadosInstance) window.chartCravadosInstance.destroy();
+            if (chartCravadosInstance) chartCravadosInstance.destroy();
 
-            window.chartCravadosInstance = new Chart(ctx, {
+            chartCravadosInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: lista.map(u => u.Apelido),
                     datasets: [
-                        { label: '25 pts', data: lista.map(u => u.acertos_25), backgroundColor: 'rgba(255, 215, 0, 1)' },
-                        { label: '18 pts', data: lista.map(u => u.acertos_18), backgroundColor: 'rgba(218, 165, 32, 0.9)' },
-                        { label: '15 pts', data: lista.map(u => u.acertos_15), backgroundColor: 'rgba(255, 255, 0, 0.7)' },
-                        { label: '12 pts', data: lista.map(u => u.acertos_12), backgroundColor: 'rgba(184, 134, 11, 0.6)' },
-                        { label: '10 pts', data: lista.map(u => u.acertos_10), backgroundColor: 'rgba(139, 69, 19, 0.5)' }
+                        { label: '25 pts', data: lista.map(u => u.acertos_25 || 0), backgroundColor: '#FFD700' }, // Ouro
+                        { label: '18 pts', data: lista.map(u => u.acertos_18 || 0), backgroundColor: '#DAA520' }, // Dourado Escuro
+                        { label: '15 pts', data: lista.map(u => u.acertos_15 || 0), backgroundColor: '#F0E68C' }, // Caqui (Amarelo claro)
+                        { label: '12 pts', data: lista.map(u => u.acertos_12 || 0), backgroundColor: '#B8860B' }, // Ouro Velho
+                        { label: '10 pts', data: lista.map(u => u.acertos_10 || 0), backgroundColor: '#8B4513' }  // Marrom/Sienna
                     ]
                 },
                 options: {
@@ -125,8 +108,10 @@
                         legend: { position: 'bottom', labels: { color: '#FFD700' } },
                         datalabels: {
                             color: '#000',
+                            anchor: 'center',
+                            align: 'center',
                             font: { weight: 'bold' },
-                            formatter: (value) => value > 0 ? value : '' // Só mostra número se > 0
+                            formatter: (value) => value > 0 ? value : ''
                         }
                     }
                 }
@@ -135,19 +120,15 @@
 
         function renderTorcida(lista) {
             const ctx = document.getElementById('chartTorcida').getContext('2d');
-            if (window.chartTorcidaInstance) window.chartTorcidaInstance.destroy();
-
-            window.chartTorcidaInstance = new Chart(ctx, {
+            if (chartTorcidaInstance) chartTorcidaInstance.destroy();
+            chartTorcidaInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: lista.map(t => t.Time),
                     datasets: [{
-                        label: 'Pontos Acumulados',
+                        label: 'Pontos',
                         data: lista.map(t => t.pontos),
-                        backgroundColor: 'rgba(16, 185, 129, 0.7)',
-                        borderColor: '#10b981',
-                        borderWidth: 2,
-                        borderRadius: 5
+                        backgroundColor: '#10b981'
                     }]
                 },
                 options: {
@@ -156,8 +137,8 @@
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        x: { grid: { color: '#334155' }, ticks: { color: '#FFD700' } },
-                        y: { grid: { display: false }, ticks: { color: '#FFD700' } }
+                        x: { ticks: { color: '#FFD700' } },
+                        y: { ticks: { color: '#FFD700' } }
                     }
                 }
             });
