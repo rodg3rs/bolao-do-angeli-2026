@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bolão do Angeli - Mobile V2</title>
+    <title>Bolão do Angeli - Mobile V3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -12,54 +12,43 @@
             --bg: #0f172a;
             --card-bg: #1e293b;
             --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1; /* Texto mais claro para melhor leitura */
+            --text-secondary: #cbd5e1;
             --accent: #ffc107;
             --border: #334155;
         }
 
+        /* 1. AUMENTO GLOBAL DE FONTES (3x o padrão em áreas críticas) */
         body {
             background-color: var(--bg);
             color: var(--text-primary);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             margin: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            font-size: 16px; /* Tamanho base aumentado */
+            font-size: 20px; /* Aumentado */
         }
 
-        .card-panel {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 0.75rem;
-        }
-
-        /* Menu em Grid Otimizado */
-        .mobile-menu-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            padding: 12px;
+        h1 { font-size: 2.5rem !important; } /* Título gigante */
+        
+        #user-display { 
+            font-size: 1.4rem !important; 
+            padding: 10px 25px !important;
         }
 
         .menu-item {
             color: var(--text-primary);
             background-color: rgba(255, 255, 255, 0.05);
-            font-size: 1rem; /* Letras maiores */
-            font-weight: 600;
+            font-size: 1.8rem !important; /* Fonte muito grande para botões */
+            font-weight: 800;
             display: flex;
+            flex-direction: column; /* Ícone em cima do texto para caber */
             align-items: center;
             justify-content: center;
             gap: 10px;
-            padding: 16px 8px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            transition: all 0.2s;
+            padding: 25px 10px;
+            border-radius: 20px;
+            border: 2px solid var(--border);
         }
 
-        .menu-item i {
-            font-size: 1.2rem; /* Ícones maiores */
-        }
+        .menu-item i { font-size: 2.5rem !important; }
 
         .menu-item.active {
             color: var(--bg);
@@ -67,78 +56,73 @@
             border-color: var(--accent);
         }
 
+        /* Área de conteúdo muito maior */
         #conteudo-central {
-            background-image: none !important; 
+            background-image: none !important;
             background-color: var(--card-bg);
-            min-height: 300px;
-            font-size: 1.1rem;
+            min-height: 400px;
+            font-size: 1.8rem; 
+            line-height: 1.4;
         }
 
-        h1 { font-size: 1.5rem !important; }
-        h2 { font-size: 1.2rem !important; }
+        .mobile-menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 15px;
+        }
+
+        /* Estilo para esconder o placeholder */
+        .hidden { display: none !important; }
     </style>
 </head>
 <body class="antialiased">
 
-<header class="w-full pt-8 px-4 bg-[var(--bg)] text-center">
-    <h1 class="font-bold tracking-tight uppercase m-0 text-[var(--accent)]">BOLÃO DO ANGELI</h1>
-    <div id="user-display" class="text-white text-sm font-bold mt-2 uppercase bg-slate-800 inline-block px-4 py-1 rounded-full">
+<header class="w-full pt-10 px-4 bg-[var(--bg)] text-center">
+    <h1 class="font-black tracking-tighter uppercase m-0 text-[var(--accent)]">BOLÃO 2026</h1>
+    <div id="user-display" class="text-white font-bold mt-4 uppercase bg-slate-800 inline-block rounded-full">
         Visitante
     </div>
 </header>
 
-<nav class="w-full mt-4">
+<nav class="w-full mt-6">
     <div class="mobile-menu-grid">
         <button onclick="carregarModulo('login.html', this)" class="menu-item active">
-            <i class="fas fa-user-circle"></i> Login
+            <i class="fas fa-user-circle"></i> LOGIN
         </button>
         <button onclick="abrirPalpites(this)" class="menu-item">
-            <i class="fas fa-futbol"></i> Palpites
+            <i class="fas fa-futbol"></i> PALPITES
         </button>
         <button onclick="carregarModulo('galera.html', this)" class="menu-item">
-            <i class="fas fa-users"></i> Galera
+            <i class="fas fa-users"></i> GALERA
         </button>
         <button onclick="carregarModulo('estatistica.html', this)" class="menu-item">
-            <i class="fas fa-chart-bar"></i> Stats
-        </button>
-        <button onclick="limparCentro(this)" class="menu-item col-span-2">
-            <i class="fas fa-file-alt"></i> Regulamento
+            <i class="fas fa-chart-bar"></i> STATS
         </button>
     </div>
 </nav>
 
-<main class="flex flex-col gap-6 p-4">
-    <div id="conteudo-central" class="card-panel p-6 flex flex-col items-center justify-start shadow-xl">
-        <p class="text-[var(--text-secondary)] italic mt-10">Escolha uma opção no menu</p>
+<main class="flex flex-col gap-8 p-4">
+    <div id="conteudo-central" class="card-panel p-8 flex flex-col items-center justify-start shadow-2xl">
+        <div id="welcome-placeholder" class="text-center">
+            <i class="fas fa-arrow-up text-5xl mb-6 text-[var(--accent)] animate-bounce"></i>
+            <p class="text-[var(--text-secondary)] font-bold">ACESSE SUA CONTA PARA COMEÇAR</p>
+        </div>
+        <div id="modulo-content-area" class="w-full"></div>
     </div>
 
-    <div id="modulo-ranking-container" class="w-full">
-        <div class="text-center py-4 text-sm">Carregando Ranking...</div>
+    <div id="modulo-ranking-container" class="w-full card-panel p-2">
+        <div class="text-center py-10 font-bold">CARREGANDO RANKING...</div>
     </div>
 
-    <section class="card-panel p-4 flex flex-col min-h-[450px]">
-        <div class="flex items-center gap-3 mb-4 border-b border-[var(--border)] pb-3">
-           <i class="fas fa-comments text-[var(--accent)] fa-lg"></i>
-           <h2 class="font-bold uppercase text-[var(--accent)]">Zoação</h2>
-        </div>
-        <div id="container-chat-fixo" class="flex-grow flex flex-col">
-            <div class="text-center text-sm text-[var(--text-secondary)] py-10">Carregando chat...</div>
-        </div>
-    </section>
-
-    <button onclick="sairSistema()" class="w-full p-4 rounded-xl bg-red-900/40 text-red-200 border border-red-800 font-bold mb-10">
-        <i class="fas fa-sign-out-alt mr-2"></i> SAIR DO SISTEMA
+    <button onclick="sairSistema()" class="w-full p-8 rounded-3xl bg-red-600 text-white font-black text-2xl shadow-lg">
+        <i class="fas fa-sign-out-alt mr-4"></i> SAIR
     </button>
 </main>
-
-<footer class="w-full py-8 px-4 border-t border-[var(--border)] bg-[var(--bg)] text-center mb-4">
-    <p class="text-[var(--text-secondary)]">&copy; 2026 Bolão do Angeli</p>
-</footer>
 
 <script>
     let usuarioLogado = null;
 
-    // Função genérica para injetar HTML e executar scripts (essencial para o Ranking aparecer)
     function injetarConteudo(containerId, html) {
         const container = document.getElementById(containerId);
         container.innerHTML = html;
@@ -153,18 +137,32 @@
 
     async function carregarModulo(arquivo, el) {
         atualizarMenuAtivo(el);
-        const centro = document.getElementById('conteudo-central');
-        centro.innerHTML = '<div class="py-20 text-lg">Carregando conteúdo...</div>';
+        // Esconde a mensagem de boas-vindas ao carregar qualquer módulo
+        document.getElementById('welcome-placeholder').classList.add('hidden');
+        
+        const area = document.getElementById('modulo-content-area');
+        area.innerHTML = '<div class="py-20 text-center font-bold">CARREGANDO...</div>';
         
         try {
             const response = await fetch(`${arquivo}?v=${new Date().getTime()}`);
-            if (!response.ok) throw new Error(`Erro ao buscar arquivo`);
             const html = await response.text();
-            injetarConteudo('conteudo-central', html);
-            centro.scrollIntoView({ behavior: 'smooth' });
+            injetarConteudo('modulo-content-area', html);
+            window.scrollTo({ top: document.getElementById('conteudo-central').offsetTop - 20, behavior: 'smooth' });
         } catch (e) {
-            centro.innerHTML = `<div class="text-red-500 p-4">Erro: ${arquivo} não encontrado.</div>`;
+            area.innerHTML = `<div class="text-red-500">Erro ao carregar módulo.</div>`;
         }
+    }
+
+    // --- CORREÇÃO: Limpa a tela de entrada ao definir usuário ---
+    function definirUsuario(dados) {
+        usuarioLogado = dados;
+        document.getElementById('user-display').innerText = usuarioLogado.Apelido;
+        
+        // Esconde o placeholder e limpa o centro para receber os palpites ou info
+        document.getElementById('welcome-placeholder').classList.add('hidden');
+        document.getElementById('modulo-content-area').innerHTML = `<div class="text-center py-10 text-[var(--accent)] font-black">BEM-VINDO, ${usuarioLogado.Apelido}!</div>`;
+        
+        enviarPing();
     }
 
     async function inicializarRankingFixo() {
@@ -177,24 +175,9 @@
         } catch (e) { console.error("Erro ranking:", e); }
     }
 
-    async function inicializarChatFixo() {
-        try {
-            const res = await fetch('chat.html');
-            if (res.ok) {
-                const html = await res.text();
-                injetarConteudo('container-chat-fixo', html);
-            }
-        } catch (e) { console.error("Erro chat:", e); }
-    }
-
-    function limparCentro(el) {
-        atualizarMenuAtivo(el);
-        document.getElementById('conteudo-central').innerHTML = '<div class="p-4"><h2>Regulamento</h2><p class="mt-4">As regras do bolão aparecerão aqui.</p></div>'; 
-    }
-
     function abrirPalpites(el) {
         if(!usuarioLogado) {
-            alert("Faça login primeiro!");
+            alert("FAÇA LOGIN PRIMEIRO!");
             carregarModulo('login.html', document.querySelector('[onclick*="login.html"]'));
             return;
         }
@@ -206,19 +189,13 @@
         if(el) el.classList.add('active');
     }
 
-    function definirUsuario(dados) {
-        usuarioLogado = dados;
-        document.getElementById('user-display').innerText = usuarioLogado.Apelido;
-    }
-
     function sairSistema() {
-        localStorage.removeItem('userLogado'); 
+        localStorage.clear();
         window.location.href = 'sair.html';
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         inicializarRankingFixo();
-        inicializarChatFixo();
     });
 </script>
 </body>
