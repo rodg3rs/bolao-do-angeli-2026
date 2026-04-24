@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bolão do Angeli - Copa 2026 (Mobile)</title>
+    <title>Bolão do Angeli - Mobile V2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -12,7 +12,7 @@
             --bg: #0f172a;
             --card-bg: #1e293b;
             --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
+            --text-secondary: #cbd5e1; /* Texto mais claro para melhor leitura */
             --accent: #ffc107;
             --border: #334155;
         }
@@ -20,64 +20,74 @@
         body {
             background-color: var(--bg);
             color: var(--text-primary);
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            font-size: 16px; /* Tamanho base aumentado */
         }
 
         .card-panel {
             background-color: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 0.5rem;
+            border-radius: 0.75rem;
         }
 
-        /* Menu em Grid para Mobile */
+        /* Menu em Grid Otimizado */
         .mobile-menu-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            padding: 10px;
+            gap: 10px;
+            padding: 12px;
         }
 
         .menu-item {
-            color: var(--text-secondary);
-            background-color: rgba(255, 255, 255, 0.03);
-            font-size: 0.85rem;
+            color: var(--text-primary);
+            background-color: rgba(255, 255, 255, 0.05);
+            font-size: 1rem; /* Letras maiores */
+            font-weight: 600;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            padding: 12px 8px;
-            border-radius: 8px;
+            gap: 10px;
+            padding: 16px 8px;
+            border-radius: 12px;
             border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .menu-item i {
+            font-size: 1.2rem; /* Ícones maiores */
         }
 
         .menu-item.active {
-            color: var(--accent);
+            color: var(--bg);
+            background-color: var(--accent);
             border-color: var(--accent);
-            background-color: rgba(255, 193, 7, 0.05);
         }
 
-        /* Removida a imagem de fundo do centro */
         #conteudo-central {
             background-image: none !important; 
-            background-color: var(--bg);
+            background-color: var(--card-bg);
             min-height: 300px;
+            font-size: 1.1rem;
         }
+
+        h1 { font-size: 1.5rem !important; }
+        h2 { font-size: 1.2rem !important; }
     </style>
 </head>
 <body class="antialiased">
 
-<header class="w-full pt-6 px-4 bg-[var(--bg)] text-center">
-    <h1 class="text-xl font-bold tracking-tight uppercase m-0">BOLÃO DO ANGELI</h1>
-    <div id="user-display" class="text-[var(--accent)] text-xs font-medium mt-1 uppercase">
+<header class="w-full pt-8 px-4 bg-[var(--bg)] text-center">
+    <h1 class="font-bold tracking-tight uppercase m-0 text-[var(--accent)]">BOLÃO DO ANGELI</h1>
+    <div id="user-display" class="text-white text-sm font-bold mt-2 uppercase bg-slate-800 inline-block px-4 py-1 rounded-full">
         Visitante
     </div>
 </header>
 
-<nav class="w-full border-b border-[var(--border)] mt-4">
+<nav class="w-full mt-4">
     <div class="mobile-menu-grid">
         <button onclick="carregarModulo('login.html', this)" class="menu-item active">
             <i class="fas fa-user-circle"></i> Login
@@ -94,74 +104,97 @@
         <button onclick="limparCentro(this)" class="menu-item col-span-2">
             <i class="fas fa-file-alt"></i> Regulamento
         </button>
-        <button onclick="sairSistema()" class="menu-item col-span-2 bg-red-950/20 text-red-400 border-red-900/50">
-            <i class="fas fa-sign-out-alt"></i> Sair do Sistema
-        </button>
     </div>
 </nav>
 
-<main class="flex flex-col gap-4 p-4">
-    <div id="conteudo-central" class="card-panel p-4 min-h-[250px] flex flex-col items-center justify-start">
-        <p class="text-[var(--text-secondary)] text-sm italic mt-10">Selecione uma opção acima</p>
+<main class="flex flex-col gap-6 p-4">
+    <div id="conteudo-central" class="card-panel p-6 flex flex-col items-center justify-start shadow-xl">
+        <p class="text-[var(--text-secondary)] italic mt-10">Escolha uma opção no menu</p>
     </div>
 
-    <div id="modulo-ranking-container">
-        </div>
+    <div id="modulo-ranking-container" class="w-full">
+        <div class="text-center py-4 text-sm">Carregando Ranking...</div>
+    </div>
 
-    <section class="card-panel p-4 flex flex-col min-h-[400px]">
+    <section class="card-panel p-4 flex flex-col min-h-[450px]">
         <div class="flex items-center gap-3 mb-4 border-b border-[var(--border)] pb-3">
-           <i class="fas fa-comments text-[var(--accent)]"></i>
-           <h2 class="text-sm font-bold uppercase text-[var(--accent)]">Zoação (24h)</h2>
+           <i class="fas fa-comments text-[var(--accent)] fa-lg"></i>
+           <h2 class="font-bold uppercase text-[var(--accent)]">Zoação</h2>
         </div>
         <div id="container-chat-fixo" class="flex-grow flex flex-col">
-            <div class="text-center text-xs text-[var(--text-secondary)] py-10">Carregando chat...</div>
+            <div class="text-center text-sm text-[var(--text-secondary)] py-10">Carregando chat...</div>
         </div>
     </section>
+
+    <button onclick="sairSistema()" class="w-full p-4 rounded-xl bg-red-900/40 text-red-200 border border-red-800 font-bold mb-10">
+        <i class="fas fa-sign-out-alt mr-2"></i> SAIR DO SISTEMA
+    </button>
 </main>
 
-<footer class="w-full py-6 px-4 border-t border-[var(--border)] bg-[var(--bg)] text-center">
-    <p class="text-[var(--text-secondary)] text-xs">&copy; 2026 Bolão do Angeli</p>
-    <p class="opacity-30 text-[9px] mt-2 font-mono">v.2026-04-09_MOBILE</p>
+<footer class="w-full py-8 px-4 border-t border-[var(--border)] bg-[var(--bg)] text-center mb-4">
+    <p class="text-[var(--text-secondary)]">&copy; 2026 Bolão do Angeli</p>
 </footer>
 
 <script>
     let usuarioLogado = null;
 
-    function limparCentro(el) {
-        atualizarMenuAtivo(el);
-        document.getElementById('conteudo-central').innerHTML = '<p class="text-[var(--text-secondary)] text-sm italic mt-10">Regulamento ou conteúdo informativo aqui.</p>'; 
+    // Função genérica para injetar HTML e executar scripts (essencial para o Ranking aparecer)
+    function injetarConteudo(containerId, html) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = html;
+        const scripts = container.querySelectorAll("script");
+        scripts.forEach(oldScript => {
+            const newScript = document.createElement("script");
+            Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+            newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+            oldScript.parentNode.replaceChild(newScript, oldScript);
+        });
     }
 
     async function carregarModulo(arquivo, el) {
         atualizarMenuAtivo(el);
         const centro = document.getElementById('conteudo-central');
-        centro.innerHTML = '<div class="py-10 text-sm">Carregando...</div>';
+        centro.innerHTML = '<div class="py-20 text-lg">Carregando conteúdo...</div>';
         
         try {
             const response = await fetch(`${arquivo}?v=${new Date().getTime()}`);
-            if (!response.ok) throw new Error(`Status: ${response.status}`);
+            if (!response.ok) throw new Error(`Erro ao buscar arquivo`);
             const html = await response.text();
-            
-            centro.innerHTML = html;
-
-            centro.querySelectorAll('script').forEach(oldScript => {
-                const newScript = document.createElement('script');
-                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                newScript.text = oldScript.text;
-                oldScript.parentNode.replaceChild(newScript, oldScript);
-            });
-            
-            // Scroll suave para o conteúdo ao carregar no mobile
+            injetarConteudo('conteudo-central', html);
             centro.scrollIntoView({ behavior: 'smooth' });
-
         } catch (e) {
-            centro.innerHTML = `<div class="text-red-500 p-4">Erro ao carregar: ${e.message}</div>`;
+            centro.innerHTML = `<div class="text-red-500 p-4">Erro: ${arquivo} não encontrado.</div>`;
         }
+    }
+
+    async function inicializarRankingFixo() {
+        try {
+            const res = await fetch('ranking.html');
+            if (res.ok) {
+                const html = await res.text();
+                injetarConteudo('modulo-ranking-container', html);
+            }
+        } catch (e) { console.error("Erro ranking:", e); }
+    }
+
+    async function inicializarChatFixo() {
+        try {
+            const res = await fetch('chat.html');
+            if (res.ok) {
+                const html = await res.text();
+                injetarConteudo('container-chat-fixo', html);
+            }
+        } catch (e) { console.error("Erro chat:", e); }
+    }
+
+    function limparCentro(el) {
+        atualizarMenuAtivo(el);
+        document.getElementById('conteudo-central').innerHTML = '<div class="p-4"><h2>Regulamento</h2><p class="mt-4">As regras do bolão aparecerão aqui.</p></div>'; 
     }
 
     function abrirPalpites(el) {
         if(!usuarioLogado) {
-            alert("Acesse sua conta primeiro!");
+            alert("Faça login primeiro!");
             carregarModulo('login.html', document.querySelector('[onclick*="login.html"]'));
             return;
         }
@@ -176,34 +209,6 @@
     function definirUsuario(dados) {
         usuarioLogado = dados;
         document.getElementById('user-display').innerText = usuarioLogado.Apelido;
-        enviarPing();
-    }
-
-    async function enviarPing() {
-        if (!usuarioLogado?.Apelido) return;
-        try {
-            await fetch('/api/ping', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ apelido: usuarioLogado.Apelido })
-            });
-        } catch (e) { console.error("Erro ping:", e); }
-    }
-
-    async function inicializarChatFixo() {
-        try {
-            const res = await fetch('chat.html');
-            const html = await res.text();
-            document.getElementById('container-chat-fixo').innerHTML = html;
-        } catch (e) { console.error("Erro chat:", e); }
-    }
-
-    async function inicializarRankingFixo() {
-        try {
-            const res = await fetch('ranking.html');
-            const html = await res.text();
-            document.getElementById('modulo-ranking-container').innerHTML = html;
-        } catch (e) { console.error("Erro ranking:", e); }
     }
 
     function sairSistema() {
@@ -214,7 +219,6 @@
     document.addEventListener('DOMContentLoaded', () => {
         inicializarRankingFixo();
         inicializarChatFixo();
-        setInterval(enviarPing, 30000);
     });
 </script>
 </body>
