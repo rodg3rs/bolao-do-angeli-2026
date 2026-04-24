@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bolão do Angeli - Copa 2026 (Mobile)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent: #ffc107;
+            --border: #334155;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .card-panel {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+        }
+
+        /* Menu em Grid para Mobile */
+        .mobile-menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            padding: 10px;
+        }
+
+        .menu-item {
+            color: var(--text-secondary);
+            background-color: rgba(255, 255, 255, 0.03);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 8px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .menu-item.active {
+            color: var(--accent);
+            border-color: var(--accent);
+            background-color: rgba(255, 193, 7, 0.05);
+        }
+
+        /* Removida a imagem de fundo do centro */
+        #conteudo-central {
+            background-image: none !important; 
+            background-color: var(--bg);
+            min-height: 300px;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+<header class="w-full pt-6 px-4 bg-[var(--bg)] text-center">
+    <h1 class="text-xl font-bold tracking-tight uppercase m-0">BOLÃO DO ANGELI</h1>
+    <div id="user-display" class="text-[var(--accent)] text-xs font-medium mt-1 uppercase">
+        Visitante
+    </div>
+</header>
+
+<nav class="w-full border-b border-[var(--border)] mt-4">
+    <div class="mobile-menu-grid">
+        <button onclick="carregarModulo('login.html', this)" class="menu-item active">
+            <i class="fas fa-user-circle"></i> Login
+        </button>
+        <button onclick="abrirPalpites(this)" class="menu-item">
+            <i class="fas fa-futbol"></i> Palpites
+        </button>
+        <button onclick="carregarModulo('galera.html', this)" class="menu-item">
+            <i class="fas fa-users"></i> Galera
+        </button>
+        <button onclick="carregarModulo('estatistica.html', this)" class="menu-item">
+            <i class="fas fa-chart-bar"></i> Stats
+        </button>
+        <button onclick="limparCentro(this)" class="menu-item col-span-2">
+            <i class="fas fa-file-alt"></i> Regulamento
+        </button>
+        <button onclick="sairSistema()" class="menu-item col-span-2 bg-red-950/20 text-red-400 border-red-900/50">
+            <i class="fas fa-sign-out-alt"></i> Sair do Sistema
+        </button>
+    </div>
+</nav>
+
+<main class="flex flex-col gap-4 p-4">
+    <div id="conteudo-central" class="card-panel p-4 min-h-[250px] flex flex-col items-center justify-start">
+        <p class="text-[var(--text-secondary)] text-sm italic mt-10">Selecione uma opção acima</p>
+    </div>
+
+    <div id="modulo-ranking-container">
+        </div>
+
+    <section class="card-panel p-4 flex flex-col min-h-[400px]">
+        <div class="flex items-center gap-3 mb-4 border-b border-[var(--border)] pb-3">
+           <i class="fas fa-comments text-[var(--accent)]"></i>
+           <h2 class="text-sm font-bold uppercase text-[var(--accent)]">Zoação (24h)</h2>
+        </div>
+        <div id="container-chat-fixo" class="flex-grow flex flex-col">
+            <div class="text-center text-xs text-[var(--text-secondary)] py-10">Carregando chat...</div>
+        </div>
+    </section>
+</main>
+
+<footer class="w-full py-6 px-4 border-t border-[var(--border)] bg-[var(--bg)] text-center">
+    <p class="text-[var(--text-secondary)] text-xs">&copy; 2026 Bolão do Angeli</p>
+    <p class="opacity-30 text-[9px] mt-2 font-mono">v.2026-04-09_MOBILE</p>
+</footer>
+
+<script>
+    let usuarioLogado = null;
+
+    function limparCentro(el) {
+        atualizarMenuAtivo(el);
+        document.getElementById('conteudo-central').innerHTML = '<p class="text-[var(--text-secondary)] text-sm italic mt-10">Regulamento ou conteúdo informativo aqui.</p>'; 
+    }
+
+    async function carregarModulo(arquivo, el) {
+        atualizarMenuAtivo(el);
+        const centro = document.getElementById('conteudo-central');
+        centro.innerHTML = '<div class="py-10 text-sm">Carregando...</div>';
+        
+        try {
+            const response = await fetch(`${arquivo}?v=${new Date().getTime()}`);
+            if (!response.ok) throw new Error(`Status: ${response.status}`);
+            const html = await response.text();
+            
+            centro.innerHTML = html;
+
+            centro.querySelectorAll('script').forEach(oldScript => {
+                const newScript = document.createElement('script');
+                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                newScript.text = oldScript.text;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+            
+            // Scroll suave para o conteúdo ao carregar no mobile
+            centro.scrollIntoView({ behavior: 'smooth' });
+
+        } catch (e) {
+            centro.innerHTML = `<div class="text-red-500 p-4">Erro ao carregar: ${e.message}</div>`;
+        }
+    }
+
+    function abrirPalpites(el) {
+        if(!usuarioLogado) {
+            alert("Acesse sua conta primeiro!");
+            carregarModulo('login.html', document.querySelector('[onclick*="login.html"]'));
+            return;
+        }
+        carregarModulo('palpites.html', el);
+    }
+
+    function atualizarMenuAtivo(el) {
+        document.querySelectorAll('.menu-item').forEach(b => b.classList.remove('active'));
+        if(el) el.classList.add('active');
+    }
+
+    function definirUsuario(dados) {
+        usuarioLogado = dados;
+        document.getElementById('user-display').innerText = usuarioLogado.Apelido;
+        enviarPing();
+    }
+
+    async function enviarPing() {
+        if (!usuarioLogado?.Apelido) return;
+        try {
+            await fetch('/api/ping', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ apelido: usuarioLogado.Apelido })
+            });
+        } catch (e) { console.error("Erro ping:", e); }
+    }
+
+    async function inicializarChatFixo() {
+        try {
+            const res = await fetch('chat.html');
+            const html = await res.text();
+            document.getElementById('container-chat-fixo').innerHTML = html;
+        } catch (e) { console.error("Erro chat:", e); }
+    }
+
+    async function inicializarRankingFixo() {
+        try {
+            const res = await fetch('ranking.html');
+            const html = await res.text();
+            document.getElementById('modulo-ranking-container').innerHTML = html;
+        } catch (e) { console.error("Erro ranking:", e); }
+    }
+
+    function sairSistema() {
+        localStorage.removeItem('userLogado'); 
+        window.location.href = 'sair.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        inicializarRankingFixo();
+        inicializarChatFixo();
+        setInterval(enviarPing, 30000);
+    });
+</script>
+</body>
+</html>
