@@ -31,16 +31,16 @@
             </a>
         </div>
 
-        <section id="sec-cravados" class="block">
-            <div class="p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
-                <h2 class="font-bold mb-4 text-yellow-500 text-xl">Ranking de Precisão</h2>
-                <div class="chart-container" style="position: relative; height: 500px; overflow-y: auto; overflow-x: hidden;">
-                    <div id="chart-wrapper" style="min-height: 100%;">
-                        <canvas id="chartCravados"></canvas>
-                    </div>
-                </div>
+<section id="sec-cravados" class="block">
+    <div class="p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
+        <h2 class="font-bold mb-4 text-yellow-500 text-xl">Ranking de Precisão</h2>
+        <div class="chart-container" style="position: relative; height: 500px; overflow-y: auto;">
+            <div id="chart-wrapper" style="min-height: 400px; width: 100%;"> 
+                <canvas id="chartCravados"></canvas>
             </div>
-        </section>
+        </div>
+    </div>
+</section>
 
         <section id="sec-torcida" class="hidden">
             <div class="p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
@@ -53,7 +53,11 @@
     </main>
 
     <script>
-        Chart.register(ChartDataLabels);
+if (typeof ChartDataLabels !== 'undefined') {
+    Chart.register(ChartDataLabels);
+} else {
+    console.error("Erro: O plugin ChartDataLabels não foi carregado!");
+}
         let chartCravadosInstance = null;
         let chartTorcidaInstance = null;
 
@@ -64,21 +68,25 @@
             document.getElementById('btn-torcida').className = tab === 'torcida' ? 'tab-active py-2 px-4 font-bold transition' : 'py-2 px-4 font-bold text-gray-500 hover:text-yellow-500 transition';
         }
 
-        async function fetchData() {
-            try {
-                const response = await fetch('/api/estatisticas');
-                const data = await response.json();
-                
-                // Redimensiona o gráfico baseado na quantidade de usuários (40px por pessoa)
-                const alturaDinamica = Math.max(450, data.cravados.length * 40);
-                document.getElementById('chart-wrapper').style.height = alturaDinamica + 'px';
-
-                renderCravados(data.cravados);
-                renderTorcida(data.torcida);
-            } catch (error) {
-                console.error("Erro ao carregar estatísticas:", error);
-            }
+async function fetchData() {
+    try {
+        const response = await fetch('/api/estatisticas');
+        const data = await response.json();
+        
+        if (data.cravados && data.cravados.length > 0) {
+            // Ajuste dinâmico de altura: 40px por utilizador
+            const novaAltura = Math.max(400, data.cravados.length * 40);
+            document.getElementById('chart-wrapper').style.height = novaAltura + 'px';
+            renderCravados(data.cravados);
         }
+        
+        if (data.torcida) {
+            renderTorcida(data.torcida);
+        }
+    } catch (error) {
+        console.error("Erro ao carregar:", error);
+    }
+}
 
         function renderCravados(lista) {
             const ctx = document.getElementById('chartCravados').getContext('2d');
