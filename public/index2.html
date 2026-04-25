@@ -171,12 +171,18 @@ body {
 <script>
     let usuarioLogado = null;
 
-    // Função de Injeção que limpa a tela de entrada
+<script>
+    let usuarioLogado = null;
+
+    // --- 1. FUNÇÕES GLOBAIS (Disponíveis para os botões) ---
+
     async function carregarModulo(arquivo, el) {
-        atualizarMenuAtivo(el);
-        document.getElementById('welcome-message').classList.add('hidden');
-        const container = document.getElementById('modulo-container');
+        if (el) atualizarMenuAtivo(el);
         
+        const welcome = document.getElementById('welcome-message');
+        if (welcome) welcome.classList.add('hidden');
+        
+        const container = document.getElementById('modulo-container');
         container.innerHTML = '<p class="text-center">Carregando...</p>';
         
         try {
@@ -184,7 +190,6 @@ body {
             const html = await res.text();
             container.innerHTML = html;
             
-            // Executa scripts internos do módulo
             container.querySelectorAll('script').forEach(oldScript => {
                 const newScript = document.createElement('script');
                 newScript.text = oldScript.text;
@@ -212,77 +217,57 @@ body {
     function definirUsuario(dados) {
         usuarioLogado = dados;
         document.getElementById('user-display').innerText = `${dados.Apelido}`;
-        document.getElementById('welcome-message').classList.add('hidden');
-        document.getElementById('modulo-container').innerHTML = `<p class="text-center text-[var(--accent)] font-bold">Login realizado!</p>`;
+        const welcome = document.getElementById('welcome-message');
+        if (welcome) welcome.classList.add('hidden');
     }
-      async function enviarPing() {
-            if (!usuarioLogado?.Apelido) return;
-            try {
-                await fetch('/api/ping', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ apelido: usuarioLogado.Apelido })
-                });
-            } catch (e) { console.error("Erro ping:", e); }
+
+    async function enviarPing() {
+        if (!usuarioLogado?.Apelido) return;
+        try {
+            await fetch('/api/ping', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ apelido: usuarioLogado.Apelido })
+            });
+        } catch (e) { console.error("Erro ping:", e); }
+    }
+
+    async function inicializarRankingFixo() {
+        try {
+            const res = await fetch('ranking.html');
+            const html = await res.text();
+            document.getElementById('modulo-ranking-container').innerHTML = html;
+            // (Scripts internos do ranking seriam carregados aqui se necessário)
+        } catch (e) { console.error("Erro ranking:", e); }
+    }
+
+    async function inicializarChatFixo() {
+        try {
+            const res = await fetch('chat.html');
+            const html = await res.text();
+            document.getElementById('container-chat-fixo').innerHTML = html;
+        } catch (e) { console.error("Erro chat:", e); }
+    }
+
+    function sairSistema() {
+        localStorage.clear();
+        window.location.href = 'sair.html';
+    }
+
+    // --- 2. INICIALIZAÇÃO (Roda quando a página abre) ---
+
+    document.addEventListener('DOMContentLoaded', () => {
+        inicializarRankingFixo(); 
+        inicializarChatFixo();
+        
+        const userSalvo = localStorage.getItem('userLogado');
+        if (userSalvo) {
+            usuarioLogado = JSON.parse(userSalvo);
+            definirUsuario(usuarioLogado);
+            setInterval(enviarPing, 30000);
         }
+    });
 
-// --- 1. Função para carregar o Ranking ---
-async function inicializarRankingFixo() {
-    try {
-        const res = await fetch('ranking.html');
-        if (!res.ok) throw new Error('Ranking não encontrado');
-        const html = await res.text();
-        const container = document.getElementById('modulo-ranking-container');
-        container.innerHTML = html;
-        
-        container.querySelectorAll('script').forEach(s => {
-            const ns = document.createElement('script');
-            ns.text = s.text;
-            document.body.appendChild(ns);
-        });
-    } catch (e) { console.error("Erro ranking:", e); }
-}
-
-// --- 2. Função para carregar o Chat ---
-async function inicializarChatFixo() {
-    try {
-        const res = await fetch('chat.html');
-        if (!res.ok) throw new Error('Chat não encontrado');
-        const html = await res.text();
-        const container = document.getElementById('container-chat-fixo');
-        container.innerHTML = html;
-        
-        container.querySelectorAll('script').forEach(s => {
-            const ns = document.createElement('script');
-            ns.text = s.text;
-            document.body.appendChild(ns);
-        });
-    } catch (e) { console.error("Erro chat:", e); }
-}
-
-// --- 3. ÚNICO GATILHO DE INICIALIZAÇÃO ---
-document.addEventListener('DOMContentLoaded', () => {
-    // Carrega os módulos fixos
-    inicializarRankingFixo(); 
-    inicializarChatFixo();
-    
-    // Verifica se já existe um utilizador no localStorage para manter o Login
-    const userSalvo = localStorage.getItem('userLogado');
-    if (userSalvo) {
-        usuarioLogado = JSON.parse(userSalvo);
-        definirUsuario(usuarioLogado);
-        setInterval(enviarPing, 30000); // Inicia o ping apenas se logado
-    }
-
-    // 2. Esconde a mensagem "SELECIONE UMA OPÇÃO"
-    const welcome = document.getElementById('welcome-message');
-    if (welcome) welcome.classList.add('hidden');
-
-    // 3. Chama a função que já criámos para injetar o HTML e rodar os scripts
-    carregarModulo('palpites.html', el);
-}
-
-});
 </script>
 </body>
 </html>
