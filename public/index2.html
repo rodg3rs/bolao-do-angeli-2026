@@ -20,13 +20,22 @@
             font-size: 24px; /* Aumenta tudo que usa rem em 1.5x a 2x */
         }
 
-        body {
-            background-color: var(--bg);
-            color: #f1f5f9;
-            font-family: sans-serif;
-            margin: 0;
-            padding-bottom: 50px;
-        }
+body {
+    /* 1. Camada de cor (ofuscamento) + Imagem */
+    background-image: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.9)), 
+                      url('/img/copa2026.png');
+    
+    /* 2. Fixação e Ajuste */
+    background-attachment: fixed; /* Não rola com a página */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover; /* Preenche toda a tela */
+
+    /* Cores base */
+    color: var(--text-primary);
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+}
 
         /* Menu de Ícones em Grade */
         .icon-nav-grid {
