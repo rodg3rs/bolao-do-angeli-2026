@@ -15,12 +15,21 @@
             --border: #334155;
         }
 
-/* Deixa o texto do usuário totalmente branco e sem transparência */
-#user-display {
+/* 1. Unificando a fonte do Visitante e do Menu */
+#user-display, 
+.icon-button span {
     color: #ffffff !important;
-    font-size: 1.4rem; /* Aumentado */
-    font-weight: bold;
+    font-size: 1.2rem !important; /* Tamanho unificado */
+    font-weight: 800;            /* Deixa o texto mais "robusto" */
+    text-transform: uppercase;
+    letter-spacing: 1px;        /* Melhora a leitura no telemóvel */
+}
+
+/* 2. Ajuste específico para o Visitante (reforço) */
+#user-display {
     opacity: 1 !important;
+    display: inline-block;
+    margin-top: 10px;
 }
 
 /* Garante que o texto dentro dos módulos carregados também herde a cor */
@@ -255,8 +264,25 @@ document.addEventListener('DOMContentLoaded', () => {
         definirUsuario(usuarioLogado);
         setInterval(enviarPing, 30000); // Inicia o ping apenas se logado
     }
-});
 
+function abrirPalpites(el) {
+    // 1. Verifica se o utilizador está logado
+    if(!usuarioLogado) {
+        alert("Acesse sua conta primeiro!");
+        // Redireciona para o módulo de login e marca o botão de login como ativo
+        carregarModulo('login.html', document.querySelector('[onclick*="login.html"]'));
+        return;
+    }
+
+    // 2. Esconde a mensagem "SELECIONE UMA OPÇÃO"
+    const welcome = document.getElementById('welcome-message');
+    if (welcome) welcome.classList.add('hidden');
+
+    // 3. Chama a função que já criámos para injetar o HTML e rodar os scripts
+    carregarModulo('palpites.html', el);
+}
+
+});
 </script>
 </body>
 </html>
