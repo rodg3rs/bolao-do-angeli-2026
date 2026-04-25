@@ -18,16 +18,19 @@
 /* Deixa o texto do usuário totalmente branco e sem transparência */
 #user-display {
     color: #ffffff !important;
-    opacity: 1 !important;
+    font-size: 1.4rem; /* Aumentado */
     font-weight: bold;
+    opacity: 1 !important;
 }
 
-/* Deixa o container principal mais transparente para ver o fundo */
+/* Container Central Flexível e Transparente */
 #conteudo-central {
-    background-color: rgba(30, 41, 59, 0.4) !important; /* 0.4 = 40% de opacidade */
-    backdrop-filter: blur(8px); /* Efeito de vidro fosco para legibilidade */
+    background-color: rgba(30, 41, 59, 0.4) !important;
+    backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: none; /* Remove a sombra pesada para ficar mais limpo */
+    min-height: 80px; /* Começa da altura aproximada de um botão */
+    height: auto;      /* Permite expandir conforme o conteúdo */
+    transition: all 0.3s ease; /* Transição suave ao expandir */
 }
 
         /* ESCALA GLOBAL: Aumentando a base para que TODO o projeto cresça */
@@ -92,51 +95,50 @@ body {
 <body>
 
 <header class="p-6 text-center">
-    <h1 class="text-3xl font-black text-[var(--accent)]">BOLÃO 2026</h1>
+    <h1 class="text-3xl font-black text-[var(--accent)]">BOLÃO DO ANGELI 2026</h1>
     <div id="user-display" class="text-sm mt-2 opacity-70">Visitante</div>
 </header>
 
 <nav class="icon-nav-grid">
-    <button onclick="carregarModulo('login.html', this)" class="icon-button active" title="Login">
+    <button onclick="carregarModulo('login.html', this)" class="icon-button active">
         <i class="fas fa-user-circle"></i>
-	<span>Login</span>
+        <span>Login</span>
     </button>
-    <button onclick="abrirPalpites(this)" class="icon-button" title="Palpites">
+    <button onclick="abrirPalpites(this)" class="icon-button">
         <i class="fas fa-futbol"></i>
-	<span>Palpites</span>
+        <span>Palpites</span>
     </button>
-    <button onclick="carregarModulo('galera.html', this)" class="icon-button" title="Galera">
+    <button onclick="carregarModulo('galera.html', this)" class="icon-button">
         <i class="fas fa-users"></i>
-	<span>Galera</span>
+        <span>Galera</span>
     </button>
-    <button onclick="carregarModulo('estatistica.html', this)" class="icon-button" title="Estatísticas">
+    <button onclick="carregarModulo('estatistica.html', this)" class="icon-button">
         <i class="fas fa-chart-bar"></i>
-	<span>Estatísticas</span>
+        <span>Stats</span>
     </button>
-    <button onclick="carregarModulo('regulamento.html', this)" class="icon-button" title="Regulamento">
+    <button onclick="carregarModulo('regulamento.html', this)" class="icon-button">
         <i class="fas fa-file-alt"></i>
-	<span>Regulamento</span>
+        <span>Regras</span>
     </button>
-    <button onclick="carregarModulo('ranking.html', this)" class="icon-button" title="Ranking">
-        <i class="fas fa-trophy"></i>
-    </button>
-    <button onclick="carregarModulo('admin.html', this)" class="icon-button" title="Admin">
-        <i class="fas fa-cogs"></i>
-	<span>Admin</span>
-    </button>
-    <button onclick="sairSistema()" class="icon-button bg-red-900/20 text-red-500 border-red-900" title="Sair">
+    <button onclick="sairSistema()" class="icon-button bg-red-900/40 border-red-700">
         <i class="fas fa-sign-out-alt"></i>
-	<span>Sair</span>
+        <span>Sair</span>
     </button>
 </nav>
 
-<main class="p-4">
-    <div id="conteudo-central" class="bg-[var(--card-bg)] rounded-3xl p-6 shadow-2xl min-h-[300px]">
-        <div id="welcome-message" class="text-center py-10">
-            <p class="font-bold text-[var(--accent)]">SELECIONE UMA OPÇÃO ACIMA</p>
+<main class="p-4 flex flex-col gap-6">
+    <div id="conteudo-central" class="rounded-3xl p-6 shadow-2xl overflow-hidden">
+        <div id="welcome-message" class="text-center">
+            <p class="font-bold text-[var(--accent)] text-sm">SELECIONE UMA OPÇÃO</p>
         </div>
         <div id="modulo-container"></div>
     </div>
+
+    <div id="modulo-ranking-container" class="w-full">
+        </div>
+
+    <section id="container-chat-fixo" class="w-full">
+        </section>
 </main>
 
 <script>
@@ -173,7 +175,7 @@ body {
 
     function definirUsuario(dados) {
         usuarioLogado = dados;
-        document.getElementById('user-display').innerText = `Olá, ${dados.Apelido}`;
+        document.getElementById('user-display').innerText = `${dados.Apelido}`;
         document.getElementById('welcome-message').classList.add('hidden');
         document.getElementById('modulo-container').innerHTML = `<p class="text-center text-[var(--accent)] font-bold">Login realizado!</p>`;
     }
