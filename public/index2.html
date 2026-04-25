@@ -24,9 +24,19 @@
 }
 
 /* Garante que o texto dentro dos módulos carregados também herde a cor */
-#modulo-ranking-container *, 
-#container-chat-fixo * {
-    font-family: 'Segoe UI', sans-serif;
+#modulo-ranking-container, 
+#container-chat-fixo {
+    min-height: 450px; /* Altura para garantir boa visualização lateral */
+    max-height: 600px; /* Evita que fiquem infinitamente longos */
+    overflow-y: auto;  /* Rolagem vertical interna */
+    font-size: 1.4rem; /* Fonte igual ao Visitante */
+    color: #ffffff;
+}
+
+/* Ajuste para que tabelas ou listas internas não quebrem o layout */
+#modulo-ranking-container table, 
+#container-chat-fixo div {
+    width: 100%;
 }
 
 /* Container Central Flexível e Transparente */
@@ -140,11 +150,13 @@ body {
         <div id="modulo-container"></div>
     </div>
 
-    <div id="modulo-ranking-container" class="w-full">
-        </div>
+    <div class="grid grid-cols-2 gap-4 w-full">
+        <div id="modulo-ranking-container" class="bg-slate-800/30 rounded-2xl p-4 border border-white/10 overflow-x-auto">
+            </div>
 
-    <section id="container-chat-fixo" class="w-full">
-        </section>
+        <section id="container-chat-fixo" class="bg-slate-800/30 rounded-2xl p-4 border border-white/10 overflow-x-auto">
+            </section>
+    </div>
 </main>
 
 <script>
