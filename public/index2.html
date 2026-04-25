@@ -23,6 +23,12 @@
     opacity: 1 !important;
 }
 
+/* Garante que o texto dentro dos módulos carregados também herde a cor */
+#modulo-ranking-container *, 
+#container-chat-fixo * {
+    font-family: 'Segoe UI', sans-serif;
+}
+
 /* Container Central Flexível e Transparente */
 #conteudo-central {
     background-color: rgba(30, 41, 59, 0.4) !important;
@@ -190,45 +196,53 @@ body {
             } catch (e) { console.error("Erro ping:", e); }
         }
 
+// --- 1. Função para carregar o Ranking ---
 async function inicializarRankingFixo() {
     try {
         const res = await fetch('ranking.html');
+        if (!res.ok) throw new Error('Ranking não encontrado');
         const html = await res.text();
         const container = document.getElementById('modulo-ranking-container');
         container.innerHTML = html;
         
-        // Executa o script interno do ranking.html para carregar os dados
         container.querySelectorAll('script').forEach(s => {
             const ns = document.createElement('script');
             ns.text = s.text;
             document.body.appendChild(ns);
         });
-    } catch (e) { console.error("Erro ao carregar módulo ranking:", e); }
-} 
+    } catch (e) { console.error("Erro ranking:", e); }
+}
 
-       async function inicializarChatFixo() {
-            try {
-                const res = await fetch('chat.html');
-                const html = await res.text();
-                const container = document.getElementById('container-chat-fixo');
-                container.innerHTML = html;
-                container.querySelectorAll('script').forEach(s => {
-                    const ns = document.createElement('script');
-                    ns.text = s.text;
-                    document.body.appendChild(ns);
-                });
-            } catch (e) { console.error("Erro chat:", e); }
-        }
+// --- 2. Função para carregar o Chat ---
+async function inicializarChatFixo() {
+    try {
+        const res = await fetch('chat.html');
+        if (!res.ok) throw new Error('Chat não encontrado');
+        const html = await res.text();
+        const container = document.getElementById('container-chat-fixo');
+        container.innerHTML = html;
+        
+        container.querySelectorAll('script').forEach(s => {
+            const ns = document.createElement('script');
+            ns.text = s.text;
+            document.body.appendChild(ns);
+        });
+    } catch (e) { console.error("Erro chat:", e); }
+}
 
-    function sairSistema() {
-        localStorage.clear();
-        window.location.href = 'sair.html';
-    }
-
+// --- 3. ÚNICO GATILHO DE INICIALIZAÇÃO ---
 document.addEventListener('DOMContentLoaded', () => {
+    // Carrega os módulos fixos
     inicializarRankingFixo(); 
     inicializarChatFixo();
-    setInterval(enviarPing, 30000); // Mantém o usuário ativo a cada 30s
+    
+    // Verifica se já existe um utilizador no localStorage para manter o Login
+    const userSalvo = localStorage.getItem('userLogado');
+    if (userSalvo) {
+        usuarioLogado = JSON.parse(userSalvo);
+        definirUsuario(usuarioLogado);
+        setInterval(enviarPing, 30000); // Inicia o ping apenas se logado
+    }
 });
 
 </script>
