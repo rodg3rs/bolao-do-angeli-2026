@@ -15,6 +15,21 @@
             --border: #334155;
         }
 
+/* Deixa o texto do usuário totalmente branco e sem transparência */
+#user-display {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    font-weight: bold;
+}
+
+/* Deixa o container principal mais transparente para ver o fundo */
+#conteudo-central {
+    background-color: rgba(30, 41, 59, 0.4) !important; /* 0.4 = 40% de opacidade */
+    backdrop-filter: blur(8px); /* Efeito de vidro fosco para legibilidade */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: none; /* Remove a sombra pesada para ficar mais limpo */
+}
+
         /* ESCALA GLOBAL: Aumentando a base para que TODO o projeto cresça */
         html {
             font-size: 24px; /* Aumenta tudo que usa rem em 1.5x a 2x */
@@ -38,40 +53,37 @@ body {
 }
 
         /* Menu de Ícones em Grade */
-/* 1. Ajuste da Grade para 2 camadas horizontais */
+/* 1. Grade de 3 colunas para botões mais largos */
 .icon-nav-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* 4 botões por linha */
-    gap: 8px;
-    padding: 10px;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 10px;
+    padding: 15px;
 }
 
-/* 2. Transformando em Retângulos com Texto */
+/* 2. Botão Retangular: Ícone na frente do texto */
 .icon-button {
-    background: var(--card-bg);
+    background: rgba(30, 41, 59, 0.7); /* Mais transparente para ver o fundo */
     border: 2px solid var(--border);
     border-radius: 12px;
     display: flex;
-    flex-direction: column; /* Ícone em cima, texto embaixo */
+    flex-direction: row; /* Alinhamento horizontal */
     align-items: center;
     justify-content: center;
-    padding: 12px 4px;
-    color: #94a3b8;
-    text-decoration: none;
-    min-height: 80px; /* Garante altura retangular */
+    gap: 10px;
+    padding: 15px 10px;
+    color: #f1f5f9;
+    min-height: 60px;
 }
 
-/* 3. Ajuste do tamanho do texto e ícone */
 .icon-button i {
-    font-size: 1.4rem; /* Ícone um pouco menor para caber texto */
-    margin-bottom: 4px;
+    font-size: 1.2rem;
 }
 
 .icon-button span {
-    font-size: 0.6rem; /* Texto pequeno para não quebrar a grade */
+    font-size: 0.8rem;
     font-weight: bold;
     text-transform: uppercase;
-    text-align: center;
 }
 
         .hidden { display: none !important; }
