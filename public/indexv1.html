@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bolão 2026 - Sidebar Layout</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg: #0f172a;
+            --sidebar-bg: rgba(30, 41, 59, 0.95);
+            --accent: #ffc107;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        html { font-size: 18px; }
+
+        body {
+            background-image: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.9)), 
+                              url('/img/copa2026.png');
+            background-attachment: fixed;
+            background-position: center;
+            background-size: cover;
+            color: #ffffff;
+            margin: 0;
+            display: flex; /* Cria o layout de colunas: Sidebar | Conteúdo */
+            min-height: 100vh;
+        }
+
+        /* --- SIDEBAR À ESQUERDA --- */
+        .sidebar {
+            width: 85px; /* Largura reduzida para ícones */
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            position: fixed; /* Fixa na esquerda enquanto o resto rola */
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+        }
+
+        /* Área de Conteúdo Principal (Deslocada para a direita da sidebar) */
+        .main-content {
+            flex: 1;
+            margin-left: 85px; /* Mesma largura da sidebar */
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Botão do Menu Lateral */
+        .nav-item {
+            width: 100%;
+            padding: 15px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: #94a3b8;
+            transition: 0.3s;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .nav-item i { font-size: 1.4rem; font-weight:100; color: #94a3b8; }
+	.nav-item.active i {
+    	    color: var(--accent);
+/*	    font-weight: 500; /* Pode voltar a ser sólido apenas quando selecionado */
+	}
+
+
+        /* Estilo para o Visitante e Header */
+        #user-display {
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        #conteudo-central {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 20px;
+            min-height: 200px;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="mb-8 text-[var(--accent)]">
+        <i class="fas fa-trophy text-2xl"></i>
+    </div>
+    
+    <nav class="w-full flex flex-col items-center">
+        <button onclick="carregarModulo('login.html', this)" class="nav-item active">
+            <i class="far fa-user-circle"></i>
+            <span>Login</span>
+        </button>
+        <button onclick="abrirPalpites(this)" class="nav-item">
+            <i class="far fa-futbol"></i>
+            <span>Palpites</span>
+        </button>
+        <button onclick="carregarModulo('galera.html', this)" class="nav-item">
+            <i class="far fa-user"></i>
+            <span>Galera</span>
+        </button>
+        <button onclick="carregarModulo('estatistica.html', this)" class="nav-item">
+            <i class="far fa-chart-bar"></i>
+            <span>Stats</span>
+        </button>
+        <button onclick="carregarModulo('regulamento.html', this)" class="nav-item">
+            <i class="far fa-file-alt"></i>
+            <span>Regras</span>
+        </button>
+        
+        <div class="mt-auto w-full"> <button onclick="sairSistema()" class="nav-item text-red-400">
+                <i class="far fa-arrow-alt-circle-left"></i>
+                <span>Sair</span>
+            </button>
+        </div>
+    </nav>
+</aside>
+
+<div class="main-content">
+    <header class="text-center md:text-left">
+        <h1 class="text-2xl font-black text-[var(--accent)]">BOLÃO DO ANGELI 2026</h1>
+        <div id="user-display">Visitante</div>
+    </header>
+
+    <main class="flex flex-col gap-6">
+        <div id="conteudo-central" class="hidden shadow-xl">
+            <div id="welcome-message" class="text-center">
+                <p class="font-bold text-[var(--accent)]">SELECIONE UMA OPÇÃO</p>
+            </div>
+            <div id="modulo-container"></div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div id="modulo-ranking-container" class="bg-slate-800/30 rounded-xl p-4 border border-white/5 h-80 overflow-y-auto"></div>
+            <section id="container-chat-fixo" class="bg-slate-800/30 rounded-xl p-4 border border-white/5 h-80 overflow-y-auto"></section>
+        </div>
+    </main>
+</div>
+
+<script>
+    let usuarioLogado = null;
+
+    async function carregarModulo(arquivo, el) {
+        if(el) atualizarMenuAtivo(el);
+        document.getElementById('welcome-message').classList.add('hidden');
+        const container = document.getElementById('modulo-container');
+        container.innerHTML = '<p class="text-center p-4">Carregando...</p>';
+        try {
+            const res = await fetch(arquivo);
+            container.innerHTML = await res.text();
+            container.querySelectorAll('script').forEach(s => {
+                const ns = document.createElement('script');
+                ns.text = s.text;
+                document.body.appendChild(ns);
+            });
+        } catch (e) { container.innerHTML = "Erro ao carregar."; }
+    }
+
+    function abrirPalpites(el) {
+        if(!usuarioLogado) {
+            alert("Acesse sua conta primeiro!");
+            carregarModulo('login.html', document.querySelector('.nav-item i.fa-user-circle').parentElement);
+            return;
+        }
+        carregarModulo('palpites.html', el);
+    }
+
+    function atualizarMenuAtivo(el) {
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+        if(el) el.classList.add('active');
+    }
+
+    function definirUsuario(dados) {
+        usuarioLogado = dados;
+        document.getElementById('user-display').innerText = dados.Apelido;
+    }
+
+    async function inicializarRankingFixo() {
+        try {
+            const res = await fetch('ranking.html');
+            document.getElementById('modulo-ranking-container').innerHTML = await res.text();
+        } catch (e) {}
+    }
+
+    async function inicializarChatFixo() {
+        try {
+            const res = await fetch('chat.html');
+            document.getElementById('container-chat-fixo').innerHTML = await res.text();
+        } catch (e) {}
+    }
+
+    function sairSistema() {
+        localStorage.clear();
+        window.location.href = 'sair.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        inicializarRankingFixo();
+        inicializarChatFixo();
+        const user = localStorage.getItem('userLogado');
+        if (user) {
+            usuarioLogado = JSON.parse(user);
+            definirUsuario(usuarioLogado);
+        }
+    });
+</script>
+</body>
+</html>
