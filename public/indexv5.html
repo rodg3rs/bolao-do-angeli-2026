@@ -157,9 +157,8 @@
 
 <div class="flex flex-row gap-4 w-full">
 	<div id="modulo-ranking-container" 
-        	 class="flex-1 bg-slate-800/30 rounded-xl p-4 border border-white/5 h-[500px] overflow-y-auto">
-	    </div>
-
+     		class="flex-1 bg-slate-800/30 rounded-xl p-4 border border-white/5">
+    	</div>
 	    <section id="container-chat-fixo" 
         	class="flex-1 bg-slate-800/30 rounded-xl p-4 border border-white/5 h-[500px] overflow-y-auto">
 	    </section>
@@ -213,11 +212,14 @@ async function inicializarRankingFixo() {
 
         if (data.success) {
             let html = `
-                <h2 class="text-2xl font-black text-[var(--accent)] mb-4 flex items-center gap-2">
-                    <i class="fas fa-trophy"></i> RANKING ATUAL
-                </h2>
+                <div class="sticky top-0 bg-[#0f172a] z-10 pb-4">
+                    <h2 class="text-2xl font-black text-[var(--accent)] flex items-center gap-2">
+                        <i class="fas fa-trophy"></i> RANKING ATUAL
+                    </h2>
+                </div>
+                
                 <table class="w-full text-left border-collapse">
-                    <thead>
+                    <thead class="sticky top-[60px] bg-[#0f172a] z-10 shadow-md">
                         <tr class="border-b border-white/10 text-slate-400 text-sm">
                             <th class="py-2">Pos</th>
                             <th class="py-2">Apelido</th>
