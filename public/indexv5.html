@@ -155,10 +155,15 @@
             <div id="modulo-container"></div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div id="modulo-ranking-container" class="bg-slate-800/30 rounded-xl p-4 border border-white/5 h-80 overflow-y-auto"></div>
-            <section id="container-chat-fixo" class="bg-slate-800/30 rounded-xl p-4 border border-white/5 h-80 overflow-y-auto"></section>
-        </div>
+<div class="flex flex-row gap-4 w-full">
+	<div id="modulo-ranking-container" 
+        	 class="flex-1 bg-slate-800/30 rounded-xl p-4 border border-white/5 h-[500px] overflow-y-auto">
+	    </div>
+
+	    <section id="container-chat-fixo" 
+        	class="flex-1 bg-slate-800/30 rounded-xl p-4 border border-white/5 h-[500px] overflow-y-auto">
+	    </section>
+	</div>
     </main>
 </div>
 
@@ -200,12 +205,51 @@
         document.getElementById('user-display').innerText = dados.Apelido;
     }
 
-    async function inicializarRankingFixo() {
-        try {
-            const res = await fetch('ranking.html');
-            document.getElementById('modulo-ranking-container').innerHTML = await res.text();
-        } catch (e) {}
+async function inicializarRankingFixo() {
+    const container = document.getElementById('modulo-ranking-container');
+    try {
+        const res = await fetch('/api/ranking');
+        const data = await res.json();
+
+        if (data.success) {
+            let html = `
+                <h2 class="text-2xl font-black text-[var(--accent)] mb-4 flex items-center gap-2">
+                    <i class="fas fa-trophy"></i> RANKING ATUAL
+                </h2>
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-white/10 text-slate-400 text-sm">
+                            <th class="py-2">Pos</th>
+                            <th class="py-2">Apelido</th>
+                            <th class="py-2 text-right">Pts</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            data.ranking.forEach((user, index) => {
+                // Lógica para mostrar a bolinha de status online
+                const statusClass = user.Online ? 'bg-green-500 shadow-[0_0_8px_#22c55e]' : 'bg-slate-600';
+                
+                html += `
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td class="py-3 font-bold text-slate-400">${index + 1}º</td>
+                        <td class="py-3 flex items-center gap-3">
+                            <span class="w-3 h-3 rounded-full ${statusClass}"></span>
+                            <span class="font-bold">${user.Apelido}</span>
+                        </td>
+                        <td class="py-3 text-right font-black text-[var(--accent)] text-xl">
+                            ${user.Total}
+                        </td>
+                    </tr>`;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+    } catch (e) {
+        container.innerHTML = `<p class="text-red-400 p-4">Erro ao carregar ranking.</p>`;
     }
+}
 
     async function inicializarChatFixo() {
         try {
