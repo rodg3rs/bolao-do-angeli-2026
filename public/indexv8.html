@@ -20,6 +20,39 @@
 
         html { font-size: 24px; }
 
+/* --- FORÇA O AUMENTO DA FONTE NOS MÓDULOS INJETADOS --- */
+#modulo-container p,
+#modulo-container label,
+#modulo-container td,
+#modulo-container th,
+#modulo-container div {
+    font-size: 1.2rem !important; /* Ajuste este valor (1.2, 1.4, etc) para ficar ideal no celular */
+    line-height: 1.6 !important;  /* Melhora o espaçamento entre as linhas para leitura */
+}
+
+/* Aumenta especificamente campos de digitação e botões */
+#modulo-container input,
+#modulo-container select,
+#modulo-container button {
+    font-size: 1.3rem !important;
+    padding: 0.8rem !important;   /* Deixa os botões e campos mais "gordinhos" para tocar com o dedo */
+}
+
+/* Aumenta os títulos dentro dos módulos */
+#modulo-container h1,
+#modulo-container h2,
+#modulo-container h3,
+#modulo-container h4 {
+    font-size: 1.6rem !important;
+}
+
+/* Protege os ícones para que não fiquem gigantes e quebrem o layout */
+#modulo-container i,
+#modulo-container .fas,
+#modulo-container .far {
+    font-size: inherit !important;
+}
+
         body {
             background-image: linear-gradient(rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.95)), 
                               url('/img/copa2026.png');
@@ -103,7 +136,7 @@
             <span>Stats</span>
         </button>
         
-        <button onclick="sairSistema()" class="nav-item mt-auto text-red-400" class="nav-item">
+        <button onclick="sairSistema()" class="nav-item text-red-400">
             <i class="fas fa-sign-out-alt"></i>
             <span>Sair</span>
         </button>
