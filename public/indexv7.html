@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
+.hidden { display: none !important; }
         :root {
             --bg: #0f172a;
             --sidebar-bg: rgba(30, 41, 59, 0.95);
@@ -343,6 +344,16 @@ async function enviarMensagemChat() {
         inicializarChatFixo();
     } catch (e) { console.error("Erro ao enviar:", e); }
 }
+
+
+function mostrarHome() {
+    document.getElementById('conteudo-central').classList.add('hidden');
+    document.getElementById('modulo-ranking-container').classList.remove('hidden');
+    document.getElementById('container-chat-fixo').classList.remove('hidden');
+    document.getElementById('welcome-message').classList.remove('hidden');
+    atualizarMenuAtivo(null);
+}
+
 
     function sairSistema() {
         localStorage.clear();
