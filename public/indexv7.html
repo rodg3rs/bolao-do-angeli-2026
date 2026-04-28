@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bolão 2026 - Sidebar Layout</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg: #0f172a;
+            --sidebar-bg: rgba(30, 41, 59, 0.95);
+            --accent: #ffc107;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        html { font-size: 24px; }
+
+        body {
+            background-image: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.9)), 
+                              url('/img/copa2026.png');
+            background-attachment: fixed;
+            background-position: center;
+            background-size: cover;
+            color: #ffffff;
+            margin: 0;
+            display: flex; /* Cria o layout de colunas: Sidebar | Conteúdo */
+            min-height: 100vh;
+        }
+
+        /* --- SIDEBAR À ESQUERDA --- */
+        .sidebar {
+            width: 110px; /* Largura reduzida para ícones */
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 0;
+            position: fixed; /* Fixa na esquerda enquanto o resto rola */
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+        }
+
+        /* Área de Conteúdo Principal (Deslocada para a direita da sidebar) */
+        .main-content {
+            flex: 1;
+            margin-left: 110px; /* Mesma largura da sidebar */
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Botão do Menu Lateral */
+        .nav-item {
+            width: 100%;
+            padding: 40px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            color: #94a3b8;
+            transition: 0.3s;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .nav-item i { font-size: 2.5rem; font-weight:100; color: #94a3b8; }
+	.nav-item.active i {
+    	    color: var(--accent);
+/*	    font-weight: 500; /* Pode voltar a ser sólido apenas quando selecionado */
+	}
+
+
+        /* Estilo para o Visitante e Header */
+        #user-display {
+            color: #ffffff;
+            font-size: 1.6rem;
+            font-weight: 800;
+            text-transform: uppercase;
+	    margin-top: 10px;
+            margin-bottom: 20px;
+
+        }
+
+        #conteudo-central {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 20px;
+            min-height: 200px;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="mb-8 text-[var(--accent)]">
+        <i class="fas fa-trophy text-2xl"></i>
+    </div>
+    
+    <nav class="w-full flex flex-col items-center">
+        <button onclick="carregarModulo('login.html', this)" class="nav-item active">
+            <i class="far fa-user-circle"></i>
+            <span>Login</span>
+        </button>
+        <button onclick="abrirPalpites(this)" class="nav-item">
+            <i class="far fa-futbol"></i>
+            <span>Palpites</span>
+        </button>
+        <button onclick="carregarModulo('galera.html', this)" class="nav-item">
+            <i class="far fa-user"></i>
+            <span>Galera</span>
+        </button>
+        <button onclick="carregarModulo('estatistica.html', this)" class="nav-item">
+            <i class="far fa-chart-bar"></i>
+            <span>Stats</span>
+        </button>
+        <button onclick="carregarModulo('regulamento.html', this)" class="nav-item">
+            <i class="far fa-file-alt"></i>
+            <span>Regras</span>
+        </button>
+        
+        <div class="mt-auto w-full"> <button onclick="sairSistema()" class="nav-item text-red-400">
+                <i class="far fa-arrow-alt-circle-left"></i>
+                <span>Sair</span>
+            </button>
+        </div>
+    </nav>
+</aside>
+
+<div class="main-content">
+	<header class="text-left mb-6">
+    	    <h1 class="text-5xl font-black text-[var(--accent)] leading-tight">
+	        BOLÃO DO ANGELI 2026
+	    </h1>
+	    <div id="user-display" class="text-3xl font-extrabold uppercase mt-2">
+	        Visitante
+	    </div>
+	</header>
+
+<main class="flex flex-col gap-6 p-4 min-h-screen">
+        <div id="conteudo-central" class="hidden shadow-xl">
+            <div id="welcome-message" class="text-center">
+                <p class="font-bold text-[var(--accent)]">SELECIONE UMA OPÇÃO</p>
+            </div>
+            <div id="modulo-container"></div>
+        </div>
+
+<div class="flex flex-col gap-6 w-full flex-1">
+    
+    <div id="modulo-ranking-container" 
+         class="w-full bg-slate-800/30 rounded-xl p-6 border border-white/5">	
+    </div>
+
+    <section id="container-chat-fixo" 
+             class="w-full bg-slate-800/30 rounded-xl p-6 border border-white/5 flex flex-col flex-1">
+        
+        <div class="sticky top-0 bg-[#0f172a] z-10 pb-4 border-b border-white/10 mb-4">
+            <h2 class="text-2xl font-black text-[var(--accent)] flex items-center gap-2">
+                <i class="far fa-comments"></i> ZOAÇÃO (24H)
+            </h2>
+        </div>
+        
+        <div id="chat-messages" class="flex-1 overflow-y-auto mb-4 space-y-3 max-h-[600px]">
+            <p class="text-center text-slate-500">Carregando mensagens...</p>
+        </div>
+
+        <div class="flex gap-2 pt-2">
+            <input type="text" id="chat-input" 
+                   class="flex-1 bg-slate-900 border border-white/10 rounded px-4 py-3 text-lg" 
+                   placeholder="Zoe aqui...">
+            <button onclick="enviarMensagemChat()" 
+                    class="bg-[var(--accent)] text-black px-6 py-2 rounded font-black text-xl">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </section>
+</div>
+
+    </main>
+</div>
+
+<script>
+        let usuarioLogado = null;
+
+        // --- NAVEGAÇÃO E MÓDULOS ---
+	function limparCentro(el) {
+    		atualizarMenuAtivo(el);
+    	// Apenas limpa o conteúdo. O background definido no CSS/Style continuará lá.
+    		document.getElementById('conteudo-central').innerHTML = ''; 
+	}
+
+        async function carregarModulo(arquivo, el) {
+            atualizarMenuAtivo(el);
+            try {
+                const response = await fetch(`${arquivo}?v=${new Date().getTime()}`);
+                if (!response.ok) throw new Error(`Status: ${response.status}`);
+                const html = await response.text();
+                const centro = document.getElementById('conteudo-central');
+
+	// AJUSTE AQUI: Remove a imagem de fundo para os gráficos ficarem legíveis
+        if (arquivo === 'estatistica.html') {
+            centro.style.backgroundImage = 'none';
+            centro.style.backgroundColor = 'var(--card-bg)';
+        } else {
+            centro.style.backgroundImage = "url('/img/copa2026.png')";
+        }
+
+                centro.innerHTML = html;
+
+                // Re-executar scripts do módulo carregado
+                centro.querySelectorAll('script').forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    newScript.text = oldScript.text;
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+            } catch (e) {
+                console.error("Erro ao carregar módulo:", e);
+                document.getElementById('conteudo-central').innerHTML = `<div class="empty-state text-red-500">Erro: ${e.message}</div>`;
+            }
+        }
+
+        function abrirPalpites(el) {
+            if(!usuarioLogado) {
+                alert("Acesse sua conta primeiro!");
+                carregarModulo('login.html', document.querySelector('[onclick*="login.html"]'));
+                return;
+            }
+            carregarModulo('palpites.html', el);
+        }
+
+        function atualizarMenuAtivo(el) {
+            document.querySelectorAll('.menu-item').forEach(b => b.classList.remove('active'));
+            if(el) el.classList.add('active');
+        }
+
+        function definirUsuario(dados) {
+            usuarioLogado = dados;
+            document.getElementById('user-display').innerText = usuarioLogado.Apelido;
+            enviarPing();
+            limparCentro();
+        }
+
+        async function enviarPing() {
+            if (!usuarioLogado?.Apelido) return;
+            try {
+                await fetch('/api/ping', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ apelido: usuarioLogado.Apelido })
+                });
+            } catch (e) { console.error("Erro ping:", e); }
+        }
+
+async function inicializarRankingFixo() {
+    const container = document.getElementById('modulo-ranking-container');
+    try {
+        const res = await fetch('/api/ranking');
+        const data = await res.json();
+
+        if (data.success) {
+            let html = `
+                <div class="sticky top-0 bg-[#0f172a] z-10 pb-4">
+                    <h2 class="text-2xl font-black text-[var(--accent)] flex items-center gap-2">
+                        <i class="fas fa-trophy"></i> RANKING ATUAL
+                    </h2>
+                </div>
+                
+                <table class="w-full text-left border-collapse">
+                    <thead class="sticky top-[60px] bg-[#0f172a] z-10 shadow-md">
+                        <tr class="border-b border-white/10 text-slate-400 text-sm">
+                            <th class="py-2">Pos</th>
+                            <th class="py-2">Apelido</th>
+                            <th class="py-2 text-right">Pts</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            data.ranking.forEach((user, index) => {
+                // Lógica para mostrar a bolinha de status online
+                const statusClass = user.Online ? 'bg-green-500 shadow-[0_0_8px_#22c55e]' : 'bg-slate-600';
+                
+                html += `
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td class="py-3 font-bold text-slate-400">${index + 1}º</td>
+                        <td class="py-3 flex items-center gap-3">
+                            <span class="w-3 h-3 rounded-full ${statusClass}"></span>
+                            <span class="font-bold">${user.Apelido}</span>
+                        </td>
+                        <td class="py-3 text-right font-black text-[var(--accent)] text-xl">
+                            ${user.Total}
+                        </td>
+                    </tr>`;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+    } catch (e) {
+        container.innerHTML = `<p class="text-red-400 p-4">Erro ao carregar ranking.</p>`;
+    }
+}
+
+async function inicializarChatFixo() {
+    const container = document.getElementById('chat-messages');
+    try {
+        const res = await fetch('/get-chat'); // Rota do seu server.js
+        const data = await res.json();
+
+        if (data.success) {
+            container.innerHTML = data.mensagens.map(msg => `
+                <div class="bg-white/5 p-2 rounded border-l-2 border-[var(--accent)] text-sm">
+                    <b class="text-[var(--accent)] text-xs uppercase">${msg.Apelido}:</b>
+                    <p>${msg.Mensagem}</p>
+                </div>
+            `).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+    } catch (e) { console.error("Erro no chat:", e); }
+}
+
+async function enviarMensagemChat() {
+    const input = document.getElementById('chat-input');
+    if (!input.value.trim() || !usuarioLogado) return;
+
+    try {
+        await fetch('/enviar-msg', { // Rota do seu server.js
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ apelido: usuarioLogado.Apelido, mensagem: input.value })
+        });
+        input.value = '';
+        inicializarChatFixo();
+    } catch (e) { console.error("Erro ao enviar:", e); }
+}
+
+    function sairSistema() {
+        localStorage.clear();
+        window.location.href = 'sair.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        inicializarRankingFixo();
+        inicializarChatFixo();
+        const user = localStorage.getItem('userLogado');
+        if (user) {
+            usuarioLogado = JSON.parse(user);
+            definirUsuario(usuarioLogado);
+        }
+    });
+</script>
+</body>
+</html>
