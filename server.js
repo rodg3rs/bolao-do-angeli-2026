@@ -34,10 +34,10 @@ app.post('/cadastrar', async (req, res) => {
 
         const jogos = await db.execute("SELECT Jogo, Sel1, Sel2, Data, Horario FROM dTabela");
 
-        for (const jogo of jogos.rows) {
+	for (const jogo of jogos.rows) {
             await db.execute({
-		sql: "INSERT INTO dLogin (ID, Nome, Apelido, Senha, Time, Celular, [e-mail]) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            	args: [id, nome, apelido, senha, time, celular || "", email || ""]
+                sql: "INSERT INTO dApostas (ID, Apelido, Jogo, Sel1, Sel2, Data, Horario) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                args: [id, apelido, jogo.Jogo, jogo.Sel1, jogo.Sel2, jogo.Data, jogo.Horario]
             });
         }
 
