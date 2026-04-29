@@ -15,7 +15,7 @@ const db = createClient({
 
 // --- CADASTRO ---
 app.post('/cadastrar', async (req, res) => {
-    const { id, nome, apelido, senha, time } = req.body; 
+    const { id, nome, apelido, senha, time, celular, email } = req.body; 
 
     try {
         const usuarioExistente = await db.execute({
@@ -36,8 +36,8 @@ app.post('/cadastrar', async (req, res) => {
 
         for (const jogo of jogos.rows) {
             await db.execute({
-                sql: "INSERT INTO dApostas (ID, Apelido, Jogo, Sel1, Sel2, Data, Horario, Ap1, Ap2) VALUES (?, ?, ?, ?, ?, ?, ?, NULL, NULL)",
-                args: [id, apelido, jogo.Jogo, jogo.Sel1, jogo.Sel2, jogo.Data, jogo.Horario]
+		sql: "INSERT INTO dLogin (ID, Nome, Apelido, Senha, Time, Celular, [e-mail]) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            	args: [id, nome, apelido, senha, time, celular || "", email || ""]
             });
         }
 

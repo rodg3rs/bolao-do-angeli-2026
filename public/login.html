@@ -114,6 +114,17 @@
                 <label>Time do Coração</label>
                 <input type="text" id="reg-time" placeholder="Ex: Palmeiras" required>
             </div>
+
+<div class="input-group">
+    <label># Celular</label>
+    <input type="text" id="reg-celular" placeholder="(99) 99999-9999" 
+           oninput="aplicarMascaraCelular(this)" maxlength="15">
+</div>
+<div class="input-group">
+    <label>E-mail</label>
+    <input type="email" id="reg-email" placeholder="seu@email.com">
+</div>
+
             <button type="submit" class="btn-reg">Criar Minha Conta</button>
             <p class="voucher-info">Seu CPF será seu ID único no sistema.</p>
         </form>
@@ -149,6 +160,16 @@
             tabC.classList.add('active'); tabE.classList.remove('active');
             formC.style.display = 'block'; formE.style.display = 'none';
         }
+
+// 1. Adicione esta nova função de máscara
+function aplicarMascaraCelular(i) {
+    let v = i.value.replace(/\D/g, ""); 
+    if (v.length > 11) v = v.substring(0, 11);
+    v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+    v = v.replace(/(\d{5})(\d)/, "$1-$2");
+    i.value = v;
+}
+
     }
 
     async function realizarCadastro(event) {
@@ -162,12 +183,19 @@
             return;
         }
 
+// Formatação do celular para o padrão solicitado: 55999999999@c.us
+    let celularLimpo = document.getElementById('reg-celular').value.replace(/\D/g, "");
+    let celularFormatado = celularLimpo ? `55${celularLimpo}@c.us` : "";
+
+
         const dados = {
             id: campoCpf.replace(/[^\d]+/g, ''), // Envia apenas os 11 dígitos limpos
             nome: document.getElementById('reg-nome').value,
             apelido: document.getElementById('reg-apelido').value,
             senha: document.getElementById('reg-senha').value,
-            time: document.getElementById('reg-time').value
+            time: document.getElementById('reg-time').value,
+	    celular: celularFormatado, // Novo campo
+            email: document.getElementById('reg-email').value // Novo campo
         };
 
         try {
