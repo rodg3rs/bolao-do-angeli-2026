@@ -28,8 +28,8 @@ app.post('/cadastrar', async (req, res) => {
         }
 
         await db.execute({
-            sql: "INSERT INTO dLogin (ID, Nome, Apelido, Senha, Time) VALUES (?, ?, ?, ?, ?)",
-            args: [id, nome, apelido, senha, time]
+	   sql: "INSERT INTO dLogin (ID, Nome, Apelido, Senha, Time, Celular, [e-mail]) VALUES (?, ?, ?, ?, ?, ?, ?)",
+           args: [id, nome, apelido, senha, time, celular || "", email || ""]
         });
 
         const jogos = await db.execute("SELECT Jogo, Sel1, Sel2, Data, Horario FROM dTabela");
