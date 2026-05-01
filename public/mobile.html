@@ -254,6 +254,40 @@
     <script>
         let usuarioLogado = null;
 
+window.definirUsuario = function(usuario) {
+            usuarioLogado = usuario;
+            localStorage.setItem('userLogado', JSON.stringify(usuario));
+            
+            const userDisplay = document.getElementById('user-display');
+            if (userDisplay) {
+                userDisplay.innerText = usuario.Apelido;
+                userDisplay.style.color = 'var(--accent)';
+            }
+            
+            alert("Bem-vindo, " + usuario.Apelido + "!");
+            mostrarHome(); // Esta função já existe no seu código e voltará para o Ranking
+        };
+
+        window.alternarAuth = function(tipo) {
+            // Garante que a troca entre Login e Cadastro funcione no Mobile
+            const tabE = document.getElementById('tab-entrar');
+            const tabC = document.getElementById('tab-cadastrar');
+            const formE = document.getElementById('form-entrar');
+            const formC = document.getElementById('form-cadastrar');
+            
+            if (tipo === 'entrar') {
+                if(tabE) tabE.classList.add('active'); 
+                if(tabC) tabC.classList.remove('active');
+                if(formE) formE.style.display = 'block'; 
+                if(formC) formC.style.display = 'none';
+            } else {
+                if(tabC) tabC.classList.add('active'); 
+                if(tabE) tabE.classList.remove('active');
+                if(formC) formC.style.display = 'block'; 
+                if(formE) formE.style.display = 'none';
+            }
+        };
+
         // Controle da Cortina do Chat
         function toggleChat() {
             const chat = document.getElementById('container-chat-fixo');
