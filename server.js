@@ -433,7 +433,7 @@ app.post('/enviar-ranking', async (req, res) => {
                     </table>
                     
                     <div style="text-align: center; margin-top: 30px; font-size: 11px; color: #555;">
-                        <p>E-mail automático enviado pelo sistema de apostas.</p>
+                        <p>E-mail automático enviado pelo Bolão do Angeli</p>
                     </div>
                 </div>
             </div>
