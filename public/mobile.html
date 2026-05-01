@@ -159,10 +159,10 @@
 
     <!-- Header Fixo Topo -->
     <header class="fixed-top">
-        <h1 class="text-4xl font-black text-[var(--accent)] leading-tight uppercase" onclick="mostrarHome()" style="cursor:pointer">
+        <h1 class="text-4xl font-black text-center leading-tight uppercase" onclick="mostrarHome()" style="cursor:pointer">
             Bolão do Angeli 2026
         </h1>
-        <div id="user-display" class="text-2xl font-extrabold uppercase mt-1 text-slate-400">
+        <div id="user-display" class="text-2xl text-center font-extrabold uppercase mt-1 text-slate-400">
             Visitante
         </div>
     </header>
@@ -296,7 +296,7 @@
         function abrirPalpites(el) {
             if (!usuarioLogado) {
                 alert("Acesse sua conta primeiro!");
-                carregarModulo('login.html', document.querySelector('.fa-user-circle').parentElement);
+                carregarModulo('login.html', document.querySelector('[onclick*="login.html"]'));
                 return;
             }
             carregarModulo('palpites.html', el);
