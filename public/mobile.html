@@ -302,6 +302,12 @@ window.definirUsuario = function(usuario) {
  	       mostrarHome();
 	        return;
 	    }            
+
+	if (window.chartCravadosInstance) {
+            window.chartCravadosInstance.destroy();
+            window.chartCravadosInstance = null;
+	}
+
 	    const container = document.getElementById('modulo-container');
             const conteudoCentral = document.getElementById('conteudo-central');
             const welcome = document.getElementById('welcome-message');
