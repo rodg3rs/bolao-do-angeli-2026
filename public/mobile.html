@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bolão do Angeli 2026 - Mobile V8</title>
+    <title>Bolão do Angeli 2026 - Mobile</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -262,8 +262,13 @@
 
         // --- FUNÇÕES DE CARREGAMENTO (MANTIDAS DO INDEXV8) ---
 
-        async function carregarModulo(url, el) {
-            const container = document.getElementById('modulo-container');
+	async function carregarModulo(url, el) {
+	    // Se o botão clicado já estiver ativo, ele funciona como um "toggle" para voltar ao Ranking
+	    if (el && el.classList.contains('active')) {
+ 	       mostrarHome();
+	        return;
+	    }            
+	    const container = document.getElementById('modulo-container');
             const conteudoCentral = document.getElementById('conteudo-central');
             const welcome = document.getElementById('welcome-message');
             const homeContainers = document.getElementById('home-containers');
@@ -308,14 +313,29 @@
             carregarModulo('palpites.html', el);
         }
 
-        function mostrarHome() {
-            document.getElementById('conteudo-central').classList.add('hidden');
-            document.getElementById('home-containers').classList.remove('hidden');
-            document.getElementById('welcome-message').classList.remove('hidden');
-            document.getElementById('container-chat-fixo').classList.remove('aberto');
-            atualizarMenuAtivo(document.querySelector('.bottom-nav button:first-child'));
-            inicializarRankingFixo();
-        }
+function mostrarHome() {
+    // 1. Esconde o container onde os módulos (Login, Palpites, etc) são carregados
+    document.getElementById('conteudo-central').classList.add('hidden');
+    
+    // 2. Garante que o Ranking (home-containers) volte a ficar visível
+    document.getElementById('home-containers').classList.remove('hidden');
+    
+    // 3. Opcional: Se houver mensagem de boas-vindas, mostre-a também
+    const welcome = document.getElementById('welcome-message');
+    if (welcome) welcome.classList.remove('hidden');
+
+    // 4. Desmarca qualquer botão ativo no menu inferior para mostrar que saiu daquele módulo
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    
+    // 5. Fecha a cortina do chat para não cobrir o ranking
+    document.getElementById('container-chat-fixo').classList.remove('aberto');
+
+    // 6. Atualiza os dados do ranking em tempo real
+    inicializarRankingFixo();
+    
+    // 7. Volta o scroll para o topo para ver o início do ranking
+    document.getElementById('scroll-area').scrollTop = 0;
+}
 
         function atualizarMenuAtivo(el) {
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
