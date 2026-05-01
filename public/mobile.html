@@ -273,10 +273,12 @@
 
             try {
                 homeContainers.classList.add('hidden');
-                welcome.classList.add('hidden');
+                if (welcome) welcome.classList.add('hidden');
                 conteudoCentral.classList.remove('hidden');
+		conteudoCentral.style.display = 'block';
 
                 const res = await fetch(url);
+		if (!res.ok) throw new Error('Erro ao carregar arquivo');
                 const html = await res.text();
                 container.innerHTML = html;
 
@@ -290,13 +292,17 @@
 
                 atualizarMenuAtivo(el);
                 document.getElementById('scroll-area').scrollTo({ top: 0, behavior: 'smooth' });
-            } catch (e) { console.error("Erro ao carregar módulo:", e); }
+            } catch (e) { 
+		console.error("Erro ao carregar módulo:", e);
+		container.innerHTML = `<p class="p-4 text-red-500">Erro ao carregar conteúdo. Verifique se o arquivo ${url} existe.</p>`;
+	    }
         }
 
         function abrirPalpites(el) {
             if (!usuarioLogado) {
                 alert("Acesse sua conta primeiro!");
-                carregarModulo('login.html', document.querySelector('[onclick*="login.html"]'));
+		const loginBtn = document.querySelector('button[onclick*="login.html"]');
+                carregarModulo('login.html', loginBtn);
                 return;
             }
             carregarModulo('palpites.html', el);
