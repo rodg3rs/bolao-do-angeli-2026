@@ -174,10 +174,6 @@
             </div>
         </div>
 
-        <div id="welcome-message" class="text-center py-5">
-            <p class="font-black text-[var(--accent)] text-3xl">BOA SORTE NA ZOAÇÃO!</p>
-        </div>
-
         <!-- Conteúdo Home (Ranking) -->
         <div id="home-containers" class="flex flex-col gap-8">
             <section id="modulo-ranking-container" class="bg-slate-800/30 rounded-2xl p-6 border border-white/5">
@@ -213,10 +209,6 @@
 
     <!-- Menu Fixo Bottom -->
     <nav class="bottom-nav">
-        <button onclick="mostrarHome()" class="nav-item active">
-            <i class="fas fa-trophy"></i>
-            <span>Home</span>
-        </button>
 
         <button onclick="carregarModulo('login.html', this)" class="nav-item">
             <i class="far fa-user-circle"></i>
@@ -228,9 +220,29 @@
             <span>Palpites</span>
         </button>
 
+        <button onclick="carregarModulo('galera.html', this)" class="nav-item">
+            <i class="fas fa-users"></i>
+            <span>Galera</span>
+        </button>
+
+        <button onclick="carregarModulo('estatistica.html', this)" class="nav-item">
+            <i class="fas fa-chart-bar"></i>
+            <span>Stats</span>
+        </button>
+
         <button onclick="toggleChat()" class="nav-item">
             <i class="fas fa-comments"></i>
             <span>Chat</span>
+        </button>
+ 
+        <button onclick="carregarModulo('admin.html', this)" class="nav-item">
+            <i class="fas fa-cogs"></i>
+	    <span>Admin</span>
+        </button>
+       
+	<button onclick="limparCentro(this)" class="nav-item">
+            <i class="fas fa-file-alt"></i> 
+	    <span>Regulamento</span>
         </button>
 
         <button onclick="sairSistema()" class="nav-item text-red-400">
