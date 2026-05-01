@@ -86,13 +86,12 @@
             <button onclick="limparCentro(this)" class="menu-item !w-auto">
                 <i class="fas fa-file-alt"></i> Regulamento
             </button>
-            <button onclick="carregarModulo('admin.html', this)" class="menu-item !w-auto">
-                <i class="fas fa-cogs"></i> Admin
-            </button>
             <button onclick="carregarModulo('estatistica.html', this)" class="menu-item !w-auto">
                 <i class="fas fa-chart-bar"></i> Statis
             </button>
-       
+            <button onclick="carregarModulo('admin.html', this)" class="menu-item !w-auto">
+                <i class="fas fa-cogs"></i> Admin
+            </button>
             <button onclick="sairSistema()" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-red-950/40 text-red-300 hover:bg-red-900/60 ml-4">
 		<i class="fas fa-sign-out-alt"></i> Sair
 	    </button>
@@ -124,7 +123,7 @@
     <footer class="w-full py-4 px-8 border-t border-[var(--border)] bg-[var(--bg)] mt-auto">
         <div class="max-w-[1600px] mx-auto flex justify-between items-center text-[var(--text-secondary)] text-sm">
             <p>&copy; 2026 Bolão do Angeli by Rodg3rs</p>
-            <p class="font-monospace opacity-30 text-[10px]"> v.2026-04-09_22:00</p>
+            <p class="font-monospace opacity-30 text-[10px]"> v.2026-05-01</p>
         </div>
     </footer>
 
@@ -140,6 +139,12 @@
 
         async function carregarModulo(arquivo, el) {
             atualizarMenuAtivo(el);
+
+	if (window.chartCravadosInstance) {
+            window.chartCravadosInstance.destroy();
+            window.chartCravadosInstance = null;
+	}
+
             try {
                 const response = await fetch(`${arquivo}?v=${new Date().getTime()}`);
                 if (!response.ok) throw new Error(`Status: ${response.status}`);
@@ -156,7 +161,6 @@
 
                 centro.innerHTML = html;
 
-                // Re-executar scripts do módulo carregado
                 centro.querySelectorAll('script').forEach(oldScript => {
                     const newScript = document.createElement('script');
                     Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));

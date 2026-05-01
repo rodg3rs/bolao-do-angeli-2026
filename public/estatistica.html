@@ -87,10 +87,14 @@ async function fetchData() {
         console.error("Erro ao carregar:", error);
     }
 }
-
         function renderCravados(lista) {
-            const ctx = document.getElementById('chartCravados').getContext('2d');
-            if (chartCravadosInstance) chartCravadosInstance.destroy();
+	    const canvas = document.getElementById('chartCravados');
+	    if (!canvas) {
+ 	       console.warn("Aguardando o elemento #chartCravados aparecer no DOM...");
+	        return; 
+	    }
+	    const ctx = canvas.getContext('2d');
+	    if (chartCravadosInstance) chartCravadosInstance.destroy();
 
             chartCravadosInstance = new Chart(ctx, {
                 type: 'bar',
@@ -152,7 +156,10 @@ async function fetchData() {
             });
         }
 
-        fetchData();
+	setTimeout(() => {
+            fetchData();
+        }, 100);
+
     </script>
 </body>
 </html>
