@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* --- CSS ORIGINAL PRESERVADO DO INDEXV8.HTML --- */
         :root {
             --bg: #0f172a;
             --sidebar-bg: rgba(30, 41, 59, 0.95);
@@ -64,8 +63,6 @@
             border-left: 5px solid var(--accent);
         }
 
-        /* --- ADAPTAÇÃO PARA LAYOUT FIXO MOBILE --- */
-
         /* Header Fixo no Topo */
         header.fixed-top {
             position: fixed;
@@ -119,11 +116,27 @@
             overflow-y: auto;
             margin-top: 150px; /* Espaço do Header */
             margin-bottom: 120px; /* Espaço do Menu Bottom */
-            padding: 25px;
+            padding: 10px;
             display: flex;
             flex-direction: column;
-            gap: 30px;
+            gap: 20px;
         }
+
+#modulo-container {
+    background: rgba(30, 41, 59, 0.4); /* Mantém o visual escuro original */
+    border-radius: 12px;               /* Bordas mais discretas que as originais */
+    padding: 8px !important;           /* Redução drástica para dar espaço aos inputs */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;                       /* Ocupa toda a largura do 'main' */
+    box-sizing: border-box;
+}
+
+/* Ajuste extra para garantir que os inputs de palpites não diminuam */
+#modulo-container .input-gols {
+    width: 60px !important;
+    min-width: 60px !important;
+    height: 45px !important;
+}
 
         /* --- CHAT TIPO CORTINA (GAVETA) --- */
         #container-chat-fixo {
@@ -169,10 +182,10 @@
 
     <main id="scroll-area">
         <!-- Container de Módulos (Login, Palpites, etc) -->
-        <div id="conteudo-central" class="hidden">
-            <div id="modulo-container" class="bg-slate-800/40 rounded-3xl p-6 border border-white/10 shadow-2xl">
-            </div>
-        </div>
+	<div id="conteudo-central" class="hidden">
+ 	   <div id="modulo-container">
+ 	   </div>
+	</div>
 
         <!-- Conteúdo Home (Ranking) -->
         <div id="home-containers" class="flex flex-col gap-8">
