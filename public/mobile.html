@@ -167,34 +167,42 @@
             cursor: pointer;
         }
 
-/* --- AJUSTES EXCLUSIVOS PARA O MÓDULO GALERA --- */
+/* --- NOVA TENTATIVA: AJUSTE FORÇADO PARA O MÓDULO GALERA --- */
 
-/* 1. Coloca o título acima dos seletores (inputs) */
-/* O seletor .galera-header garante que só afete este módulo */
-.galera-header {
-    display: flex !important;
-    flex-direction: column !important; /* Alinhamento vertical */
-    align-items: flex-start !important;
-    gap: 15px !important;
-    margin-bottom: 20px !important;
-}
-
-/* 2. Remove a coluna do código do jogo (A01, A05, etc.) */
-/* Miramos na segunda coluna da tabela dentro da classe .galera-container */
-.galera-container th:nth-child(2), 
-.galera-container td:nth-child(2) {
+/* 1. Remove a coluna do código do jogo (A01, A05, etc.) */
+/* O seletor nth-child(2) pega a segunda coluna da tabela injetada */
+#modulo-container th:nth-child(2), 
+#modulo-container td:nth-child(2) {
     display: none !important;
 }
 
-/* 3. Ajuste de espaçamento para ganhar largura na tela mobile */
-.galera-container table {
-    width: 100% !important;
-    table-layout: auto !important;
+/* 2. Coloca o título acima dos seletores/inputs */
+/* Na imagem image_fc54c6.png, o título e os selects parecem estar num container flex horizontal */
+/* Vamos forçar qualquer container de topo dentro do módulo a virar coluna */
+#modulo-container div[class*="header"], 
+#modulo-container div[class*="top"] {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 15px !important;
 }
 
-.galera-container td {
-    padding: 8px 2px !important; /* Padding reduzido para não esmagar nomes */
-    font-size: 0.85rem !important;
+/* Força o título específico da Galera (amarelo na foto) a ocupar a linha toda */
+#modulo-container h2, #modulo-container h3 {
+    width: 100% !important;
+    display: block !important;
+    margin-bottom: 10px !important;
+}
+
+/* 3. Ajuste de espaçamento da tabela para não esmagar no mobile */
+#modulo-container table {
+    width: 100% !important;
+    table-layout: auto !important; /* Permite que as colunas se ajustem ao conteúdo */
+}
+
+#modulo-container td {
+    padding: 8px 3px !important;
+    font-size: 0.9rem !important; /* Ajuste para caber nomes como Bayer Levemoocooler */
 }
 
     </style>
