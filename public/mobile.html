@@ -408,54 +408,58 @@ window.definirUsuario = function(usuario) {
 
         // --- FUNÇÕES DE CARREGAMENTO (MANTIDAS DO INDEXV8) ---
 
-	async function carregarModulo(url, el) {
-	    // Se o botão clicado já estiver ativo, ele funciona como um "toggle" para voltar ao Ranking
-	    if (el && el.classList.contains('active')) {
- 	       mostrarHome();
-	        return;
-	    }            
+async function carregarModulo(url, el) {
+    if (el && el.classList.contains('active')) {
+        mostrarHome();
+        return;
+    }            
 
-	if (window.chartCravadosInstance) {
-            window.chartCravadosInstance.destroy();
-            window.chartCravadosInstance = null;
-	}
+    if (window.chartCravadosInstance) {
+        window.chartCravadosInstance.destroy();
+        window.chartCravadosInstance = null;
+    }
 
-	    const container = document.getElementById('modulo-container');
-            const conteudoCentral = document.getElementById('conteudo-central');
-            const welcome = document.getElementById('welcome-message');
-            const homeContainers = document.getElementById('home-containers');
-            
-            // Fecha chat se abrir outro módulo
-            document.getElementById('container-chat-fixo').classList.remove('aberto');
+    const container = document.getElementById('modulo-container');
+    const conteudoCentral = document.getElementById('conteudo-central');
+    const welcome = document.getElementById('welcome-message');
+    const homeContainers = document.getElementById('home-containers');
+    
+    document.getElementById('container-chat-fixo').classList.remove('aberto');
 
-            try {
-                homeContainers.classList.add('hidden');
-                if (welcome) welcome.classList.add('hidden');
-                conteudoCentral.classList.remove('hidden');
-		conteudoCentral.style.display = 'block';
+    try {
+        homeContainers.classList.add('hidden');
+        if (welcome) welcome.classList.add('hidden');
+        conteudoCentral.classList.remove('hidden');
+        conteudoCentral.style.display = 'block';
 
-                const res = await fetch(url);
-		if (!res.ok) throw new Error('Erro ao carregar arquivo');
-                const html = await res.text();
-                container.innerHTML = html;
+        // FEEDBACK VISUAL ADICIONADO AQUI
+        container.innerHTML = `
+            <div class="flex flex-col items-center justify-center p-10 text-[var(--accent)]">
+                <i class="fas fa-spinner fa-spin text-4xl mb-4"></i>
+                <p class="font-bold">Carregando...</p>
+            </div>`;
 
-                // Executa scripts do módulo
-setTimeout(() => {
-    container.querySelectorAll('script').forEach(oldScript => {
-        const newScript = document.createElement('script');
-        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-        oldScript.parentNode.replaceChild(newScript, oldScript);
-    });
-}, 50);
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Erro ao carregar arquivo');
+        const html = await res.text();
+        container.innerHTML = html;
 
-                atualizarMenuAtivo(el);
-                document.getElementById('scroll-area').scrollTo({ top: 0, behavior: 'smooth' });
-            } catch (e) { 
-		console.error("Erro ao carregar módulo:", e);
-		container.innerHTML = `<p class="p-4 text-red-500">Erro ao carregar conteúdo. Verifique se o arquivo ${url} existe.</p>`;
-	    }
-        }
+        setTimeout(() => {
+            container.querySelectorAll('script').forEach(oldScript => {
+                const newScript = document.createElement('script');
+                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        }, 50);
+
+        atualizarMenuAtivo(el);
+        document.getElementById('scroll-area').scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (e) { 
+        console.error("Erro ao carregar módulo:", e);
+        container.innerHTML = `<p class="p-4 text-red-500 font-bold text-center">Erro ao carregar conteúdo. Tente novamente.</p>`;
+    }
+}
 
         function abrirPalpites(el) {
             if (!usuarioLogado) {
@@ -558,7 +562,10 @@ function mostrarHome() {
             } catch (e) { }
         }
 
-        function sairSistema() { localStorage.clear(); window.location.href = 'sair.html'; }
+function sairSistema() { 
+    localStorage.removeItem('userLogado'); // Remove apenas a sessão do bolão
+    window.location.href = 'sair.html'; 
+}
 
         document.addEventListener('DOMContentLoaded', () => {
             inicializarRankingFixo();
