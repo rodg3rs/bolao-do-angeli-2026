@@ -199,60 +199,79 @@
     max-width: none !important;
 }
 
-/* --- AJUSTE EXCLUSIVO PARA O MÓDULO DE PALPITES --- */
+/* --- AJUSTE DEFINITIVO PARA O MÓDULO DE PALPITES --- */
 
-/* 1. Força o container interno a ocupar 100% da largura sem margens laterais */
-#modulo-container > div {
-    max-width: 100% !important;
+/* 1. Remove a estrutura rígida de tabela para permitir quebras */
+#modulo-container table, 
+#modulo-container tbody, 
+#modulo-container tr {
+    display: block !important;
     width: 100% !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    padding-left: 5px !important;
-    padding-right: 5px !important;
 }
 
-/* 2. Ajusta cada linha de jogo para garantir que os inputs apareçam */
-/* Geralmente esses jogos estão em flexboxes. Vamos permitir que eles quebrem linha ou diminuam o texto */
-#modulo-container .flex.items-center.justify-between.p-4,
-#modulo-container [class*="jogo-item"] {
+/* 2. Transforma cada linha do jogo em um container flexível centralizado */
+#modulo-container tr.linha-j {
     display: flex !important;
-    flex-wrap: nowrap !important; /* Mantém na mesma linha, mas vamos diminuir o resto */
-    gap: 8px !important;
-    padding: 12px 5px !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 15px 5px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    gap: 5px !important;
 }
 
-/* 3. Diminui os nomes dos times para dar espaço aos inputs no centro */
-#modulo-container .flex.items-center.gap-4.w-full,
-#modulo-container span.font-bold {
-    font-size: 0.9rem !important;
-    white-space: nowrap;
+/* 3. Ajusta as colunas (que agora são itens flex) */
+#modulo-container td.col-p {
+    display: block !important;
+    padding: 0 !important;
+    flex: 1 !important; /* Faz os nomes dos times dividirem o espaço restante */
+    min-width: 0; /* Permite que o texto encolha */
+}
+
+/* 4. Estilização dos nomes dos times para não empurrar o input */
+#modulo-container td.col-p {
+    font-size: 0.85rem !important;
+    font-weight: bold !important;
+    line-height: 1.2 !important;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: normal !important; /* Permite quebrar linha se o nome for gigante */
 }
 
-/* 4. Garante que o container dos inputs de GOLS seja visível e tenha tamanho fixo */
-#modulo-container .flex.items-center.gap-2 {
+/* 5. A COLUNA DOS INPUTS (O CORAÇÃO DO PROBLEMA) */
+#modulo-container tr.linha-j td:nth-child(2) {
     display: flex !important;
-    min-width: fit-content !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 0 0 auto !important; /* Não deixa a coluna de inputs encolher */
+    min-width: 140px !important; /* Garante espaço para [Input] X [Input] */
 }
 
-/* Força os inputs de gols a aparecerem com destaque */
-#modulo-container input[type="number"], 
-#modulo-container .input-gols {
-    width: 55px !important;
-    height: 45px !important;
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    border: 1px solid var(--accent) !important;
-    text-align: center !important;
-    border-radius: 8px !important;
-    display: block !important;
+/* 6. Força a visibilidade e tamanho dos inputs */
+#modulo-container input.input-gols {
+    display: inline-block !important;
     visibility: visible !important;
+    width: 55px !important; 
+    height: 50px !important; /* Aumentado para facilitar o toque */
+    font-size: 1.4rem !important; /* Fonte grande para leitura fácil */
+    background: #0f172a !important;
+    border: 2px solid var(--accent) !important; /* Borda mais grossa para destaque */
+    color: var(--accent) !important;
+    border-radius: 8px !important;
+    margin: 0 4px !important;
+    -webkit-appearance: none; /* Remove estilos padrão do iOS */
 }
 
-/* 5. Ajuste do botão Voltar para não flutuar errado */
-#modulo-container button.bg-red-500 {
-    padding: 5px 15px !important;
+/* Ajusta o "X" entre os inputs */
+#modulo-container b {
     font-size: 1rem !important;
+    color: #94a3b8 !important;
+}
+
+/* Esconde as datas pequenas se ainda estiver apertado (opcional) */
+#modulo-container .data-j {
+    display: block !important;
+    font-size: 0.6rem !important;
+    opacity: 0.7;
 }
 
     </style>
