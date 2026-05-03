@@ -166,6 +166,45 @@
             margin: 15px auto;
             cursor: pointer;
         }
+
+/* --- NOVOS AJUSTES DE LAYOUT --- */
+
+        /* 1. Remove a coluna do código do jogo (A01, A05, etc) */
+        #modulo-container th:nth-child(2), 
+        #modulo-container td:nth-child(2) {
+            display: none !important;
+        }
+
+        /* 2. Coloca o título acima dos inputs/botões no cabeçalho */
+        .palpites-header {
+            display: flex !important;
+            flex-direction: column !important; /* Empilha o título em cima */
+            align-items: center !important;
+            gap: 15px !important;
+            margin-bottom: 20px !important;
+        }
+
+        #titulo-p {
+            text-align: center !important;
+            width: 100% !important;
+            font-size: 1.4rem !important;
+        }
+
+        /* 3. Otimiza a largura da tabela da Galera e Palpites */
+        .palpites-central {
+            max-width: 100% !important;
+            width: 100% !important;
+            padding: 5px !important;
+        }
+
+        #modulo-container table {
+            width: 100% !important;
+        }
+
+        #modulo-container td {
+            padding: 8px 2px !important;
+        }
+
     </style>
 </head>
 <body>
