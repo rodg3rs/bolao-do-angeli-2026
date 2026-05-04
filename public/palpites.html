@@ -1,49 +1,58 @@
 <style>
-    /* Mantenha apenas o que é específico dos inputs e tabela interna */
+    /* Layout Centralizado e Moderno */
+    .palpites-central {
+        background: #1e293b;
+        padding: 20px;
+        border-radius: 12px;
+        width: 100%;
+        max-width: 650px;
+        border: 1px solid #334155;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .palpites-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #334155;
+        padding-bottom: 10px;
+    }
+    .btn-fechar-p {
+        background: #ef4444; color: white; border: none; padding: 6px 12px;
+        border-radius: 6px; cursor: pointer; font-weight: bold;
+    }
     .tabela-p { width: 100%; border-collapse: collapse; }
     .linha-j { border-bottom: 1px solid rgba(255,255,255,0.05); }
     .col-p { padding: 12px 5px; font-size: 0.9rem; color: white; }
     
+    /* Inputs menores e limitados */
     .input-gols {
-        width: 45px; height: 45px; background: #0f172a;
-        border: 2px solid #334155; color: #ffc107;
-        text-align: center; border-radius: 8px; font-weight: bold;
-        font-size: 1.4rem; margin: 0 5px;
+        width: 45px; height: 35px; background: #0f172a;
+        border: 1px solid #334155; color: #ffc107;
+        text-align: center; border-radius: 6px; font-weight: bold;
+        font-size: 1.1rem; margin: 0 5px;
     }
     .input-gols:disabled { opacity: 0.4; cursor: not-allowed; }
     .data-j { font-size: 0.7rem; color: #64748b; display: block; }
 </style>
 
-<!-- Container Principal (Padrão Galera) -->
-<div id="painel-palpites" class="w-full h-full flex flex-col p-4 md:p-6 overflow-hidden">
-    
-    <!-- Cabeçalho Fixo -->
-    <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-4">
-        <h2 id="titulo-p" class="text-[var(--accent)] font-bold uppercase tracking-wider">
-            <i class="fas fa-edit mr-2"></i> Meus Palpites
-        </h2>
-        <button class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all" 
-                onclick="mostrarHome()">
-            Voltar
-        </button>
+<div class="palpites-central">
+    <div class="palpites-header">
+        <h2 id="titulo-p" style="color: #ffc107; font-size: 1.1rem;">Meus Palpites</h2>
+        <button class="btn-fechar-p" onclick="limparCentro()">Voltar</button>
     </div>
-
-    <!-- ÁREA DE ROLAGEM INTERNA (O segredo do Galera) -->
-    <div class="flex-grow overflow-y-auto pr-2 custom-scroll">
-        <div id="lista-jogos">
-            <div class="text-center py-10 text-slate-500 italic">Carregando seus jogos...</div>
-        </div>
-    </div>
+    <div id="lista-jogos">Carregando...</div>
 </div>
 
 <script>
     (async function() {
-        if(!window.usuarioLogado) {
-            document.getElementById('lista-jogos').innerHTML = "<h2 class='text-white'>Acesse sua conta primeiro!</h2>";
+        // Voltando à verificação simples que você usava antes
+        if(!usuarioLogado) {
+            document.getElementById('lista-jogos').innerHTML = "<h2>Acesse sua conta primeiro!</h2>";
             return;
         }
 
-        document.getElementById('titulo-p').innerHTML = `<i class="fas fa-user-edit mr-2"></i> Palpites: ${usuarioLogado.Apelido}`;
+        document.getElementById('titulo-p').innerText = "Palpites de: " + usuarioLogado.Apelido;
         
         try {
             const res = await fetch(`/minhas-apostas/${usuarioLogado.Apelido}`);
@@ -51,49 +60,42 @@
             
             let html = '<table class="tabela-p">';
             data.apostas.forEach(j => {
+                // Trava de 10 minutos (Lógica do server.js)
                 const agora = new Date();
                 const limite = new Date(`${j.Data}T${j.Horario}:00`);
                 limite.setMinutes(limite.getMinutes() - 10);
                 const bloqueado = agora > limite;
 
-                // Gerando IDs únicos para segurança total no mobile
-                const id1 = `ap1_${j.Jogo.replace(/\s+/g, '')}`;
-                const id2 = `ap2_${j.Jogo.replace(/\s+/g, '')}`;
-
                 html += `
                     <tr class="linha-j">
-                        <td class="col-p w-[35%] text-right uppercase text-[11px] sm:text-xs">
+                        <td class="col-p" style="text-align:right;">
                             ${j.Sel1} <span class="data-j">${j.Data}</span>
                         </td>
-                        <td class="w-[30%] text-center whitespace-nowrap px-1">
-                            <input type="number" id="${id1}" class="input-gols" value="${j.Ap1}" 
+                        <td style="text-align:center; white-space:nowrap;">
+                            <input type="number" class="input-gols" value="${j.Ap1}" min="0" max="10"
                                 ${bloqueado ? 'disabled' : ''} 
-                                onchange="salvarPalpite('${j.Jogo}', '${id1}', '${id2}')">
-                            <b class="text-slate-500 mx-1">x</b>
-                            <input type="number" id="${id2}" class="input-gols" value="${j.Ap2}" 
+                                onchange="salvar('${j.Jogo}', this.value, document.getElementById('ap2_${j.Jogo}').value)">
+                            <b style="color:#64748b">x</b>
+                            <input type="number" id="ap2_${j.Jogo}" class="input-gols" value="${j.Ap2}" min="0" max="10"
                                 ${bloqueado ? 'disabled' : ''} 
-                                onchange="salvarPalpite('${j.Jogo}', '${id1}', '${id2}')">
+                                onchange="salvar('${j.Jogo}', this.previousElementSibling.previousElementSibling.value, this.value)">
                         </td>
-                        <td class="col-p w-[35%] text-left uppercase text-[11px] sm:text-xs">
+                        <td class="col-p" style="text-align:left;">
                             ${j.Sel2} <span class="data-j">${j.Horario}h</span>
                         </td>
                     </tr>`;
             });
             document.getElementById('lista-jogos').innerHTML = html + "</table>";
         } catch (e) {
-            document.getElementById('lista-jogos').innerHTML = "<div class='text-red-500'>Erro ao conectar com o servidor.</div>";
+            document.getElementById('lista-jogos').innerHTML = "Erro ao carregar.";
         }
     })();
 
-    async function salvarPalpite(jogo, id1, id2) {
-        const inp1 = document.getElementById(id1);
-        const inp2 = document.getElementById(id2);
-        
-        let v1 = Math.min(10, Math.max(0, parseInt(inp1.value) || 0));
-        let v2 = Math.min(10, Math.max(0, parseInt(inp2.value) || 0));
-        
-        inp1.value = v1;
-        inp2.value = v2;
+    // Mantendo a função salvar exatamente como era, mas adicionando a trava 0-10
+    async function salvar(jogo, a1, a2) {
+        // Forçar limite 0-10
+        let v1 = Math.min(10, Math.max(0, parseInt(a1) || 0));
+        let v2 = Math.min(10, Math.max(0, parseInt(a2) || 0));
 
         await fetch('/salvar-palpite', {
             method: 'POST',
