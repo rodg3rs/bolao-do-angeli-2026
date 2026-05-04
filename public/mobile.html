@@ -122,13 +122,43 @@
             gap: 20px;
         }
 
+/* --- UNIFORMIZAÇÃO DOS CONTAINERS (PALPITES E GALERA) --- */
+
+/* 1. Ajuste do Container Pai: Removemos o preenchimento lateral para a linha tocar as bordas */
 #modulo-container {
-    background: rgba(30, 41, 59, 0.4); /* Mantém o visual escuro original */
-    border-radius: 12px;               /* Bordas mais discretas que as originais */
-    padding: 8px !important;           /* Redução drástica para dar espaço aos inputs */
+    background: rgba(30, 41, 59, 0.4);
+    border-radius: 12px;
+    padding: 8px 0 !important; /* Zero nas laterais para ocupar tudo */
     border: 1px solid rgba(255, 255, 255, 0.1);
-    width: 100%;                       /* Ocupa toda a largura do 'main' */
+    width: 100% !important;
+    max-width: 100% !important;
     box-sizing: border-box;
+}
+
+/* 2. Força o Módulo de Palpites a ignorar margens */
+.palpites-central {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* 3. Ajuste da tabela de Palpites para ocupar a largura total */
+.palpites-central table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin: 0 !important;
+}
+
+/* 4. Ajuste das Linhas: Adicionamos um pequeno respiro interno apenas para os textos */
+.palpites-central tr.linha-j {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 12px 10px !important; /* 10px nas laterais para o nome do time não encostar no vidro */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-sizing: border-box !important;
 }
 
 /* Ajuste extra para garantir que os inputs de palpites não diminuam */
