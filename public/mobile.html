@@ -494,7 +494,6 @@ async function carregarModulo(url, el) {
         container.innerHTML = `<p class="p-4 text-red-500 font-bold text-center">Erro ao carregar conteúdo. Tente novamente.</p>`;
     }
 }
-
         function abrirPalpites(el) {
             if (!usuarioLogado) {
                 alert("Acesse sua conta primeiro!");
@@ -528,6 +527,11 @@ function mostrarHome() {
     // 7. Volta o scroll para o topo para ver o início do ranking
     document.getElementById('scroll-area').scrollTop = 0;
 }
+
+// Cria a função limparCentro para manter compatibilidade com os botões dos módulos
+        window.limparCentro = function(el) {
+            mostrarHome();
+        };
 
         function atualizarMenuAtivo(el) {
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
