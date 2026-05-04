@@ -122,6 +122,35 @@
             gap: 20px;
         }
 
+        /* --- CHAT TIPO CORTINA (GAVETA) --- */
+        #container-chat-fixo {
+            position: fixed;
+            bottom: -80vh; /* Escondido */
+            left: 0;
+            right: 0;
+            height: 75vh;
+            background: #1e293b;
+            z-index: 2000;
+            transition: bottom 0.5s ease-in-out;
+            border-radius: 30px 30px 0 0;
+            border-top: 2px solid var(--accent);
+            display: flex;
+            flex-direction: column;
+        }
+
+        #container-chat-fixo.aberto {
+            bottom: 110px; /* Abre logo acima do menu inferior */
+        }
+
+        .chat-drag-handle {
+            width: 60px;
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            margin: 15px auto;
+            cursor: pointer;
+        }
+
 /* --- UNIFORMIZAÇÃO DOS CONTAINERS (PALPITES E GALERA) --- */
 
 /* 1. Ajuste do Container Pai: Removemos o preenchimento lateral para a linha tocar as bordas */
@@ -133,6 +162,7 @@
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box;
+    min-height: 101%;
 }
 
 /* 2. Força o Módulo de Palpites a ignorar margens */
@@ -167,35 +197,6 @@
     min-width: 60px !important;
     height: 45px !important;
 }
-
-        /* --- CHAT TIPO CORTINA (GAVETA) --- */
-        #container-chat-fixo {
-            position: fixed;
-            bottom: -80vh; /* Escondido */
-            left: 0;
-            right: 0;
-            height: 75vh;
-            background: #1e293b;
-            z-index: 2000;
-            transition: bottom 0.5s ease-in-out;
-            border-radius: 30px 30px 0 0;
-            border-top: 2px solid var(--accent);
-            display: flex;
-            flex-direction: column;
-        }
-
-        #container-chat-fixo.aberto {
-            bottom: 110px; /* Abre logo acima do menu inferior */
-        }
-
-        .chat-drag-handle {
-            width: 60px;
-            height: 6px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 10px;
-            margin: 15px auto;
-            cursor: pointer;
-        }
 
 /* --- AJUSTE FINAL PARA MÓDULO GALERA --- */
 
@@ -252,9 +253,9 @@
     gap: 4px !important;
 }
 
-/* 3. Colunas de nomes de times em Palpites     display: block !important;*/
+/* 3. Colunas de nomes de times em Palpites*/
 .palpites-central td.col-p {
-
+    display: block !important;
     padding: 0 !important;
     flex: 1 !important;
     min-width: 0;
@@ -269,7 +270,7 @@
     align-items: center !important;
     justify-content: center !important;
     flex: 0 0 auto !important;
-    min-width: 130px !important; /* Espaço reservado para os inputs */
+    min-width: 140px !important; /* Espaço reservado para os inputs */
 }
 
 /* 5. Estilo dos inputs (apenas na tela de palpites) */
