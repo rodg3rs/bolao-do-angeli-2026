@@ -133,12 +133,6 @@
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box;
-
-/* ADICIONE ESTAS LINHAS */
-    height: auto !important;           /* Permite que o container cresça com o conteúdo */
-    overflow: visible !important;       /* Garante que o conteúdo não seja cortado */
-    min-height: min-content !important; /* Reforça o crescimento vertical */
-
 }
 
 /* 2. Força o Módulo de Palpites a ignorar margens */
@@ -147,11 +141,6 @@
     max-width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
-
-/* ADICIONE ESTAS LINHAS */
-    display: block !important;         /* Garante comportamento de bloco */
-    height: auto !important;           /* Impede altura fixa herdada */
-    overflow: visible !important;
 }
 
 /* 3. Ajuste da tabela de Palpites para ocupar a largura total */
@@ -159,11 +148,6 @@
     width: 100% !important;
     border-collapse: collapse !important;
     margin: 0 !important;
-
-/* ADICIONE ESTAS LINHAS */
-    display: table !important;         /* Mantém estrutura de tabela para os itens */
-    table-layout: fixed !important;    /* Ajuda na performance de renderização longa */
-
 }
 
 /* 4. Ajuste das Linhas: Adicionamos um pequeno respiro interno apenas para os textos */
@@ -313,47 +297,6 @@
 #modulo-container table:not(.palpites-central table) td,
 #modulo-container table:not(.palpites-central table) th {
     display: table-cell !important;
-}
-
-/* --- CORREÇÃO DEFINITIVA DE ROLAGEM --- */
-
-/* 1. O wrapper do conteúdo deve ser invisível para o layout, apenas um passador de altura */
-#conteudo-central {
-    height: auto !important;
-    display: block !important; /* Sobrescreve possíveis conflitos de flex */
-    overflow: visible !important;
-}
-
-/* 2. O container onde o HTML é injetado não pode ter altura presa */
-#modulo-container {
-    height: auto !important;
-    min-height: 100% !important;
-    overflow: visible !important;
-    display: block !important;
-}
-
-/* 3. Ajuste na Tabela de Palpites: Remova a duplicidade */
-/* Note que aqui usamos 'block' para permitir que as linhas flexíveis funcionem no mobile */
-.palpites-central, 
-.palpites-central table {
-    display: block !important; 
-    height: auto !important;
-    width: 100% !important;
-    overflow: visible !important;
-    border: none !important;
-}
-
-/* 4. Garante que o corpo da tabela e as linhas não barrem o crescimento */
-.palpites-central tbody {
-    display: block !important;
-    height: auto !important;
-    width: 100% !important;
-}
-
-/* 5. Forçar o 'main' a reconhecer o toque e o deslize */
-#scroll-area {
-    -webkit-overflow-scrolling: touch; /* Melhora o scroll no iPhone/iOS */
-    overflow-y: auto !important;
 }
 
     </style>
