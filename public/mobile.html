@@ -133,6 +133,12 @@
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box;
+
+/* ADICIONE ESTAS LINHAS */
+    height: auto !important;           /* Permite que o container cresça com o conteúdo */
+    overflow: visible !important;       /* Garante que o conteúdo não seja cortado */
+    min-height: min-content !important; /* Reforça o crescimento vertical */
+
 }
 
 /* 2. Força o Módulo de Palpites a ignorar margens */
@@ -141,6 +147,11 @@
     max-width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
+
+/* ADICIONE ESTAS LINHAS */
+    display: block !important;         /* Garante comportamento de bloco */
+    height: auto !important;           /* Impede altura fixa herdada */
+    overflow: visible !important;
 }
 
 /* 3. Ajuste da tabela de Palpites para ocupar a largura total */
@@ -148,6 +159,11 @@
     width: 100% !important;
     border-collapse: collapse !important;
     margin: 0 !important;
+
+/* ADICIONE ESTAS LINHAS */
+    display: table !important;         /* Mantém estrutura de tabela para os itens */
+    table-layout: fixed !important;    /* Ajuda na performance de renderização longa */
+
 }
 
 /* 4. Ajuste das Linhas: Adicionamos um pequeno respiro interno apenas para os textos */
