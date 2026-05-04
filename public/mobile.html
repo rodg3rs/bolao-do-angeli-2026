@@ -186,10 +186,14 @@
     margin-bottom: 10px !important;
 }
 
-/* 2. Remove a coluna do código do jogo (A01, A05, etc) */
-/* Miramos na 2ª coluna da tabela dentro do container */
-#modulo-container table th:nth-child(2), 
-#modulo-container table td:nth-child(2) {
+/* 2. REMOVER COLUNA "JOGO" APENAS NA GALERA --- */
+
+/* 
+   Aqui dizemos: "Se a tabela NÃO estiver dentro de .palpites-central, 
+   então esconda a segunda coluna".
+*/
+#modulo-container table:not(.palpites-central table) th:nth-child(2), 
+#modulo-container table:not(.palpites-central table) td:nth-child(2) {
     display: none !important;
 }
 
