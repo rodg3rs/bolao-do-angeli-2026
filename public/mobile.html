@@ -315,6 +315,47 @@
     display: table-cell !important;
 }
 
+/* --- CORREÇÃO DEFINITIVA DE ROLAGEM --- */
+
+/* 1. O wrapper do conteúdo deve ser invisível para o layout, apenas um passador de altura */
+#conteudo-central {
+    height: auto !important;
+    display: block !important; /* Sobrescreve possíveis conflitos de flex */
+    overflow: visible !important;
+}
+
+/* 2. O container onde o HTML é injetado não pode ter altura presa */
+#modulo-container {
+    height: auto !important;
+    min-height: 100% !important;
+    overflow: visible !important;
+    display: block !important;
+}
+
+/* 3. Ajuste na Tabela de Palpites: Remova a duplicidade */
+/* Note que aqui usamos 'block' para permitir que as linhas flexíveis funcionem no mobile */
+.palpites-central, 
+.palpites-central table {
+    display: block !important; 
+    height: auto !important;
+    width: 100% !important;
+    overflow: visible !important;
+    border: none !important;
+}
+
+/* 4. Garante que o corpo da tabela e as linhas não barrem o crescimento */
+.palpites-central tbody {
+    display: block !important;
+    height: auto !important;
+    width: 100% !important;
+}
+
+/* 5. Forçar o 'main' a reconhecer o toque e o deslize */
+#scroll-area {
+    -webkit-overflow-scrolling: touch; /* Melhora o scroll no iPhone/iOS */
+    overflow-y: auto !important;
+}
+
     </style>
 </head>
 <body>
