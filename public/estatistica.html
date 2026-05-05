@@ -26,7 +26,7 @@
             <button onclick="switchTab('torcida')" id="btn-torcida" class="py-2 px-4 font-bold text-gray-500 hover:text-yellow-500 transition">
                 <i class="fas fa-flag mr-2"></i>Torcida
             </button>
-	<a href="index.html" class="ml-auto py-2 px-4 font-bold text-red-500 hover:text-red-400 transition flex items-center" onclick="if (typeof limparCentro === 'function') { event.preventDefault(); limparCentro(); }"> 
+	    <a href="javascript:void(0)" class="ml-auto py-2 px-4 font-bold text-red-500 hover:text-red-400 transition flex items-center" onclick="if (typeof limparCentro === 'function') { limparCentro(); } else { history.back(); }"> 
 		<i class="fas fa-undo-alt mr-2"></i>Voltar </a>
         </div>
 
