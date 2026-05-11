@@ -251,6 +251,7 @@ app.get('/api/ranking', async (req, res) => {
         const result = await db.execute(`
             SELECT 
                 l.Apelido, 
+		l.PG,
                 SUM(IFNULL(a.Pontos, 0)) as Total,
                 CASE 
                     WHEN l.InOut > datetime('now', '-5 minutes', 'localtime') THEN 1 
@@ -258,7 +259,7 @@ app.get('/api/ranking', async (req, res) => {
                 END as Online
             FROM dLogin l
             LEFT JOIN dApostas a ON l.Apelido = a.Apelido
-            GROUP BY l.Apelido
+            GROUP BY l.Apelido, l.PG
             ORDER BY Total DESC, l.Apelido ASC
         `);
         res.json({ success: true, ranking: result.rows });
