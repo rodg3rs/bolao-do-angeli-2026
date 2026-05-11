@@ -247,14 +247,14 @@ app.post('/api/admin/atualizar_resultado', async (req, res) => {
 // --- RANKING GERAL COM STATUS ONLINE ---
 app.get('/api/ranking', async (req, res) => {
     try {
-        // Busca pontos e verifica se o último ping (InOut) foi nos últimos 5 minutos
+        // Busca pontos e verifica se o último ping (InOut) foi nos último minuto
         const result = await db.execute(`
             SELECT 
                 l.Apelido, 
 		l.PG,
                 SUM(IFNULL(a.Pontos, 0)) as Total,
                 CASE 
-                    WHEN l.InOut > datetime('now', '-5 minutes', 'localtime') THEN 1 
+                    WHEN l.InOut > datetime('now', '-1 minutes', 'localtime') THEN 1 
                     ELSE 0 
                 END as Online
             FROM dLogin l
