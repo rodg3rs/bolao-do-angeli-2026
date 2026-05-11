@@ -96,35 +96,42 @@ app.get('/minhas-apostas/:apelido', async (req, res) => {
     }
 });
 
+// --- PALPITES (Versão atualizada para salvar em lote) ---
 app.post('/salvar-palpite', async (req, res) => {
-    const { apelido, jogo, ap1, ap2 } = req.body;
+    const { apelido, palpites } = req.body; // Agora espera receber 'palpites' como array
+
     try {
-        const info = await db.execute({
-            sql: "SELECT Data, Horario FROM dTabela WHERE Jogo = ?",
-            args: [jogo]
-        });
+        const statements = [];
 
-        if (info.rows.length > 0) {
-            const dataJogo = info.rows[0].Data; 
-            const horaJogo = info.rows[0].Horario; 
-            
-            const agora = new Date();
-            const limite = new Date(`${dataJogo}T${horaJogo}:00`);
-            limite.setMinutes(limite.getMinutes() - 10);
-
-            if (agora > limite) {
-                return res.json({ success: false, message: "Tempo esgotado! Bloqueado 10min antes." });
-            }
-
-            await db.execute({
-                sql: "UPDATE dApostas SET Ap1 = ?, Ap2 = ? WHERE Apelido = ? AND Jogo = ?",
-                args: [ap1, ap2, apelido, jogo]
+        for (const p of palpites) {
+            // Verifica o tempo de cada jogo individualmente por segurança
+            const info = await db.execute({
+                sql: "SELECT Data, Horario FROM dTabela WHERE Jogo = ?",
+                args: [p.jogo]
             });
-            res.json({ success: true });
+
+            if (info.rows.length > 0) {
+                const limite = new Date(`${info.rows[0].Data}T${info.rows[0].Horario}:00`);
+                limite.setMinutes(limite.getMinutes() - 10);
+
+                if (new Date() <= limite) {
+                    statements.push({
+                        sql: "UPDATE dApostas SET Ap1 = ?, Ap2 = ? WHERE Apelido = ? AND Jogo = ?",
+                        args: [p.ap1, p.ap2, apelido, p.jogo]
+                    });
+                }
+            }
         }
-    } catch (e) { 
-        console.error("Erro ao salvar palpite:", e);
-        res.status(500).json({ success: false }); 
+
+        if (statements.length > 0) {
+            // Executa todas as atualizações de uma só vez
+            await db.batch(statements);
+        }
+
+        res.json({ success: true, message: "Todos os palpites foram processados!" });
+    } catch (e) {
+        console.error("Erro ao salvar palpites em lote:", e);
+        res.status(500).json({ success: false });
     }
 });
 

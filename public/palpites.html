@@ -39,14 +39,69 @@
 <div class="palpites-central">
     <div class="palpites-header">
         <h2 id="titulo-p" style="color: #ffc107; font-size: 1.1rem;">Meus Palpites</h2>
-        <button class="btn-fechar-p" onclick="limparCentro()">Voltar</button>
+<button class="btn-fechar-p" onclick="salvarTudoESair()">Salvar e Voltar</button>
     </div>
     <div id="lista-jogos">Carregando...</div>
 </div>
 
 <script>
+    // Ativa a trava de saída assim que o módulo carrega
+    window.onbeforeunload = function() {
+        return true; 
+    };
+
+    // 1. Função para Salvar Tudo ao clicar em "Voltar"
+    async function salvarTudoESair() {
+        // Desativa a trava antes de qualquer outra coisa para permitir a saída
+        window.onbeforeunload = null;
+
+        const palpitesParaEnviar = [];
+        const linhas = document.querySelectorAll('.linha-j');
+
+        linhas.forEach(linha => {
+            const in1 = linha.querySelector('.input-ap1');
+            const in2 = linha.querySelector('.input-ap2');
+
+            // Só adiciona se o input não estiver desabilitado (trava de tempo)
+            if (in1 && !in1.disabled) {
+                palpitesParaEnviar.push({
+                    jogo: in1.getAttribute('data-jogo'),
+                    ap1: Math.min(10, Math.max(0, parseInt(in1.value) || 0)),
+                    ap2: Math.min(10, Math.max(0, parseInt(in2.value) || 0))
+                });
+            }
+        });
+
+        if (palpitesParaEnviar.length > 0) {
+            try {
+                const response = await fetch('/salvar-palpite', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        apelido: usuarioLogado.Apelido,
+                        palpites: palpitesParaEnviar
+                    })
+                });
+
+                const resultado = await response.json();
+                if (resultado.success) {
+                    limparCentro(); 
+                } else {
+                    alert("Erro ao salvar: " + resultado.message);
+                    // Se deu erro, reativa a trava para o usuário não perder o que digitou
+                    window.onbeforeunload = function() { return true; };
+                }
+            } catch (error) {
+                alert("Falha de comunicação com o servidor.");
+                window.onbeforeunload = function() { return true; };
+            }
+        } else {
+            limparCentro();
+        }
+    }
+
+    // 2. Renderização da Tabela
     (async function() {
-        // Voltando à verificação simples que você usava antes
         if(!usuarioLogado) {
             document.getElementById('lista-jogos').innerHTML = "<h2>Acesse sua conta primeiro!</h2>";
             return;
@@ -60,7 +115,6 @@
             
             let html = '<table class="tabela-p">';
             data.apostas.forEach(j => {
-                // Trava de 10 minutos (Lógica do server.js)
                 const agora = new Date();
                 const limite = new Date(`${j.Data}T${j.Horario}:00`);
                 limite.setMinutes(limite.getMinutes() - 10);
@@ -72,13 +126,13 @@
                             ${j.Sel1} <span class="data-j">${j.Data}</span>
                         </td>
                         <td style="text-align:center; white-space:nowrap;">
-                            <input type="number" class="input-gols" value="${j.Ap1}" min="0" max="10"
-                                ${bloqueado ? 'disabled' : ''} 
-                                onchange="salvar('${j.Jogo}', this.value, document.getElementById('ap2_${j.Jogo}').value)">
+                            <input type="number" class="input-gols input-ap1" 
+                                data-jogo="${j.Jogo}" value="${j.Ap1 || 0}" min="0" max="10"
+                                ${bloqueado ? 'disabled' : ''}>
                             <b style="color:#64748b">x</b>
-                            <input type="number" id="ap2_${j.Jogo}" class="input-gols" value="${j.Ap2}" min="0" max="10"
-                                ${bloqueado ? 'disabled' : ''} 
-                                onchange="salvar('${j.Jogo}', this.previousElementSibling.previousElementSibling.value, this.value)">
+                            <input type="number" class="input-gols input-ap2" 
+                                value="${j.Ap2 || 0}" min="0" max="10"
+                                ${bloqueado ? 'disabled' : ''}>
                         </td>
                         <td class="col-p" style="text-align:left;">
                             ${j.Sel2} <span class="data-j">${j.Horario}h</span>
@@ -90,17 +144,4 @@
             document.getElementById('lista-jogos').innerHTML = "Erro ao carregar.";
         }
     })();
-
-    // Mantendo a função salvar exatamente como era, mas adicionando a trava 0-10
-    async function salvar(jogo, a1, a2) {
-        // Forçar limite 0-10
-        let v1 = Math.min(10, Math.max(0, parseInt(a1) || 0));
-        let v2 = Math.min(10, Math.max(0, parseInt(a2) || 0));
-
-        await fetch('/salvar-palpite', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ apelido: usuarioLogado.Apelido, jogo, ap1: v1, ap2: v2 })
-        });
-    }
 </script>
