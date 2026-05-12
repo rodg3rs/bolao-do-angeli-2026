@@ -1,153 +1,75 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Regulamento - Bolão do Angeli 2026</title>
-    <style>
-        :root {
-            --primary-color: #4CAF50;
-            --bg-dark: #121212;
-            --container-bg: #1e1e1e;
-            --text-color: #ffffff;
-            --text-muted: #b0b0b0;
-        }
+<div class="p-6 max-w-4xl mx-auto bg-[#1e293b] rounded-xl shadow-2xl border border-[#334155] text-[#f1f5f9]">
+    <h1 class="text-3xl font-bold text-center text-[#ffc107] border-b-2 border-[#ffc107] pb-4 mb-6 uppercase">
+        🏆 Regulamento Oficial 2026
+    </h1>
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: auto;
-            background: var(--container-bg);
-            padding: 30px;
-            border-radius: 12px;
-            border: 1px solid #333;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-
-        h1 {
-            color: var(--primary-color);
-            text-align: center;
-            border-bottom: 2px solid var(--primary-color);
-            padding-bottom: 10px;
-        }
-
-        h2 {
-            color: var(--primary-color);
-            margin-top: 25px;
-            display: flex;
-            align-items: center;
-        }
-
-        .pontuacao-lista {
-            list-style: none;
-            padding: 0;
-        }
-
-        .pontuacao-item {
-            background: #252525;
-            margin-bottom: 10px;
-            padding: 15px;
-            border-left: 5px solid var(--primary-color);
-            border-radius: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .pontos {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: var(--primary-color);
-            min-width: 80px;
-            text-align: right;
-        }
-
-        .info-importante {
-            background: #2e2e10;
-            border: 1px solid #ffeb3b;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-
-        .btn-voltar {
-            display: block;
-            width: 200px;
-            margin: 30px auto 0;
-            padding: 12px;
-            background: var(--primary-color);
-            color: white;
-            text-align: center;
-            text-decoration: none;
-            border-radius: 25px;
-            font-weight: bold;
-            transition: 0.3s;
-        }
-
-        .btn-voltar:hover {
-            background: #45a049;
-            transform: scale(1.05);
-        }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h1>🏆 Regulamento Oficial</h1>
-    <p style="text-align: center; color: var(--text-muted);">Bolão do Angeli 2026 - Amigos e Futebol</p>
-
-    <h2>📊 Critérios de Pontuação</h2>
-    <p>A pontuação é calculada de forma automática por jogo, seguindo a hierarquia abaixo (não acumulativa):</p>
-
-    <div class="pontuacao-lista">
-        <div class="pontuacao-item">
-            <span><strong>Placar Exato:</strong> Você acertou precisamente o número de gols de ambas as equipes.</span>
-            <span class="pontos">25 pts</span>
+    <section class="mb-8">
+        <h2 class="text-xl font-bold text-[#ffc107] mb-4 flex items-center gap-2">
+            <i class="fas fa-chart-line"></i> Critérios de Pontuação
+        </h2>
+        <div class="space-y-2">
+            <div class="flex justify-between bg-[#0f172a] p-3 rounded-lg border-l-4 border-[#ffc107]">
+                <span><strong>Placar Exato:</strong> Acerto preciso de ambos os times</span>
+                <span class="font-bold text-[#ffc107]">25 pts</span>
+            </div>
+            <div class="flex justify-between bg-[#0f172a] p-3 rounded-lg border-l-4 border-blue-500">
+                <span><strong>Vencedor + Gols do Vencedor:</strong> Acerto do vencedor e seus gols</span>
+                <span class="font-bold text-blue-400">18 pts</span>
+            </div>
+            <div class="flex justify-between bg-[#0f172a] p-3 rounded-lg border-l-4 border-purple-500">
+                <span><strong>Vencedor + Diferença de Gols:</strong> Acerto do vencedor e saldo</span>
+                <span class="font-bold text-purple-400">15 pts</span>
+            </div>
+            <div class="flex justify-between bg-[#0f172a] p-3 rounded-lg border-l-4 border-orange-500">
+                <span><strong>Vencedor + Gols do Perdedor:</strong> Acerto do vencedor e gols do adversário</span>
+                <span class="font-bold text-orange-400">12 pts</span>
+            </div>
+            <div class="flex justify-between bg-[#0f172a] p-3 rounded-lg border-l-4 border-gray-500">
+                <span><strong>Apenas Vencedor ou Empate:</strong> Acerto seco do resultado</span>
+                <span class="font-bold text-gray-400">10 pts</span>
+            </div>
         </div>
-        <div class="pontuacao-item">
-            <span><strong>Vencedor + Gols do Vencedor:</strong> Você acertou quem ganharia e quantos gols o time vencedor fez.</span>
-            <span class="pontos">18 pts</span>
-        </div>
-        <div class="pontuacao-item">
-            <span><strong>Vencedor + Diferença de Gols:</strong> Você acertou o vencedor e a diferença de gols entre eles (ex: apostou 2x0 e foi 3x1).</span>
-            <span class="pontos">15 pts</span>
-        </div>
-        <div class="pontuacao-item">
-            <span><strong>Vencedor + Gols do Perdedor:</strong> Você acertou o vencedor e quantos gols o time perdedor fez.</span>
-            <span class="pontos">12 pts</span>
-        </div>
-        <div class="pontuacao-item">
-            <span><strong>Apenas Vencedor ou Empate:</strong> Você acertou apenas quem ganharia ou que o jogo terminaria empatado.</span>
-            <span class="pontos">10 pts</span>
-        </div>
-    </div>
+    </section>
 
-    <h2>⚠️ Regras Importantes</h2>
-    <div class="info-importante">
-        <ul>
-            <li><strong>Prazo Limite:</strong> Os palpites podem ser enviados ou alterados até <strong>10 minutos antes</strong> do início de cada partida.</li>
-            <li><strong>Em caso de erro:</strong> Se você não preencher um dos campos de gols, a aposta será considerada inválida (0 pontos).</li>
-            <li><strong>Atualização:</strong> O ranking é atualizado assim que o administrador insere o resultado final da partida.</li>
+    <section class="mb-8 bg-[#0f172a] p-5 rounded-xl border border-yellow-900/50">
+        <h2 class="text-xl font-bold text-[#ffc107] mb-3 flex items-center gap-2">
+            <i class="fas fa-hand-holding-usd"></i> Premiação e Inscrição
+        </h2>
+        <p class="text-sm text-[#94a3b8] mb-4">A participação é aberta a todos. A premiação é um extra opcional para quem deseja competir pelo pote.</p>
+        
+        <ul class="list-disc list-inside space-y-2 mb-6">
+            <li><strong>Taxa:</strong> <span class="text-green-400 font-bold">R$ 50,00</span> (pagar ao administrador).</li>
+            <li><strong>Ganhadores:</strong> Prêmios para o <strong>1º, 2º e 3º colocados</strong> (apenas entre pagantes).</li>
+            <li><strong>Opcional:</strong> Quem não pagar participa do ranking geral normalmente, mas sem prêmio.</li>
         </ul>
+
+        <div class="bg-black/40 p-4 rounded-lg text-center border-2 border-dashed border-[#ffc107]">
+            <p class="text-xs uppercase tracking-widest text-[#ffc107] mb-3 font-bold">Pagamento via PIX</p>
+            <img src="img/QRcode.webp" alt="QR Code PIX" class="mx-auto mb-3 w-40 rounded-lg shadow-lg">
+            <p class="text-xs text-[#94a3b8] mb-1">Chave Aleatória:</p>
+            <code class="bg-[#1e293b] px-3 py-1 rounded text-[#ffc107] text-[10px] break-all select-all">
+                6f163677-3b77-477e-b47c-72202907661f
+            </code>
+        </div>
+    </section>
+
+    <section>
+        <h2 class="text-xl font-bold text-[#ffc107] mb-3 flex items-center gap-2">
+            <i class="fas fa-exclamation-triangle"></i> Regras Importantes
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div class="bg-[#0f172a] p-3 rounded-lg">
+                <strong>⏰ Cronômetro:</strong> Palpites travam 10 min antes do início de cada jogo.
+            </div>
+            <div class="bg-[#0f172a] p-3 rounded-lg">
+                <strong>⚖️ Desempate:</strong> 1º Mais placares exatos (25 pts), 2º Ordem alfabética.
+            </div>
+        </div>
+    </section>
+
+    <div class="mt-8 text-center">
+        <button onclick="limparCentro()" class="bg-[#ffc107] text-black px-8 py-2 rounded-full font-bold hover:bg-yellow-500 transition-transform active:scale-95">
+            ENTENDI!
+        </button>
     </div>
-
-    <h2>🏁 Critérios de Desempate</h2>
-    <p>Caso dois ou mais jogadores terminem com a mesma pontuação total, os critérios de desempate serão:</p>
-    <ol>
-        <li>Maior número de acertos de 25 pontos (Placar Exato).</li>
-        <li>Ordem alfabética do Apelido.</li>
-    </ol>
-
-    <a href="#" onclick="limparCentro()" class="btn-voltar">Voltar ao Início</a>
 </div>
-
-</body>
-</html>
