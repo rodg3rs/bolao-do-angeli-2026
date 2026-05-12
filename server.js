@@ -465,7 +465,20 @@ app.post('/enviar-ranking', async (req, res) => {
         console.error("Erro no envio do ranking:", error);
         res.status(500).send('Erro ao processar e-mail: ' + error.message);
     }
-}); // Fechamento correto da rota
+
+});
+
+// No server.js, adicione isto:
+app.post('/api/logout', async (req, res) => {
+    const { apelido } = req.body;
+    try {
+        await db.execute({
+            sql: "UPDATE dLogin SET InOut = '2000-01-01 00:00:00' WHERE Apelido = ?",
+            args: [apelido]
+        });
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
 
 // --- INICIALIZAÇÃO DO SERVIDOR ---
 const PORT = process.env.PORT || 3000;

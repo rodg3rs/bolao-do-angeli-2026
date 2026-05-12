@@ -219,11 +219,26 @@
             } catch (e) { console.error("Erro chat:", e); }
         }
 
-function sairSistema() {
+async function sairSistema() {
+    // 1. Avisa o servidor para ficar offline imediatamente
+    if (usuarioLogado && usuarioLogado.Apelido) {
+        try {
+            await fetch('/api/logout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ apelido: usuarioLogado.Apelido })
+            });
+        } catch (e) {
+            console.error("Erro ao avisar logout:", e);
+        }
+    }
+
+    // 2. Limpa os dados locais
     usuarioLogado = null;
     localStorage.removeItem('userLogado'); 
     sessionStorage.clear();
-    // Redireciona para a página de despedida
+
+    // 3. Redireciona
     window.location.href = 'sair.html';
 }
 
