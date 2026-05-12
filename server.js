@@ -46,6 +46,7 @@ async function enviarEmailBoasVindas(dados) {
         html: corpoHtml
     });
 
+}
 
 app.post('/cadastrar', async (req, res) => {
     const { id, nome, apelido, senha, time, celular, email } = req.body; 
