@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regulamento - Bolão do Angeli 2026</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --bg-dark: #121212;
+            --container-bg: #1e1e1e;
+            --text-color: #ffffff;
+            --text-muted: #b0b0b0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: var(--container-bg);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid #333;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-top: 25px;
+            display: flex;
+            align-items: center;
+        }
+
+        .pontuacao-lista {
+            list-style: none;
+            padding: 0;
+        }
+
+        .pontuacao-item {
+            background: #252525;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-left: 5px solid var(--primary-color);
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pontos {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--primary-color);
+            min-width: 80px;
+            text-align: right;
+        }
+
+        .info-importante {
+            background: #2e2e10;
+            border: 1px solid #ffeb3b;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .btn-voltar {
+            display: block;
+            width: 200px;
+            margin: 30px auto 0;
+            padding: 12px;
+            background: var(--primary-color);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-voltar:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🏆 Regulamento Oficial</h1>
+    <p style="text-align: center; color: var(--text-muted);">Bolão do Angeli 2026 - Amigos e Futebol</p>
+
+    <h2>📊 Critérios de Pontuação</h2>
+    <p>A pontuação é calculada de forma automática por jogo, seguindo a hierarquia abaixo (não acumulativa):</p>
+
+    <div class="pontuacao-lista">
+        <div class="pontuacao-item">
+            <span><strong>Placar Exato:</strong> Você acertou precisamente o número de gols de ambas as equipes.</span>
+            <span class="pontos">25 pts</span>
+        </div>
+        <div class="pontuacao-item">
+            <span><strong>Vencedor + Gols do Vencedor:</strong> Você acertou quem ganharia e quantos gols o time vencedor fez.</span>
+            <span class="pontos">18 pts</span>
+        </div>
+        <div class="pontuacao-item">
+            <span><strong>Vencedor + Diferença de Gols:</strong> Você acertou o vencedor e a diferença de gols entre eles (ex: apostou 2x0 e foi 3x1).</span>
+            <span class="pontos">15 pts</span>
+        </div>
+        <div class="pontuacao-item">
+            <span><strong>Vencedor + Gols do Perdedor:</strong> Você acertou o vencedor e quantos gols o time perdedor fez.</span>
+            <span class="pontos">12 pts</span>
+        </div>
+        <div class="pontuacao-item">
+            <span><strong>Apenas Vencedor ou Empate:</strong> Você acertou apenas quem ganharia ou que o jogo terminaria empatado.</span>
+            <span class="pontos">10 pts</span>
+        </div>
+    </div>
+
+    <h2>⚠️ Regras Importantes</h2>
+    <div class="info-importante">
+        <ul>
+            <li><strong>Prazo Limite:</strong> Os palpites podem ser enviados ou alterados até <strong>10 minutos antes</strong> do início de cada partida.</li>
+            <li><strong>Em caso de erro:</strong> Se você não preencher um dos campos de gols, a aposta será considerada inválida (0 pontos).</li>
+            <li><strong>Atualização:</strong> O ranking é atualizado assim que o administrador insere o resultado final da partida.</li>
+        </ul>
+    </div>
+
+    <h2>🏁 Critérios de Desempate</h2>
+    <p>Caso dois ou mais jogadores terminem com a mesma pontuação total, os critérios de desempate serão:</p>
+    <ol>
+        <li>Maior número de acertos de 25 pontos (Placar Exato).</li>
+        <li>Ordem alfabética do Apelido.</li>
+    </ol>
+
+    <a href="#" onclick="limparCentro()" class="btn-voltar">Voltar ao Início</a>
+</div>
+
+</body>
+</html>
