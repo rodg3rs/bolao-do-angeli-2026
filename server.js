@@ -13,7 +13,40 @@ const db = createClient({
   authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
+
 // --- CADASTRO ---
+
+async function enviarEmailBoasVindas(dados) {
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
+        }
+    });
+
+    const corpoHtml = `
+        <div style="background-color: #121212; color: #ffffff; padding: 20px; font-family: sans-serif; border-radius: 10px;">
+            <h1 style="color: #4CAF50;">⚽ Bem-vindo à Arena, ${dados.nome}!</h1>
+            <p>Seu cadastro no <strong>Bolão do Angeli 2026</strong> foi realizado com sucesso.</p>
+            <div style="background: #1a1a1a; padding: 15px; border-left: 4px solid #4CAF50; margin: 20px 0;">
+                <p><strong>Seus dados de acesso:</strong></p>
+                <p>Apelido: <span style="color: #ffc107;">${dados.apelido}</span></p>
+                <p>Senha: <span style="color: #ffc107;">${dados.senha}</span></p>
+                <p>CPF: ${dados.id}</p>
+            </div>
+            <p style="font-size: 12px; color: #888;">Guarde este e-mail para consultas futuras.</p>
+        </div>
+    `;
+
+    return transporter.sendMail({
+        from: `"Bolão do Angeli" <${process.env.EMAIL_USER}>`,
+        to: dados.email,
+        subject: '🚀 Cadastro Confirmado - Bolão do Angeli 2026',
+        html: corpoHtml
+    });
+
+
 app.post('/cadastrar', async (req, res) => {
     const { id, nome, apelido, senha, time, celular, email } = req.body; 
 
@@ -41,7 +74,15 @@ app.post('/cadastrar', async (req, res) => {
             });
         }
 
-        res.json({ success: true, message: "Cadastro e apostas criadas!" });
+	if (email) {
+            try {
+                await enviarEmailBoasVindas({ id, nome, apelido, senha, email });
+            } catch (mailError) {
+                console.error("Erro ao enviar e-mail, mas cadastro foi feito:", mailError);
+                // Não travamos o cadastro se o e-mail falhar, mas avisamos no log
+            }
+        }
+        res.json({ success: true, message: "Cadastro realizado! Verifique seu e-mail." });
     } catch (e) {
         console.error("Erro no cadastro:", e);
         res.status(500).json({ success: false, message: "Erro ao processar base de dados." });
