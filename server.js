@@ -385,56 +385,6 @@ const queryCravados = `
     }
 });
 
-// --- RANKING DA ZOEIRA (Sincronizado com as Tabelas Reais) ---
-app.get('/api/zoeira', async (req, res) => {
-    try {
-        const result = await db.execute(`
-            SELECT 
-                l.Apelido, 
-                av.Imagem as arquivo_imagem,
-                SUM(IFNULL(a.Pontos, 0)) as TotalPontos
-            FROM dLogin l
-            LEFT JOIN dApostas a ON l.Apelido = a.Apelido
-            LEFT JOIN dAvatar av ON l.Avatar = av.Avatar
-            GROUP BY l.Apelido
-            ORDER BY TotalPontos DESC, l.Apelido ASC
-        `);
-        res.json(result.rows);
-    } catch (error) {
-        console.error("Erro ao buscar ranking da zoeira:", error);
-        res.status(500).json({ error: "Erro interno no servidor" });
-    }
-});
-
-// Rota para processar o envio do e-mail
-app.post('/enviar-teste', async (req, res) => {
-    const { destinatario, mensagem } = req.body;
-
-    // Configuração do Transportador (usando as variáveis do seu .env)
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
-        }
-    });
-
-    const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: destinatario,
-        subject: 'Teste de Envio - Sistema de Apostas',
-        text: mensagem
-    };
-
-    try {
-        await transporter.sendMail(mailOptions);
-        res.send('<h1>E-mail enviado com sucesso!</h1><p>Você pode fechar esta aba agora.</p>');
-    } catch (error) {
-        console.error('Erro ao enviar:', error);
-        res.status(500).send('Erro ao enviar e-mail: ' + error.message);
-    }
-});
-
 // --- ROTA: ENVIAR RANKING SIMPLIFICADO ---
 app.post('/enviar-ranking', async (req, res) => {
     const { destinatario } = req.body;
