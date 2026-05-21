@@ -5,7 +5,7 @@
     "express": "^5.2.1",
     "nodemailer": "^8.0.5"
   },
-  "name": "bolao-do-angeli-2026",
+  "name": "bolao-da-naz-2026",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -16,14 +16,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rodg3rs/bolao-do-angeli-2026.git"
+    "url": "git+https://github.com/rodg3rs/bolao-da-naz-2026.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/rodg3rs/bolao-do-angeli-2026/issues"
+    "url": "https://github.com/rodg3rs/bolao-da-naz-2026/issues"
   },
-  "homepage": "https://github.com/rodg3rs/bolao-do-angeli-2026#readme"
+  "homepage": "https://github.com/rodg3rs/bolao-da-naz-2026-2026#readme"
 }
