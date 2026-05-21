@@ -57,22 +57,23 @@
         
         .empty-state { color: #475569; font-style: italic; text-align: center; margin-top: 40px; }
 		
-		        /* 🔽 Ajuste para celular */
-        @media (max-width: 768px) {
-          #conteudo-central {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('/img/copa2026.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            z-index: -1; /* fica atrás do ranking e chat */
-            min-height: auto; /* remove altura mínima */
-          }
-        }
+	/* 🔽 Ajuste para celular */
+    @media (max-width: 768px) {
+      #conteudo-central {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('/img/copa2026.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        z-index: -1;
+        min-height: auto;
+        border: none;
+      }
+    }
 		
     </style>
 </head>
