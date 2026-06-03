@@ -28,7 +28,7 @@ async function enviarEmailBoasVindas(dados) {
     const corpoHtml = `
         <div style="background-color: #121212; color: #ffffff; padding: 20px; font-family: sans-serif; border-radius: 10px;">
             <h1 style="color: #4CAF50;">⚽ Bem-vindo à Arena, ${dados.nome}!</h1>
-            <p>Seu cadastro no <strong>Bolão do Angeli 2026</strong> foi realizado com sucesso.</p>
+            <p>Seu cadastro no <strong>Bolão da NAZ 2026</strong> foi realizado com sucesso.</p>
             <div style="background: #1a1a1a; padding: 15px; border-left: 4px solid #4CAF50; margin: 20px 0;">
                 <p><strong>Seus dados de acesso:</strong></p>
                 <p>Apelido: <span style="color: #ffc107;">${dados.apelido}</span></p>
@@ -40,9 +40,9 @@ async function enviarEmailBoasVindas(dados) {
     `;
 
     return transporter.sendMail({
-        from: `"Bolão do Angeli" <${process.env.EMAIL_USER}>`,
+        from: `"Bolão da NAZ" <${process.env.EMAIL_USER}>`,
         to: dados.email,
-        subject: '🚀 Cadastro Confirmado - Bolão do Angeli 2026',
+        subject: '🚀 Cadastro Confirmado - Bolão da NAZ 2026',
         html: corpoHtml
     });
 
@@ -416,7 +416,7 @@ app.post('/enviar-ranking', async (req, res) => {
                 <div style="max-width: 500px; margin: auto; background-color: #121212; border: 2px solid #4CAF50; border-radius: 12px; padding: 20px;">
                     <div style="text-align: center; margin-bottom: 25px;">
                         <h1 style="color: #4CAF50; margin: 0;">🏆 RANKING GERAL</h1>
-                        <p style="font-size: 14px; color: #888;">Bolão do Angeli 2026</p>
+                        <p style="font-size: 14px; color: #888;">Bolão da NAZ 2026</p>
                     </div>
                     
                     <table style="width: 100%; border-collapse: collapse; color: #ffffff;">
