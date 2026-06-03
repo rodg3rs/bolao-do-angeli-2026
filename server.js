@@ -286,15 +286,20 @@ app.post('/api/admin/atualizar_resultado', async (req, res) => {
     }
 });
 
-// --- RANKING GERAL COM STATUS ONLINE ---
+// --- RANKING GERAL COM STATUS ONLINE E DESEMPATE ---
 app.get('/api/ranking', async (req, res) => {
     try {
-        // Busca pontos e verifica se o último ping (InOut) foi nos último minuto
+        // Busca pontos, cria colunas para desempate e verifica se o último ping (InOut) foi no último minuto
         const result = await db.execute(`
             SELECT 
                 l.Apelido, 
-		l.PG,
+                l.PG,
                 SUM(IFNULL(a.Pontos, 0)) as Total,
+                SUM(CASE WHEN a.Pontos = 25 THEN 1 ELSE 0 END) as acertos_25,
+                SUM(CASE WHEN a.Pontos = 18 THEN 1 ELSE 0 END) as acertos_18,
+                SUM(CASE WHEN a.Pontos = 15 THEN 1 ELSE 0 END) as acertos_15,
+                SUM(CASE WHEN a.Pontos = 12 THEN 1 ELSE 0 END) as acertos_12,
+                SUM(CASE WHEN a.Pontos = 10 THEN 1 ELSE 0 END) as acertos_10,
                 CASE 
                     WHEN l.InOut > datetime('now', '-1 minutes', 'localtime') THEN 1 
                     ELSE 0 
@@ -302,7 +307,14 @@ app.get('/api/ranking', async (req, res) => {
             FROM dLogin l
             LEFT JOIN dApostas a ON l.Apelido = a.Apelido
             GROUP BY l.Apelido, l.PG
-            ORDER BY Total DESC, l.Apelido ASC
+            ORDER BY 
+                Total DESC, 
+                acertos_25 DESC, 
+                acertos_18 DESC, 
+                acertos_15 DESC, 
+                acertos_12 DESC, 
+                acertos_10 DESC, 
+                l.Apelido ASC
         `);
         res.json({ success: true, ranking: result.rows });
     } catch (e) {
