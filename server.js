@@ -138,12 +138,13 @@ app.get('/minhas-apostas/:apelido', async (req, res) => {
     }
 });
 
-// --- PALPITES (Versão atualizada para salvar em lote) ---
+// --- PALPITES (Versão atualizada para salvar em lote com Correção de Fuso) ---
 app.post('/salvar-palpite', async (req, res) => {
     const { apelido, palpites } = req.body; // Agora espera receber 'palpites' como array
 
     try {
         const statements = [];
+        const agora = new Date(); // Pega o timestamp universal atual
 
         for (const p of palpites) {
             // Verifica o tempo de cada jogo individualmente por segurança
@@ -153,10 +154,20 @@ app.post('/salvar-palpite', async (req, res) => {
             });
 
             if (info.rows.length > 0) {
-                const limite = new Date(`${info.rows[0].Data}T${info.rows[0].Horario}:00`);
+                const dataJogo = info.rows[0].Data;     // Ex: 2026-06-15 ou 15/06/2026
+                const horaJogo = info.rows[0].Horario;  // Ex: 16:00
+                
+                // 1. Padroniza a data substituindo barras por hífens se necessário
+                const dataFormatada = dataJogo.replace(/\//g, '-');
+                
+                // 2. Cria o objeto Date cravando o fuso horário de Brasília (-03:00)
+                const limite = new Date(`${dataFormatada}T${horaJogo}:00-03:00`);
+                
+                // Subtrai os 10 minutos de tolerância antes do início da partida
                 limite.setMinutes(limite.getMinutes() - 10);
 
-                if (new Date() <= limite) {
+                // 3. Validação justa de Timestamps (funciona em qualquer servidor do planeta)
+                if (agora <= limite) {
                     statements.push({
                         sql: "UPDATE dApostas SET Ap1 = ?, Ap2 = ? WHERE Apelido = ? AND Jogo = ?",
                         args: [p.ap1, p.ap2, apelido, p.jogo]
@@ -166,14 +177,17 @@ app.post('/salvar-palpite', async (req, res) => {
         }
 
         if (statements.length > 0) {
-            // Executa todas as atualizações de uma só vez
+            // Executa todas as atualizações válidas de uma só vez
             await db.batch(statements);
+            res.json({ success: true, message: `${statements.length} palpite(s) atualizado(s) com sucesso!` });
+        } else {
+            // Retorno claro para o front-end saber que o tempo limite expirou
+            res.json({ success: false, message: "Tempo esgotado para os jogos enviados!" });
         }
 
-        res.json({ success: true, message: "Todos os palpites foram processados!" });
     } catch (e) {
         console.error("Erro ao salvar palpites em lote:", e);
-        res.status(500).json({ success: false });
+        res.status(500).json({ success: false, message: "Erro interno no servidor." });
     }
 });
 
