@@ -337,13 +337,73 @@ app.get('/api/ranking', async (req, res) => {
     }
 });
 
-/// Rota corrigida para buscar os palpites da galera
+// --- PALPITES DA GALERA (OTIMIZADO COM FUSO BRASÍLIA - OPÇÃO 2) ---
 app.get('/api/palpites-galera', async (req, res) => {
+    const { jogo, apelido } = req.query;
+
     try {
-        const query = "SELECT * FROM dApostas ORDER BY Data DESC, Horario DESC";
+        let query = "SELECT * FROM dApostas";
+        const args = [];
+        const condicoes = [];
+
+        // 1. Filtro por Apostador específico (se enviado pelo frontend)
+        if (apelido) {
+            condicoes.push("UPPER(Apelido) = ?");
+            args.push(apelido.toUpperCase());
+        }
+
+        // 2. Filtro por Jogo específico (se enviado pelo frontend)
+        if (jogo) {
+            condicoes.push("Jogo = ?");
+            args.push(jogo);
+        }
+
+        // 3. CARGA INICIAL (Sem filtros): Busca automaticamente o jogo correto (em andamento ou o último terminado)
+        if (!jogo && !apelido) {
+            // Captura a data atual exata no fuso horário de Brasília (Formato: AAAA-MM-DD)
+            const dataAtualStr = new Intl.DateTimeFormat('pt-BR', {
+                timeZone: 'America/Sao_Paulo',
+                year: 'numeric', month: '2-digit', day: '2-digit'
+            }).format(new Date()).split('/').reverse().join('-');
+
+            // Captura a hora atual exata no fuso horário de Brasília (Formato: HH:MM)
+            const horaAtualStr = new Intl.DateTimeFormat('pt-BR', {
+                timeZone: 'America/Sao_Paulo',
+                hour: '2-digit', minute: '2-digit', hour12: false
+            }).format(new Date());
+
+            // Busca o jogo mais recente cuja Data e Horário sejam menores ou iguais ao exato momento de agora
+            const ultimoJogoResult = await db.execute({
+                sql: `SELECT Jogo FROM dTabela 
+                      WHERE Data < ? OR (Data = ? AND Horario <= ?) 
+                      ORDER BY Data DESC, Horario DESC LIMIT 1`,
+                args: [dataAtualStr, dataAtualStr, horaAtualStr]
+            });
+            
+            let jogoPadrao = "";
+            if (ultimoJogoResult.rows.length > 0) {
+                jogoPadrao = ultimoJogoResult.rows[0].Jogo;
+            } else {
+                // Se nenhum jogo começou ainda (início do campeonato), traz o primeiríssimo jogo cadastrado
+                const primeiroJogoResult = await db.execute("SELECT Jogo FROM dTabela ORDER BY Data ASC, Horario ASC LIMIT 1");
+                if (primeiroJogoResult.rows.length > 0) jogoPadrao = primeiroJogoResult.rows[0].Jogo;
+            }
+
+            if (jogoPadrao) {
+                condicoes.push("Jogo = ?");
+                args.push(jogoPadrao);
+            }
+        }
+
+        // Monta a cláusula WHERE dinamicamente se existirem filtros aplicados
+        if (condicoes.length > 0) {
+            query += " WHERE " + condicoes.join(" AND ");
+        }
+
+        // Ordenação padronizada e rápida
+        query += " ORDER BY Jogo ASC, Apelido ASC";
         
-        // ALTERADO DE 'client' PARA 'db'
-        const result = await db.execute(query); 
+        const result = await db.execute({ sql: query, args: args }); 
 
         const palpites = result.rows.map(row => ({
             Apelido: row.Apelido,
@@ -359,7 +419,17 @@ app.get('/api/palpites-galera', async (req, res) => {
             Horario: row.Horario
         }));
 
-        res.json({ success: true, palpites: palpites });
+        // Busca listas auxiliares leves para alimentar os <select> do painel
+        const jogosTabela = await db.execute("SELECT Jogo, Sel1, Sel2 FROM dTabela ORDER BY Data ASC, Horario ASC");
+        const apostadoresTabela = await db.execute("SELECT DISTINCT Apelido FROM dLogin ORDER BY Apelido ASC");
+
+        res.json({ 
+            success: true, 
+            palpites: palpites,
+            listaJogos: jogosTabela.rows, 
+            listaApostadores: apostadoresTabela.rows,
+            jogoInicial: jogo ? jogo : (args[0] || "")
+        });
 
     } catch (error) {
         console.error("Erro ao buscar palpites da galera:", error);
