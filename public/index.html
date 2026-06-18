@@ -100,26 +100,28 @@
     </nav>
 </div>
 
-<main class="flex-grow w-full max-w-[1600px] mx-auto pt-1 px-4 md:px-6 pb-6 grid grid-cols-1 xl:grid-cols-[250px_1fr_250px] gap-0">
+<main class="flex-grow w-full max-w-[1600px] mx-auto pt-3 px-4 md:px-6 pb-6 grid grid-cols-1 xl:grid-cols-[250px_1fr_250px] gap-4">
         
-	<aside id="modulo-ranking-container" class="xl:col-span-1 order-2 xl:order-1">
-    	    </aside>
-	<div id="conteudo-central" class="xl:col-span-1 order-1 xl:order-2 card-panel p-0 flex flex-col items-center justify-center min-h-[400px] rounded-none border-r-0 overflow-hidden relative bg-center bg-cover bg-no-repeat" 
-     		style="background-image: url('/img/copa2026.png');">
-    	</div>
-
-        <aside class="xl:col-span-1 order-3">
-            <section class="card-panel p-5 h-full flex flex-col min-h-[500px]">
-		<div class="flex items-center gap-3 mb-4 border-b border-[var(--border)] pb-3">
- 		   <i class="fas fa-comments text-[var(--accent)] text-sm"></i>
- 		   <h2 class="text-sm font-bold tracking-tight uppercase text-[var(--accent)]">Zoação (24h)</h2>
-		</div>
-                <div id="container-chat-fixo" class="flex-grow flex flex-col overflow-hidden">
-                    <div class="text-center text-sm text-[var(--text-secondary)] py-10">Carregando chat...</div>
-                </div>
-            </section>
+    <aside id="modulo-ranking-container" class="xl:col-span-1 order-2 xl:order-1">
         </aside>
-    </main>
+
+    <div id="conteudo-central" class="xl:col-span-1 order-1 xl:order-2 card-panel p-0 flex flex-col items-start min-h-[500px] overflow-hidden relative bg-center bg-cover bg-no-repeat" 
+         style="background-image: url('/img/copa2026.png');">
+    </div>
+
+    <aside class="xl:col-span-1 order-3">
+        <section class="card-panel p-5 h-full flex flex-col min-h-[500px]">
+            <div class="flex items-center gap-3 mb-4 border-b border-[var(--border)] pb-3">
+               <i class="fas fa-comments text-[var(--accent)] text-sm"></i>
+               <h2 class="text-sm font-bold tracking-tight uppercase text-[var(--accent)]">Zoação (24h)</h2>
+            </div>
+            <div id="container-chat-fixo" class="flex-grow flex flex-col overflow-hidden">
+                <div class="text-center text-sm text-[var(--text-secondary)] py-10">Carregando chat...</div>
+            </div>
+        </section>
+    </aside>
+
+</main>
 
     <footer class="w-full py-4 px-8 border-t border-[var(--border)] bg-[var(--bg)] mt-auto">
         <div class="max-w-[1600px] mx-auto flex justify-between items-center text-[var(--text-secondary)] text-sm">
