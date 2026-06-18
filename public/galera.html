@@ -149,7 +149,8 @@
 
     function fecharModuloGalera() {
         document.querySelectorAll('.menu-item').forEach(btn => btn.style.pointerEvents = 'auto');
-        const centro = document.getElementById('conteudo-central');
+        selectsInicializados = false;
+		const centro = document.getElementById('conteudo-central');
         centro.innerHTML = '';
         centro.style.backgroundImage = "url('/img/copa2026.png')";
     }
