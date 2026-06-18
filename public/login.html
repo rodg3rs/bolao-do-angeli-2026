@@ -96,7 +96,7 @@
             <div class="input-group">
                 <label>CPF (Identificador único)</label>
                 <input type="text" id="reg-cpf" placeholder="000.000.000-00" 
-                       oninput="aplicarMascaraCPF(this)" maxlength="14" required>
+					   oninput="aplicarMascaraCPF(this)" onblur="checarCPFInvalido(this)" maxlength="14" required>
             </div>
             <div class="input-group">
                 <label>Nome Completo</label>
@@ -132,9 +132,9 @@
 </div>
 
 <script>
-    // --- FUNÇÕES DE VALIDAÇÃO DE CPF ---
+    // --- FUNÇÕES DE MÁSCARA E VALIDAÇÃO (ISOLADAS) ---
     function aplicarMascaraCPF(i) {
-        let v = i.value.replace(/\D/g, ""); // Remove tudo que não é dígito
+        let v = i.value.replace(/\D/g, ""); // Remove tudo que não for número instantaneamente
         if (v.length > 11) v = v.substring(0, 11);
         v = v.replace(/(\d{3})(\d)/, "$1.$2");
         v = v.replace(/(\d{3})(\d)/, "$1.$2");
@@ -142,14 +142,31 @@
         i.value = v;
     }
 
+    function aplicarMascaraCelular(i) {
+        let v = i.value.replace(/\D/g, ""); 
+        if (v.length > 11) v = v.substring(0, 11);
+        v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+        v = v.replace(/(\d{5})(\d)/, "$1-$2");
+        i.value = v;
+    }
+
     function validarCPF(cpf) {
-        cpf = cpf.replace(/[^\d]+/g, ''); // Limpa a formatação
+        cpf = cpf.replace(/[^\d]+/g, ''); 
         if (cpf.length !== 11 || !!cpf.match(/(\d)\1{10}/)) return false;
         let cpfs = cpf.split('').map(el => +el);
         const rest = (count) => (cpfs.slice(0, count-12).reduce((soma, el, i) => soma + el * (count - i), 0) * 10) % 11 % 10;
         return rest(10) === cpfs[9] && rest(11) === cpfs[10];
     }
 
+    // Alerta o usuário assim que ele clica fora do input de CPF
+    function checarCPFInvalido(i) {
+        if (i.value.length > 0 && !validarCPF(i.value)) {
+            alert("CPF inválido! Por favor, verifique os números digitados.");
+            setTimeout(() => i.focus(), 10);
+        }
+    }
+
+    // --- CONTROLE DE INTERFACE ---
     function alternarAuth(tipo) {
         const tabE = document.getElementById('tab-entrar'), tabC = document.getElementById('tab-cadastrar');
         const formE = document.getElementById('form-entrar'), formC = document.getElementById('form-cadastrar');
@@ -160,42 +177,30 @@
             tabC.classList.add('active'); tabE.classList.remove('active');
             formC.style.display = 'block'; formE.style.display = 'none';
         }
+    } // <-- Chave fechada corretamente aqui!
 
-// 1. Adicione esta nova função de máscara
-function aplicarMascaraCelular(i) {
-    let v = i.value.replace(/\D/g, ""); 
-    if (v.length > 11) v = v.substring(0, 11);
-    v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
-    v = v.replace(/(\d{5})(\d)/, "$1-$2");
-    i.value = v;
-}
-
-    }
-
+    // --- REQUISIÇÕES AO SERVIDOR ---
     async function realizarCadastro(event) {
         event.preventDefault();
 
         const campoCpf = document.getElementById('reg-cpf').value;
         
-        // Validação do CPF antes de enviar ao servidor
         if (!validarCPF(campoCpf)) {
-            alert("CPF inválido! Por favor, verifique os números digitados.");
+            alert("Não é possível prosseguir: CPF inválido.");
             return;
         }
 
-// Formatação do celular para o padrão solicitado: 55999999999@c.us
-    let celularLimpo = document.getElementById('reg-celular').value.replace(/\D/g, "");
-    let celularFormatado = celularLimpo ? `55${celularLimpo}@c.us` : "";
-
+        let celularLimpo = document.getElementById('reg-celular').value.replace(/\D/g, "");
+        let celularFormatado = celularLimpo ? `55${celularLimpo}@c.us` : "";
 
         const dados = {
-            id: campoCpf.replace(/[^\d]+/g, ''), // Envia apenas os 11 dígitos limpos
+            id: campoCpf.replace(/[^\d]+/g, ''), 
             nome: document.getElementById('reg-nome').value,
             apelido: document.getElementById('reg-apelido').value,
             senha: document.getElementById('reg-senha').value,
             time: document.getElementById('reg-time').value,
-	    celular: celularFormatado, // Novo campo
-            email: document.getElementById('reg-email').value // Novo campo
+            celular: celularFormatado, 
+            email: document.getElementById('reg-email').value 
         };
 
         try {
@@ -233,7 +238,6 @@ function aplicarMascaraCelular(i) {
             const result = await res.json();
             
             if(result.success) {
-                // Comunica ao index.html (Pai) a mudança de estado imediatamente sem alert
                 if (typeof definirUsuario === "function") {
                     definirUsuario(result.user); 
                 }

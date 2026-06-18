@@ -48,13 +48,32 @@ async function enviarEmailBoasVindas(dados) {
 
 }
 
+// --- FUNÇÃO DE VALIDAÇÃO DE CPF NO SERVIDOR ---
+function validarCPF(cpf) {
+    if (!cpf) return false;
+    cpf = cpf.replace(/[^\d]+/g, ''); // Remove formatação e letras residuais
+    if (cpf.length !== 11 || !!cpf.match(/(\d)\1{10}/)) return false;
+    let cpfs = cpf.split('').map(el => +el);
+    const rest = (count) => (cpfs.slice(0, count-12).reduce((soma, el, i) => soma + el * (count - i), 0) * 10) % 11 % 10;
+    return rest(10) === cpfs[9] && rest(11) === cpfs[10];
+}
+
+// --- CADASTRO MODIFICADO COM VALIDAÇÃO ---
 app.post('/cadastrar', async (req, res) => {
     const { id, nome, apelido, senha, time, celular, email } = req.body; 
+
+    // Limpa o CPF para garantir que apenas números sejam analisados
+    const cpfLimpo = id ? id.replace(/[^\d]+/g, '') : '';
+
+    // VALIDAÇÃO CRÍTICA DO CPF NO SERVIDOR
+    if (!validarCPF(cpfLimpo)) {
+        return res.status(400).json({ success: false, message: "Cadastro rejeitado: CPF matematicamente inválido." });
+    }
 
     try {
         const usuarioExistente = await db.execute({
             sql: "SELECT ID FROM dLogin WHERE ID = ?",
-            args: [id]
+            args: [cpfLimpo]
         });
 
         if (usuarioExistente.rows.length > 0) {
@@ -62,25 +81,24 @@ app.post('/cadastrar', async (req, res) => {
         }
 
         await db.execute({
-	   sql: "INSERT INTO dLogin (ID, Nome, Apelido, Senha, Time, Celular, [e-mail]) VALUES (?, ?, ?, ?, ?, ?, ?)",
-           args: [id, nome, apelido, senha, time, celular || "", email || ""]
+           sql: "INSERT INTO dLogin (ID, Nome, Apelido, Senha, Time, Celular, [e-mail]) VALUES (?, ?, ?, ?, ?, ?, ?)",
+           args: [cpfLimpo, nome, apelido, senha, time, celular || "", email || ""]
         });
 
         const jogos = await db.execute("SELECT Jogo, Sel1, Sel2, Data, Horario FROM dTabela");
 
-	for (const jogo of jogos.rows) {
+        for (const jogo of jogos.rows) {
             await db.execute({
                 sql: "INSERT INTO dApostas (ID, Apelido, Jogo, Sel1, Sel2, Data, Horario) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                args: [id, apelido, jogo.Jogo, jogo.Sel1, jogo.Sel2, jogo.Data, jogo.Horario]
+                args: [cpfLimpo, apelido, jogo.Jogo, jogo.Sel1, jogo.Sel2, jogo.Data, jogo.Horario]
             });
         }
 
-	if (email) {
+        if (email) {
             try {
-                await enviarEmailBoasVindas({ id, nome, apelido, senha, email });
+                await enviarEmailBoasVindas({ id: cpfLimpo, nome, apelido, senha, email });
             } catch (mailError) {
                 console.error("Erro ao enviar e-mail, mas cadastro foi feito:", mailError);
-                // Não travamos o cadastro se o e-mail falhar, mas avisamos no log
             }
         }
         res.json({ success: true, message: "Cadastro realizado! Verifique seu e-mail." });
