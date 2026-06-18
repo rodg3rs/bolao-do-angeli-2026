@@ -30,25 +30,29 @@
 		<i class="fas fa-undo-alt mr-2"></i>Voltar </a>
         </div>
 
-<section id="sec-cravados" class="block">
-    <div class="p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
-        <h2 class="font-bold mb-4 text-yellow-500 text-xl">Ranking de Precisão</h2>
-        <div class="chart-container" style="position: relative; height: 500px; overflow-y: auto;">
-            <div id="chart-wrapper" style="min-height: 400px; width: 100%;"> 
-                <canvas id="chartCravados"></canvas>
-            </div>
-        </div>
-    </div>
-</section>
+		<section id="sec-cravados" class="block">
+			<div class="p-4 md:p-5 rounded-2xl bg-slate-900/60 border border-slate-800 shadow-2xl">
+				<h2 class="font-bold mb-4 text-slate-300 text-md uppercase tracking-wide flex items-center gap-2">
+					<i class="fas fa-bullseye text-yellow-500"></i> Ranking de Precisão (Palpites Cravados)
+				</h2>
+				<div class="relative w-full chart-container overflow-y-auto block" style="height: 550px; max-height: 600px;">
+					<div id="chart-wrapper" class="block w-full m-0 p-0"> 
+						<canvas id="chartCravados" class="block w-full"></canvas>
+					</div>
+				</div>
+			</div>
+		</section>
 
-        <section id="sec-torcida" class="hidden">
-            <div class="p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
-                <h2 class="font-bold mb-4 text-yellow-500 text-xl">Pontuação Total por Time</h2>
-                <div class="relative h-[400px]">
-                    <canvas id="chartTorcida"></canvas>
-                </div>
-            </div>
-        </section>
+		<section id="sec-torcida" class="hidden">
+			<div class="p-4 md:p-5 rounded-2xl bg-slate-900/60 border border-slate-800 shadow-2xl">
+				<h2 class="font-bold mb-4 text-slate-300 text-md uppercase tracking-wide flex items-center gap-2">
+					<i class="fas fa-flag text-emerald-500"></i> Pontuação Total por Time
+				</h2>
+				<div class="relative w-full" style="height: 500px;">
+					<canvas id="chartTorcida" class="block w-full"></canvas>
+				</div>
+			</div>
+		</section>
     </main>
 
     <script>
@@ -73,8 +77,8 @@ async function fetchData() {
         const data = await response.json();
         
         if (data.cravados && data.cravados.length > 0) {
-            // Ajuste dinâmico de altura: 40px por utilizador
-            const novaAltura = Math.max(400, data.cravados.length * 40);
+            // Alterado de 40 para 28 para compactar verticalmente e colar no topo
+            const novaAltura = Math.max(500, data.cravados.length * 28);
             document.getElementById('chart-wrapper').style.height = novaAltura + 'px';
             renderCravados(data.cravados);
         }
@@ -86,6 +90,7 @@ async function fetchData() {
         console.error("Erro ao carregar:", error);
     }
 }
+
         function renderCravados(lista) {
 	    const canvas = document.getElementById('chartCravados');
 	    if (!canvas) {
@@ -107,10 +112,18 @@ async function fetchData() {
                         { label: '10 pts', data: lista.map(u => u.acertos_10 || 0), backgroundColor: '#8B4513' }  // Marrom/Sienna
                     ]
                 },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
+					options: {
+						indexAxis: 'y',
+						responsive: true,
+						maintainAspectRatio: false, // Força a respeitar a altura do wrapper JS
+						layout: {
+							padding: {
+								top: 5,   // Mantém a primeira barra perfeitamente colada no topo
+								bottom: 5,
+								left: 0,
+								right: 20
+							}
+						},
                     scales: {
                         x: { stacked: true, grid: { color: '#334155' }, ticks: { color: '#FFD700' } },
                         y: { stacked: true, grid: { display: false }, ticks: { color: '#FFD700', font: { weight: 'bold' } } }
