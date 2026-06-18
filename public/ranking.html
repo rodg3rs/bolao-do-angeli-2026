@@ -17,7 +17,13 @@
                 let html = '';
                 data.ranking.forEach((user, index) => {
                     const onlineIcon = user.Online === 1 ? '<span class="text-green-500 ml-1 text-[10px]">●</span>' : '';
-					const pgIcon = user.PG === 'S' ? '<span class="ml-1" title="Pagamento Confirmado">🏆</span>' : '';
+					let pgIcon = '';
+					if (user.PG === 'S') {
+						pgIcon = '<span class="ml-1" title="Pagamento Confirmado">🏆</span>';
+					} else if (user.PG === 'P') {
+						// Usando estilo inline para deixar a taça cinza (grayscale) e 40% opaca (translúcida)
+						pgIcon = '<span class="ml-1 opacity-40 grayscale" title="Pagamento Pendente/Parcial">🏆</span>';
+					}
                     html += `
                     <div class="flex justify-between items-center py-1 px-2 hover:bg-white/5 transition-colors border-none">
                         <span class="text-sm text-[var(--text-primary)]">
