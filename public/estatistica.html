@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Statis - Bolão 2026</title>
+    <title>Statis - Bolão do Angeli - 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -26,20 +26,20 @@
             <button onclick="switchTab('torcida')" id="btn-torcida" class="py-2 px-4 font-bold text-gray-500 hover:text-yellow-500 transition">
                 <i class="fas fa-flag mr-2"></i>Torcida
             </button>
-	    <a href="javascript:void(0)" class="ml-auto py-2 px-4 font-bold text-red-500 hover:text-red-400 transition flex items-center" onclick="if (typeof limparCentro === 'function') { limparCentro(); } else { history.back(); }"> 
-		<i class="fas fa-undo-alt mr-2"></i>Voltar </a>
+            <a href="javascript:void(0)" class="ml-auto py-2 px-4 font-bold text-red-500 hover:text-red-400 transition flex items-center" onclick="if (typeof limparCentro === 'function') { limparCentro(); } else { history.back(); }"> 
+                <i class="fas fa-undo-alt mr-2"></i>Voltar </a>
         </div>
 
-<section id="sec-cravados" class="block">
-    <div class="p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
-        <h2 class="font-bold mb-4 text-yellow-500 text-xl">Ranking de Precisão</h2>
-        <div class="chart-container" style="position: relative; height: 500px; overflow-y: auto;">
-            <div id="chart-wrapper" style="min-height: 400px; width: 100%;"> 
-                <canvas id="chartCravados"></canvas>
+        <section id="sec-cravados" class="block">
+            <div class="p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
+                <h2 class="font-bold mb-4 text-yellow-500 text-xl">Ranking de Precisão</h2>
+                <div class="chart-container" style="position: relative; height: 500px; overflow-y: auto;">
+                    <div id="chart-wrapper" style="min-height: 400px; width: 100%;"> 
+                        <canvas id="chartCravados"></canvas>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-</section>
+        </section>
 
         <section id="sec-torcida" class="hidden">
             <div class="p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
@@ -52,13 +52,24 @@
     </main>
 
     <script>
-if (typeof ChartDataLabels !== 'undefined') {
-    Chart.register(ChartDataLabels);
-} else {
-    console.error("Erro: O plugin ChartDataLabels não foi carregado!");
-}
-        let chartCravadosInstance = null;
-        let chartTorcidaInstance = null;
+        // Registra o plugin de rótulos caso ele já não esteja ativo
+        if (typeof ChartDataLabels !== 'undefined') {
+            if (!Chart.registry.plugins.get('datalabels')) {
+                Chart.register(ChartDataLabels);
+            }
+        } else {
+            console.error("Erro: O plugin ChartDataLabels não foi carregado!");
+        }
+
+        // Força a destruição de instâncias remanescentes na memória global do objeto window
+        if (window.chartCravadosInstance) {
+            window.chartCravadosInstance.destroy();
+            window.chartCravadosInstance = null;
+        }
+        if (window.chartTorcidaInstance) {
+            window.chartTorcidaInstance.destroy();
+            window.chartTorcidaInstance = null;
+        }
 
         function switchTab(tab) {
             document.getElementById('sec-cravados').classList.toggle('hidden', tab !== 'cravados');
@@ -67,44 +78,48 @@ if (typeof ChartDataLabels !== 'undefined') {
             document.getElementById('btn-torcida').className = tab === 'torcida' ? 'tab-active py-2 px-4 font-bold transition' : 'py-2 px-4 font-bold text-gray-500 hover:text-yellow-500 transition';
         }
 
-async function fetchData() {
-    try {
-        const response = await fetch('/api/estatisticas');
-        const data = await response.json();
-        
-        if (data.cravados && data.cravados.length > 0) {
-            // Ajuste dinâmico de altura: 40px por utilizador
-            const novaAltura = Math.max(400, data.cravados.length * 40);
-            document.getElementById('chart-wrapper').style.height = novaAltura + 'px';
-            renderCravados(data.cravados);
+        async function fetchData() {
+            try {
+                const response = await fetch('/api/estatisticas');
+                const data = await response.json();
+                
+                if (data.cravados && data.cravados.length > 0) {
+                    // Ajuste dinâmico de altura de segurança por utilizador
+                    const novaAltura = Math.max(400, data.cravados.length * 40);
+                    const wrapper = document.getElementById('chart-wrapper');
+                    if (wrapper) wrapper.style.height = novaAltura + 'px';
+                    renderCravados(data.cravados);
+                }
+                
+                if (data.torcida) {
+                    renderTorcida(data.torcida);
+                }
+            } catch (error) {
+                console.error("Erro ao carregar:", error);
+            }
         }
-        
-        if (data.torcida) {
-            renderTorcida(data.torcida);
-        }
-    } catch (error) {
-        console.error("Erro ao carregar:", error);
-    }
-}
-        function renderCravados(lista) {
-	    const canvas = document.getElementById('chartCravados');
-	    if (!canvas) {
- 	       console.warn("Aguardando o elemento #chartCravados aparecer no DOM...");
-	        return; 
-	    }
-	    const ctx = canvas.getContext('2d');
-	    if (chartCravadosInstance) chartCravadosInstance.destroy();
 
-            chartCravadosInstance = new Chart(ctx, {
+        function renderCravados(lista) {
+            const canvas = document.getElementById('chartCravados');
+            if (!canvas) {
+                console.warn("Aguardando o elemento #chartCravados aparecer no DOM...");
+                return; 
+            }
+            const ctx = canvas.getContext('2d');
+            
+            // Destrói de forma definitiva se houver referência ativa anexada à janela
+            if (window.chartCravadosInstance) window.chartCravadosInstance.destroy();
+
+            window.chartCravadosInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: lista.map(u => u.Apelido),
                     datasets: [
-                        { label: '25 pts', data: lista.map(u => u.acertos_25 || 0), backgroundColor: '#FFD700' }, // Ouro
-                        { label: '18 pts', data: lista.map(u => u.acertos_18 || 0), backgroundColor: '#DAA520' }, // Dourado Escuro
-                        { label: '15 pts', data: lista.map(u => u.acertos_15 || 0), backgroundColor: '#F0E68C' }, // Caqui (Amarelo claro)
-                        { label: '12 pts', data: lista.map(u => u.acertos_12 || 0), backgroundColor: '#B8860B' }, // Ouro Velho
-                        { label: '10 pts', data: lista.map(u => u.acertos_10 || 0), backgroundColor: '#8B4513' }  // Marrom/Sienna
+                        { label: '25 pts', data: lista.map(u => u.acertos_25 || 0), backgroundColor: '#FFD700' }, 
+                        { label: '18 pts', data: lista.map(u => u.acertos_18 || 0), backgroundColor: '#DAA520' }, 
+                        { label: '15 pts', data: lista.map(u => u.acertos_15 || 0), backgroundColor: '#F0E68C' }, 
+                        { label: '12 pts', data: lista.map(u => u.acertos_12 || 0), backgroundColor: '#B8860B' }, 
+                        { label: '10 pts', data: lista.map(u => u.acertos_10 || 0), backgroundColor: '#8B4513' }  
                     ]
                 },
                 options: {
@@ -130,9 +145,13 @@ async function fetchData() {
         }
 
         function renderTorcida(lista) {
-            const ctx = document.getElementById('chartTorcida').getContext('2d');
-            if (chartTorcidaInstance) chartTorcidaInstance.destroy();
-            chartTorcidaInstance = new Chart(ctx, {
+            const canvas = document.getElementById('chartTorcida');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            if (window.chartTorcidaInstance) window.chartTorcidaInstance.destroy();
+            
+            window.chartTorcidaInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: lista.map(t => t.Time),
@@ -155,10 +174,10 @@ async function fetchData() {
             });
         }
 
-	setTimeout(() => {
+        // Timeout limpo para garantir a injeção correta no DOM modular
+        setTimeout(() => {
             fetchData();
-        }, 100);
-
+        }, 50);
     </script>
 </body>
 </html>
