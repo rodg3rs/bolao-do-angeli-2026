@@ -338,6 +338,7 @@ app.get('/api/ranking', async (req, res) => {
 });
 
 // --- PALPITES DA GALERA (OTIMIZADO COM FUSO BRASÍLIA - OPÇÃO 2) ---
+// --- PALPITES DA GALERA SIMPLIFICADO (CONSULTA APENAS dAPOSTAS) ---
 app.get('/api/palpites-galera', async (req, res) => {
     const { jogo, apelido } = req.query;
 
@@ -346,35 +347,34 @@ app.get('/api/palpites-galera', async (req, res) => {
         const args = [];
         const condicoes = [];
 
-        // 1. Filtro por Apostador específico (se enviado pelo frontend)
+        // 1. Filtro por Apostador específico
         if (apelido) {
             condicoes.push("UPPER(Apelido) = ?");
             args.push(apelido.toUpperCase());
         }
 
-        // 2. Filtro por Jogo específico (se enviado pelo frontend)
+        // 2. Filtro por Jogo específico
         if (jogo) {
             condicoes.push("Jogo = ?");
             args.push(jogo);
         }
 
-        // 3. CARGA INICIAL (Sem filtros): Busca automaticamente o jogo correto (em andamento ou o último terminado)
+        // 3. CARGA INICIAL (Sem filtros): Descobre o jogo atual direto na dApostas
         if (!jogo && !apelido) {
-            // Captura a data atual exata no fuso horário de Brasília (Formato: AAAA-MM-DD)
+            // Captura data e hora em Brasília (Opção 2 - Intl)
             const dataAtualStr = new Intl.DateTimeFormat('pt-BR', {
                 timeZone: 'America/Sao_Paulo',
                 year: 'numeric', month: '2-digit', day: '2-digit'
             }).format(new Date()).split('/').reverse().join('-');
 
-            // Captura a hora atual exata no fuso horário de Brasília (Formato: HH:MM)
             const horaAtualStr = new Intl.DateTimeFormat('pt-BR', {
                 timeZone: 'America/Sao_Paulo',
                 hour: '2-digit', minute: '2-digit', hour12: false
             }).format(new Date());
 
-            // Busca o jogo mais recente cuja Data e Horário sejam menores ou iguais ao exato momento de agora
+            // Busca na própria dApostas o jogo mais recente que já começou ou passou
             const ultimoJogoResult = await db.execute({
-                sql: `SELECT Jogo FROM dTabela 
+                sql: `SELECT Jogo FROM dApostas 
                       WHERE Data < ? OR (Data = ? AND Horario <= ?) 
                       ORDER BY Data DESC, Horario DESC LIMIT 1`,
                 args: [dataAtualStr, dataAtualStr, horaAtualStr]
@@ -384,9 +384,9 @@ app.get('/api/palpites-galera', async (req, res) => {
             if (ultimoJogoResult.rows.length > 0) {
                 jogoPadrao = ultimoJogoResult.rows[0].Jogo;
             } else {
-                // Se nenhum jogo começou ainda (início do campeonato), traz o primeiríssimo jogo cadastrado
-                const primeiroJogoResult = await db.execute("SELECT Jogo FROM dTabela ORDER BY Data ASC, Horario ASC LIMIT 1");
-                if (primeiroJogoResult.rows.length > 0) jogoPadrao = primeiroJogoResult.rows[0].Jogo;
+                // Se nenhum jogo começou ainda (início absoluto do bolão), pega o primeiro palpite que aparecer
+                const primeiroJogoResult = await db.execute("SELECT Jogo FROM dApostas ORDER BY Data ASC, Horario ASC LIMIT 1");
+                if (primeiroJogoResult.rows.length > 0) juegoPadrao = primeiroJogoResult.rows[0].Jogo;
             }
 
             if (jogoPadrao) {
@@ -395,12 +395,11 @@ app.get('/api/palpites-galera', async (req, res) => {
             }
         }
 
-        // Monta a cláusula WHERE dinamicamente se existirem filtros aplicados
+        // Une as condições do WHERE
         if (condicoes.length > 0) {
             query += " WHERE " + condicoes.join(" AND ");
         }
 
-        // Ordenação padronizada e rápida
         query += " ORDER BY Jogo ASC, Apelido ASC";
         
         const result = await db.execute({ sql: query, args: args }); 
@@ -415,12 +414,15 @@ app.get('/api/palpites-galera', async (req, res) => {
             Res1: row.Res1,
             Res2: row.Res2,
             Pontos: row.Pontos,
-            Data: row.Data,
-            Horario: row.Horario
+            Data: row.Data,       
+            Horario: row.Horario  
         }));
 
-        // Busca listas auxiliares leves para alimentar os <select> do painel
-        const jogosTabela = await db.execute("SELECT Jogo, Sel1, Sel2 FROM dTabela ORDER BY Data ASC, Horario ASC");
+        // Alimenta o select de jogos dinamicamente pegando as combinações existentes em dApostas
+        // Usamos DISTINCT para não duplicar o mesmo jogo no menu do topo
+        const jogosTabela = await db.execute("SELECT DISTINCT Jogo, Sel1, Sel2, Data, Horario FROM dApostas ORDER BY Data ASC, Horario ASC");
+        
+        // Alimenta o select de apostadores
         const apostadoresTabela = await db.execute("SELECT DISTINCT Apelido FROM dLogin ORDER BY Apelido ASC");
 
         res.json({ 

@@ -44,13 +44,11 @@
 </div>
 
 <script>
-<script>
-    // 1. Bloqueia navegação externa enquanto estiver vendo a Galera
+    // Bloqueia links externos temporariamente
     document.querySelectorAll('.menu-item').forEach(btn => {
         if (!btn.innerText.includes('Galera')) btn.style.pointerEvents = 'none';
     });
 
-    // Controla se os componentes de select já foram montados na primeira requisição
     let selectsInicializados = false;
 
     async function carregarDadosGalera(jogoFiltro = "", apelidoFiltro = "") {
@@ -58,11 +56,10 @@
             const tbody = document.getElementById('corpoTabelaGalera');
             const loading = document.getElementById('loading-galera');
             
-            loading.innerText = 'Carregando palpites autorizados...';
+            loading.innerText = 'Carregando palpites...';
             loading.classList.remove('hidden');
             tbody.innerHTML = '';
 
-            // Monta os parâmetros dinâmicos de QueryString baseados nos filtros selecionados
             let url = '/api/palpites-galera';
             const params = [];
             if (jogoFiltro) params.push(`jogo=${encodeURIComponent(jogoFiltro)}`);
@@ -74,7 +71,7 @@
 
             if (!data.success) throw new Error(data.message);
 
-            // 1. Alimenta os Selects de Filtro apenas na primeira carga do módulo
+            // Popula os seletores usando a resposta limpa baseada apenas em dApostas
             if (!selectsInicializados) {
                 const selectJogo = document.getElementById('filtroJogo');
                 selectJogo.innerHTML = '<option value="">Todos os Jogos</option>';
@@ -97,10 +94,9 @@
             const agora = new Date();
 
             data.palpites.forEach(p => {
-                // CORREÇÃO DE FUSO HORÁRIO: Adiciona o sufixo -03:00 para o JavaScript interpretar no fuso do Brasil
                 const dataJogo = new Date(`${p.Data}T${p.Horario}:00-03:00`);
                 
-                // Regra estrita: Só renderiza se o jogo já começou (agora >= dataJogo) OU se já possui placar final computado
+                // Validação de segurança idêntica
                 if (agora >= dataJogo || p.Res1 !== null) {
                     const palpiteFormatado = `
                         <div class="flex items-center justify-center w-full gap-2">
@@ -140,29 +136,23 @@
             }
 
         } catch (err) {
-            console.error("Erro ao carregar os dados da galera:", err);
+            console.error("Erro no frontend:", err);
             document.getElementById('loading-galera').innerText = "Erro ao carregar dados.";
         }
     }
 
-    // Acionado pelos seletores no topo da página para recarregar com filtros direto do banco
     function filtrarGalera() {
         const termoApelido = document.getElementById("filtroApelido").value;
         const termoJogo = document.getElementById("filtroJogo").value;
-        
         carregarDadosGalera(termoJogo, termoApelido);
     }
 
     function fecharModuloGalera() {
-        // Libera navegação global do sistema novamente
         document.querySelectorAll('.menu-item').forEach(btn => btn.style.pointerEvents = 'auto');
-        
-        // Desmonta e limpa o container central voltando a imagem padrão
         const centro = document.getElementById('conteudo-central');
         centro.innerHTML = '';
         centro.style.backgroundImage = "url('/img/copa2026.png')";
     }
 
-    // Dispara a carga inicial automática assim que o arquivo HTML carrega
     carregarDadosGalera();
 </script>
